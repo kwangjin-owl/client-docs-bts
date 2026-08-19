@@ -15,28 +15,30 @@
   * { box-sizing:border-box; }
   body { margin:0; background:#fff; color:var(--ink); font-size:18px; line-height:1.7;
          font-family:system-ui,"Malgun Gothic","Apple SD Gothic Neo",sans-serif; }
-  .wrap { max-width:640px; margin:0 auto; padding:32px 20px 80px; }
+  .wrap { max-width:1040px; margin:0 auto; padding:32px 20px 80px; }
+  #st2, #st3, #st4 { max-width:640px; }
+  .steps, .stage h1, .stage .lead { max-width:1040px; }
   .brand { font-size:16px; color:var(--muted); margin:0 0 32px; }
   h1 { font-size:28px; font-weight:600; margin:0 0 8px; }
   h2 { font-size:22px; font-weight:600; margin:40px 0 4px; }
   .lead { font-size:18px; color:var(--muted); margin:0 0 20px; }
   .group { font-size:16px; color:var(--muted); margin:24px 0 8px; }
 
-  .card { display:flex; align-items:center; justify-content:space-between; gap:16px;
-    width:100%; text-align:left; background:#fff; border:1px solid var(--line);
-    border-radius:12px; padding:18px 22px; margin-bottom:10px;
+  .grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr));
+          gap:12px; margin-bottom:8px; }
+  .card { display:block; width:100%; text-align:left; background:#fff;
+    border:1px solid var(--line); border-radius:12px; padding:18px 20px;
     font:inherit; color:inherit; cursor:pointer; }
   .card:hover { border-color:var(--pick); }
   .card:focus-visible { outline:3px solid var(--pick); outline-offset:2px; }
-  .card.picked { border:2px solid var(--pick); }
-  .card.closed { background:#f7f8f9; cursor:not-allowed; }
-  .card.closed .name, .card.closed .sub { color:#8b9096; }
-  .name { display:block; font-size:20px; font-weight:600; margin:0 0 2px; }
+  .card.picked { border:2px solid var(--pick); background:var(--pick-bg); }
+  .name { display:block; font-size:20px; font-weight:600; margin:8px 0 4px; }
   .sub  { display:block; font-size:15px; color:var(--muted); margin:0; }
-  .tag { font-size:15px; padding:5px 12px; border-radius:8px; white-space:nowrap; }
-  .tag.on { background:var(--pick-bg); color:var(--pick); }
-  .tag.go { color:var(--muted); }
-  .tag.no { background:var(--stop-bg); color:var(--stop); }
+  .card.picked .name, .card.picked .sub { color:var(--pick); }
+  .tag { display:inline-block; font-size:14px; padding:4px 10px; border-radius:6px; }
+  .tag.now  { background:var(--ok-bg);   color:var(--ok); }
+  .tag.soon { background:var(--pick-bg); color:var(--pick); }
+  .tag.late { background:var(--stop-bg); color:var(--stop); }
 
   label { display:block; font-size:17px; margin:20px 0 6px; }
   input, select, textarea { width:100%; font:inherit; color:inherit; background:#fff;
@@ -145,11 +147,11 @@
     <p class="lead">아래에서 하나를 눌러 주세요</p>
 
     <p class="group">두두넷 · 국가기술자격</p>
-    <div id="g-national"></div>
+    <div class="grid" id="g-national"></div>
     <p class="group">두두넷 · 전문자격</p>
-    <div id="g-professional"></div>
+    <div class="grid" id="g-professional"></div>
     <p class="group">두두보건</p>
-    <div id="g-health"></div>
+    <div class="grid" id="g-health"></div>
   </div>
 
   <!-- 2단계 -->
@@ -259,14 +261,22 @@
 <script>
 // ---------- 01_form_정책.md 의 값 ----------
 const CERTS = [
-  { code:"7910", name:"한식조리기능사",     track:"국가기술", agency:"두두넷",   examType:"상시CBT", fee:14500, note:"아무 때나 접수" },
-  { code:"7520", name:"지게차운전기능사",   track:"국가기술", agency:"두두넷",   examType:"상시CBT", fee:14500, note:"아무 때나 접수" },
-  { code:"7530", name:"굴착기운전기능사",   track:"국가기술", agency:"두두넷",   examType:"상시CBT", fee:14500, note:"아무 때나 접수 · 포크레인" },
-  { code:"2300", name:"전기기능사",         track:"국가기술", agency:"두두넷",   examType:"정기",    fee:14500, note:"8월 24일부터 접수" },
-  { code:"P001", name:"손해평가사",         track:"전문",     agency:"두두넷",   fee:{ "1차":30000, "2차":30000 }, note:"1차 접수 4월에 끝남", closed:true },
-  { code:"P002", name:"공인중개사",         track:"전문",     agency:"두두넷",   fee:{ "1차":13400, "2차":15200 }, note:"1차 접수 8월 7일 끝남", closed:true },
-  { code:"H001", name:"요양보호사",         track:"보건",     agency:"두두보건", fee:32000, hours:240, note:"아무 때나 접수 · 요양사" },
-  { code:"H002", name:"위생사",             track:"보건",     agency:"두두보건", fee:30000, hours:null, note:"별도 일정" }
+  { code:"7910", name:"한식조리기능사",   track:"국가기술", agency:"두두넷",   examType:"상시CBT", fee:14500,
+    state:"now",  note:"아무 때나 접수 · 자리가 있으면 됩니다" },
+  { code:"7520", name:"지게차운전기능사", track:"국가기술", agency:"두두넷",   examType:"상시CBT", fee:14500,
+    state:"now",  note:"아무 때나 접수 · 지게차 면허" },
+  { code:"7530", name:"굴착기운전기능사", track:"국가기술", agency:"두두넷",   examType:"상시CBT", fee:14500,
+    state:"now",  note:"아무 때나 접수 · 포크레인" },
+  { code:"2300", name:"전기기능사",       track:"국가기술", agency:"두두넷",   examType:"정기",    fee:14500,
+    state:"soon", note:"제4회 접수 8월 24일 ~ 8월 27일" },
+  { code:"P001", name:"손해평가사",       track:"전문",     agency:"두두넷",   fee:{ "1차":30000, "2차":30000 },
+    state:"late", note:"올해 1차 접수 끝남 (4월 6일 ~ 4월 10일)" },
+  { code:"P002", name:"공인중개사",       track:"전문",     agency:"두두넷",   fee:{ "1차":13400, "2차":15200 },
+    state:"soon", note:"1차 접수 끝남 · 빈자리 추가접수 10월 1일 ~ 2일" },
+  { code:"H001", name:"요양보호사",       track:"보건",     agency:"두두보건", fee:32000, hours:240,
+    state:"now",  note:"아무 때나 접수 · 요양사" },
+  { code:"H002", name:"위생사",           track:"보건",     agency:"두두보건", fee:30000, hours:null,
+    state:"late", note:"시험 일정 확인 중" }
 ];
 
 const REGIONS = ["서울","부산","대구","인천","광주","대전","울산","세종","경기","강원","충북","충남","전북","전남","경북","경남","제주"];
@@ -359,16 +369,20 @@ const statusBox = $("status"), msgBox = $("msg");
 // ---------- 카드 그리기 ----------
 function drawCards() {
   const box = { "국가기술":$("g-national"), "전문":$("g-professional"), "보건":$("g-health") };
+  const TAG = { now:"지금 접수 가능", soon:"접수 예정", late:"접수 기간 아님" };
+
   CERTS.forEach(function (c) {
     const b = document.createElement("button");
     b.type = "button";
-    b.className = "card" + (c.closed ? " closed" : "");
-    if (c.closed) b.disabled = true;
+    b.className = "card";
+    const fee = typeof c.fee === "number"
+      ? c.fee.toLocaleString() + "원"
+      : c.fee["1차"].toLocaleString() + "원부터";
     b.innerHTML =
-      '<span><span class="name">' + c.name + '</span>' +
-      '<span class="sub">' + c.note + '</span></span>' +
-      '<span class="tag ' + (c.closed ? "no" : "go") + '">' +
-      (c.closed ? "올해 마감" : "누르기 &rsaquo;") + '</span>';
+      '<span class="tag ' + c.state + '">' + TAG[c.state] + '</span>' +
+      '<span class="name">' + c.name + '</span>' +
+      '<span class="sub">' + c.note + '</span>' +
+      '<span class="sub">' + c.agency + ' · ' + fee + '</span>';
     b.addEventListener("click", function () { pick(c, b); });
     box[c.track].appendChild(b);
   });
@@ -384,14 +398,8 @@ function fill(sel, items) {
 
 // ---------- 자격증 고르기 ----------
 function pick(cert, btn) {
-  document.querySelectorAll(".card:not(.closed)").forEach(function (c) {
-    c.classList.remove("picked");
-    const t = c.querySelector(".tag");
-    t.className = "tag go"; t.innerHTML = "누르기 &rsaquo;";
-  });
+  document.querySelectorAll(".card").forEach(function (c) { c.classList.remove("picked"); });
   btn.classList.add("picked");
-  const t = btn.querySelector(".tag");
-  t.className = "tag on"; t.textContent = "선택됨";
 
   picked = cert;
   const line = cert.name + " (" + cert.agency + ") 로 접수합니다";
