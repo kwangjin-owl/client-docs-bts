@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>시니어 자격증 접수 서비스</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --ink: #1a1a1a;
+    --muted: #5a5f66;
+    --line: #d7dbdf;
+    --pick: #1b5e7e;
+    --pick-bg: #e7f1f6;
+    --stop: #8a5a00;
+    --stop-bg: #fdf2dc;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: system-ui, "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+    font-size: 18px;
+    line-height: 1.7;
+  }
+  .wrap { max-width: 640px; margin: 0 auto; padding: 32px 20px 64px; }
+  .brand { font-size: 16px; color: var(--muted); margin: 0 0 32px; }
+  h1 { font-size: 28px; font-weight: 600; margin: 0 0 8px; }
+  .lead { font-size: 18px; color: var(--muted); margin: 0 0 24px; }
+
+  .card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    width: 100%;
+    text-align: left;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 12px;
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+  }
+  .card:hover { border-color: var(--pick); }
+  .card:focus-visible { outline: 3px solid var(--pick); outline-offset: 2px; }
+  .card.picked { border: 2px solid var(--pick); background: #fff; }
+  .card.closed { background: #f7f8f9; border-color: var(--line); cursor: not-allowed; }
+  .card.closed .name, .card.closed .sub { color: #8b9096; }
+
+  .name { font-size: 21px; font-weight: 600; margin: 0 0 4px; }
+  .sub { font-size: 16px; color: var(--muted); margin: 0; }
+
+  .tag { font-size: 16px; padding: 6px 14px; border-radius: 8px; white-space: nowrap; }
+  .tag.on { background: var(--pick-bg); color: var(--pick); }
+  .tag.go { color: var(--muted); }
+  .tag.no { background: var(--stop-bg); color: var(--stop); }
+
+  .status {
+    margin-top: 32px;
+    padding: 16px 20px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    font-size: 16px;
+    color: var(--muted);
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <p class="brand">두두자격지원센터</p>
+
+  <h1>어떤 자격증을 신청하시나요</h1>
+  <p class="lead">아래에서 하나를 눌러 주세요</p>
+
+  <button class="card" data-cert="요양보호사" data-agency="두두보건">
+    <span>
+      <span class="name">요양보호사</span>
+      <span class="sub">두두보건 · 아무 때나 접수</span>
+    </span>
+    <span class="tag go">누르기 &rsaquo;</span>
+  </button>
+
+  <button class="card" data-cert="전기기능사" data-agency="두두넷">
+    <span>
+      <span class="name">전기기능사</span>
+      <span class="sub">두두넷 · 8월 24일부터 접수</span>
+    </span>
+    <span class="tag go">누르기 &rsaquo;</span>
+  </button>
+
+  <button class="card closed" disabled data-cert="공인중개사" data-agency="두두넷">
+    <span>
+      <span class="name">공인중개사</span>
+      <span class="sub">두두넷 · 1차 접수 8월 7일 끝남</span>
+    </span>
+    <span class="tag no">올해 마감</span>
+  </button>
+
+  <p class="status" id="status">Supabase 연결 확인 중…</p>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  // ↓↓↓ 여기 두 줄만 내 값으로 바꾸세요 ↓↓↓
+  // Supabase 대시보드 > Project Settings > API 에서 복사
+  const SUPABASE_URL = "여기에_Project_URL_붙여넣기";
+  const SUPABASE_ANON_KEY = "여기에_anon_public_key_붙여넣기";
+  // ↑↑↑ 여기까지 ↑↑↑
+
+  // 자격증 카드 고르기
+  const cards = document.querySelectorAll(".card:not(.closed)");
+  cards.forEach(function (card) {
+    card.addEventListener("click", function () {
+      cards.forEach(function (c) {
+        c.classList.remove("picked");
+        c.querySelector(".tag").className = "tag go";
+        c.querySelector(".tag").innerHTML = "누르기 &rsaquo;";
+      });
+      card.classList.add("picked");
+      card.querySelector(".tag").className = "tag on";
+      card.querySelector(".tag").textContent = "선택됨";
+    });
+  });
+
+  // Supabase 연결 확인
+  const box = document.getElementById("status");
+
+  async function checkDb() {
+    if (SUPABASE_URL.indexOf("여기에") === 0) {
+      box.textContent = "아직 Supabase 키를 넣지 않았습니다.";
+      return;
+    }
+    try {
+      const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      const res = await db
+        .from("applications")
+        .select("*", { count: "exact", head: true });
+      if (res.error) {
+        box.textContent = "연결 실패: " + res.error.message;
+        return;
+      }
+      box.textContent = "Supabase 연결됨 · applications 테이블 " + res.count + "건";
+    } catch (e) {
+      box.textContent = "연결 실패: " + e.message;
+    }
+  }
+
+  checkDb();
+</script>
+</body>
+</html>
