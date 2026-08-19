@@ -44,38 +44,50 @@
   .stage.on { display:block; }
 
   /* 자격증 카드 */
-  .grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:10px; }
-  .card { display:block; width:100%; text-align:left; background:#fff;
+  .grid { display:grid; grid-template-columns:repeat(2, 1fr); gap:10px; }
+  @media (max-width:700px) { .grid { grid-template-columns:1fr; } }
+  .card { display:flex; align-items:center; justify-content:space-between; gap:12px;
+          width:100%; text-align:left; background:#fff;
           border:1px solid var(--line); border-radius:12px; padding:14px 18px;
           font:inherit; color:inherit; cursor:pointer; }
-  .card:hover { border-color:var(--pick); }
+  .card:hover { border-color:var(--pick); background:var(--soft); }
   .card:focus-visible { outline:3px solid var(--pick); outline-offset:2px; }
   .card.picked { border:2px solid var(--pick); background:var(--pick-bg); }
-  .name { display:block; font-size:1.1em; font-weight:600; margin:6px 0 2px; }
-  .sub  { display:block; font-size:0.82em; color:var(--muted); }
-  .card.picked .name, .card.picked .sub { color:var(--pick); }
+  .card .go { flex:none; color:var(--muted); font-size:1.2em; }
+  .card:hover .go, .card.picked .go { color:var(--pick); }
+  .name { display:block; font-size:1.05em; font-weight:600; margin:6px 0 2px; }
+  .sub  { display:block; font-size:0.8em; color:var(--muted); }
+  .fee-tag { display:block; font-size:0.8em; color:var(--ink); font-weight:600; margin-top:2px; }
+  .card.picked .name, .card.picked .sub, .card.picked .fee-tag { color:var(--pick); }
   .tag { display:inline-block; font-size:0.75em; padding:3px 9px; border-radius:6px; }
   .tag.now  { background:var(--ok-bg);   color:var(--ok); }
   .tag.soon { background:var(--pick-bg); color:var(--pick); }
   .tag.late { background:var(--stop-bg); color:var(--stop); }
 
   /* 입력 */
-  .box { border:1px solid var(--line); border-radius:12px; padding:16px 20px 20px; margin-bottom:12px; }
-  .box > h2 { font-size:0.9em; font-weight:600; color:var(--muted); margin:0 0 12px;
-              padding-bottom:10px; border-bottom:1px solid var(--line); }
-  .row { display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:0 20px; }
-  .fld { min-width:0; }
-  label { display:block; font-size:0.9em; margin:14px 0 5px; }
-  .fld > label:first-child { margin-top:0; }
+  .box { border:1px solid var(--line); border-radius:14px; padding:18px 20px 20px; margin-bottom:14px; }
+  .box > h2 { font-size:1em; font-weight:600; color:var(--ink); margin:0 0 14px;
+              padding-bottom:12px; border-bottom:1px solid var(--line); }
+
+  /* 칸 하나하나를 회색 상자로 떼어 놓는다 */
+  .row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  @media (max-width:700px) { .row { grid-template-columns:1fr; } }
+  .fld { min-width:0; background:var(--soft); border-radius:12px; padding:14px 16px 16px; }
+  .fld.wide { grid-column:1 / -1; }
+  label { display:flex; align-items:center; gap:8px;
+          font-size:0.9em; font-weight:600; color:var(--ink); margin:0 0 8px; }
+  .num { flex:none; width:26px; height:26px; border-radius:50%; background:var(--pick);
+         color:#fff; font-size:0.72em; font-weight:600;
+         display:flex; align-items:center; justify-content:center; }
   input, select, textarea { width:100%; font:inherit; color:inherit; background:#fff;
-    padding:11px 13px; border:1px solid var(--line); border-radius:8px; }
+    padding:12px 14px; border:1px solid var(--line); border-radius:8px; }
   input:focus, select:focus, textarea:focus { outline:3px solid var(--pick); outline-offset:1px; }
-  input[readonly] { background:var(--soft); color:var(--muted); }
+  input[readonly] { background:#eef0f2; color:var(--muted); }
   textarea { resize:vertical; line-height:1.6; }
-  .hint { font-size:0.8em; color:var(--muted); margin:4px 0 0; }
-  .hint.good { color:var(--ok); }
+  .hint { font-size:0.78em; color:#8b9096; margin:6px 0 0; }
+  .hint.good { color:var(--ok); font-weight:600; }
   .two { display:flex; gap:8px; }
-  .two button { flex:1; font:inherit; padding:11px; background:#fff;
+  .two button { flex:1; font:inherit; padding:12px; background:#fff;
                 border:1px solid var(--line); border-radius:8px; cursor:pointer; }
   .two button.on { border:2px solid var(--pick); background:var(--pick-bg); color:var(--pick); font-weight:600; }
 
@@ -131,7 +143,8 @@
          display:flex; gap:10px; }
   .nav button { flex:1; font:inherit; font-size:1.05em; font-weight:600;
                 padding:15px; border-radius:10px; cursor:pointer; }
-  .nav .prev { background:#fff; color:var(--ink); border:1px solid var(--line); flex:0 0 30%; }
+  .nav .prev { background:#fff; color:var(--muted); border:1px solid var(--line);
+               flex:0 0 130px; font-weight:400; }
   .nav .next { background:var(--pick); color:#fff; border:0; }
   .nav .next:disabled { background:#9aa4ab; cursor:not-allowed; }
 
@@ -204,17 +217,17 @@
       <h2>네 가지만 넣어 주시면 됩니다</h2>
       <div class="row">
         <div class="fld">
-          <label for="f-name">성함</label>
+          <label for="f-name"><span class="num">1</span>성함</label>
           <input id="f-name" type="text" placeholder="홍길동">
           <p class="hint">주민등록증에 있는 이름</p>
         </div>
         <div class="fld">
-          <label for="f-birth">생년월일</label>
+          <label for="f-birth"><span class="num">2</span>생년월일</label>
           <input id="f-birth" type="text" inputmode="numeric" placeholder="1948-06-12" autocomplete="off">
-          <p class="hint" id="birth-echo">숫자 8자리. 예: 19480612</p>
+          <p class="hint" id="birth-echo">숫자 8자리를 그냥 이어서 넣으세요. 예: 19480612</p>
         </div>
         <div class="fld">
-          <label>성별</label>
+          <label><span class="num">3</span>성별</label>
           <div class="two" id="f-gender">
             <button type="button" data-v="M">남</button>
             <button type="button" data-v="F">여</button>
@@ -222,9 +235,9 @@
           <p class="hint">둘 중 하나를 눌러 주세요</p>
         </div>
         <div class="fld">
-          <label for="f-phone">연락처</label>
+          <label for="f-phone"><span class="num">4</span>연락처</label>
           <input id="f-phone" type="text" inputmode="tel" placeholder="010-1234-5678">
-          <p class="hint">휴대폰이나 집 전화</p>
+          <p class="hint">휴대폰이나 집 전화. 하이픈은 저희가 넣어 드립니다</p>
         </div>
       </div>
     </div>
@@ -574,9 +587,12 @@ function drawCards() {
     b.type = "button"; b.className = "card";
     const fee = typeof c.fee === "number" ? c.fee.toLocaleString() + "원"
                                           : c.fee["1차"].toLocaleString() + "원부터";
-    b.innerHTML = '<span class="tag ' + c.state + '">' + TAG[c.state] + '</span>' +
-                  '<span class="name">' + c.name + '</span>' +
-                  '<span class="sub">' + c.note + ' · ' + fee + '</span>';
+    b.innerHTML = '<span>' +
+                    '<span class="tag ' + c.state + '">' + TAG[c.state] + '</span>' +
+                    '<span class="name">' + c.name + '</span>' +
+                    '<span class="sub">' + c.note + '</span>' +
+                    '<span class="fee-tag">' + fee + '</span>' +
+                  '</span><span class="go">&rsaquo;</span>';
     b.addEventListener("click", function () { pick(c, b); });
     box[c.track].appendChild(b);
   });
@@ -639,7 +655,7 @@ function drawTrackFields(cert) {
       '<option>제한없음</option><option>관련학과졸업</option><option>경력</option>' +
       '<option>기타</option></select>' +
       '<p class="hint">기능사는 누구나 응시하실 수 있습니다</p></div>' +
-      '<div class="fld" id="elig-extra" style="grid-column:1/-1"></div>';
+      '<div class="fld wide" id="elig-extra" style="background:none;padding:0"></div>';
     const r = $("f-round");
     if (cert.examType === "정기") { fill(r, ["1회","2회","3회","4회"]); r.value = "4회"; }
     else { fill(r, ["해당없음 (상시)"]); r.disabled = true; }
@@ -654,12 +670,12 @@ function drawTrackFields(cert) {
       '<select id="f-stage"><option>1차</option><option>2차</option></select></div>' +
       '<div class="fld"><label for="f-year">시험 연도</label>' +
       '<input id="f-year" type="text" value="' + yr + '년" readonly></div>' +
-      '<div class="fld" id="pass-box" style="grid-column:1/-1"></div>' +
+      '<div class="fld wide" id="pass-box" style="background:none;padding:0"></div>' +
       '<div class="fld"><label for="f-elig">응시자격</label><select id="f-elig">' +
       '<option>제한없음</option><option>관련학과졸업</option><option>경력</option>' +
       '<option>기타</option></select></div>' +
       '<div class="fld" id="elig-extra"></div>' +
-      '<div class="fld" style="grid-column:1/-1"><label>응시 과목</label>' +
+      '<div class="fld wide"><label>응시 과목</label>' +
       '<p class="hint" id="subj-line"></p></div>';
     $("f-stage").addEventListener("change", function () { drawStage(cert); calcFee(); });
     $("f-elig").addEventListener("change", drawElig);
@@ -687,7 +703,7 @@ function drawTrackFields(cert) {
       '<div class="fld"><label for="f-hours">교육이수시간</label>' +
       '<input id="f-hours" type="text" value="' + (care ? "240시간" : "학과 이수") + '" readonly></div>' +
 
-      '<div class="fld" style="grid-column:1/-1"><label for="f-disab">' +
+      '<div class="fld wide"><label for="f-disab">' +
       '시험 볼 때 도움이 필요하신가요</label>' +
       '<select id="f-disab"><option>없음</option><option>지체장애</option>' +
       '<option>시각장애</option><option>청각장애</option><option>뇌병변장애</option>' +
