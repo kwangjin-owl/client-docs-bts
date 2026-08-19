@@ -6,299 +6,351 @@
 <title>궁금한 것 물어보기 - 두두자격지원센터</title>
 <style>
   :root {
-    --ink:#1a1a1a; --muted:#5a5f66; --line:#dde1e4; --bg:#eef1f3; --card:#fff;
-    --pick:#1b5e7e; --pick-bg:#e7f1f6;
-    --bad:#a32d2d; --bad-bg:#fceceb;
+    --fs:20px;
+    --ink:#16202a; --muted:#5c6a75; --line:#dfe4e8;
+    --bg:#f2f5f7; --card:#fff; --soft:#f6f8f9;
+    --navy:#123a52; --navy-d:#0d2a3c;
+    --key:#0f7b6c; --key-d:#0b6357; --key-bg:#e5f4f1;
+    --hot:#d9660a; --hot-bg:#fdf0e3;
+    --ok:#1c6b3a; --ok-bg:#e6f4ea;
+    --bad:#c62828; --bad-bg:#fdecec;
+    --warn:#8a5a00; --warn-bg:#fdf2dc;
   }
   * { box-sizing:border-box; }
-  body { margin:0; background:var(--bg); color:var(--ink); font-size:18px; line-height:1.7;
-         font-family:system-ui,"Malgun Gothic","Apple SD Gothic Neo",sans-serif; }
-  .wrap { max-width:760px; margin:0 auto; padding:24px 20px 24px;
-          display:flex; flex-direction:column; min-height:auto; }
-  .top { display:flex; align-items:baseline; justify-content:space-between; gap:16px; }
-  h1 { font-size:26px; font-weight:600; margin:0; }
-  .back { font-size:16px; color:var(--pick); text-decoration:none; }
-  .lead { font-size:17px; color:var(--muted); margin:8px 0 20px; }
+  body { margin:0; background:var(--bg); color:var(--ink); font-size:var(--fs);
+         line-height:1.65; font-family:system-ui,"Malgun Gothic","Apple SD Gothic Neo",sans-serif; }
+  a { color:var(--key-d); }
 
-  .chips { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:24px; }
-  .chip { font:inherit; font-size:16px; padding:10px 16px; background:var(--card);
-    border:1px solid var(--line); border-radius:999px; cursor:pointer; }
-  .chip:hover { border-color:var(--pick); color:var(--pick); }
+  /* ===== 머리 ===== */
+  .top { background:var(--navy); }
+  .top-in { max-width:1200px; margin:0 auto; padding:0 24px;
+            display:flex; align-items:center; gap:18px; }
+  .brandmark { display:flex; align-items:center; gap:10px; padding:13px 0;
+               color:#fff; font-weight:700; font-size:1em;
+               white-space:nowrap; text-decoration:none; }
+  .brandmark .sq { width:34px; height:34px; border-radius:9px; background:var(--key);
+                   color:#fff; display:flex; align-items:center; justify-content:center;
+                   font-weight:700; font-size:0.82em; }
+  .menu { display:flex; gap:2px; margin-left:auto; }
+  .menu a { font-size:0.9em; padding:15px 16px; color:#a9c3d1; text-decoration:none;
+            border-bottom:4px solid transparent; white-space:nowrap; }
+  .menu a:hover { color:#fff; }
+  .menu a.here { color:#fff; font-weight:700; border-bottom-color:var(--key); }
+  .staff-btn { font-size:0.82em; padding:8px 15px; margin-left:12px; color:#a9c3d1;
+               text-decoration:none; white-space:nowrap;
+               border:1px solid rgba(255,255,255,.3); border-radius:8px; }
+  .staff-btn:hover { color:#fff; border-color:#fff; }
+  .staff-btn.here { background:#fff; color:var(--navy); border-color:#fff; font-weight:700; }
 
+  .subtop { background:var(--card); border-bottom:1px solid var(--line); }
+  .subtop-in { max-width:1200px; margin:0 auto; padding:0 24px;
+               display:flex; align-items:center; gap:4px; }
+  .subtop .stitle { font-size:0.82em; color:var(--muted); margin-right:10px; }
+  .subtop a { font-size:0.9em; padding:12px 15px; color:var(--muted);
+              text-decoration:none; border-bottom:3px solid transparent; }
+  .subtop a:hover { color:var(--key-d); }
+  .subtop a.here { color:var(--key-d); font-weight:700; border-bottom-color:var(--key); }
+  .subtop .lock { margin-left:auto; font:inherit; font-size:0.82em; padding:7px 14px;
+                  border:2px solid var(--line); border-radius:8px;
+                  background:var(--card); color:var(--muted); cursor:pointer; }
+  .subtop .lead-bar { margin-left:auto; font-size:0.82em; color:var(--muted); }
 
-  .turn { margin-bottom:20px; }
-  .q { background:var(--pick-bg); color:var(--pick); padding:12px 16px;
-       border-radius:14px 14px 4px 14px; margin-left:auto; max-width:85%;
-       width:fit-content; font-size:0.95em; }
-  .a { background:var(--card); border:1px solid var(--line); padding:16px 18px; border-radius:14px 14px 14px 4px;
-       max-width:100%; white-space:pre-wrap; line-height:1.85; }
-  .a.err { background:var(--bad-bg); color:var(--bad); }
-  .meta { font-size:14px; color:var(--muted); margin:6px 0 0 4px; }
+  /* ===== 뼈대 ===== */
+  .wrap { max-width:1200px; margin:0 auto; padding:22px 24px 40px; }
+  .sheet { background:var(--card); border-radius:16px; padding:26px 28px 28px;
+           box-shadow:0 1px 3px rgba(0,0,0,.06); margin-bottom:16px; }
+  .eyebrow { display:flex; align-items:center; gap:8px; font-size:0.78em;
+             font-weight:700; color:var(--key-d); margin:0 0 6px; letter-spacing:.02em; }
+  .eyebrow::before { content:""; width:18px; height:3px; border-radius:2px; background:var(--key); }
+  h1 { font-size:1.65em; font-weight:700; margin:0 0 6px; letter-spacing:-.01em; }
+  h2.sec { font-size:1.15em; font-weight:700; margin:0 0 4px; }
+  .lead { font-size:0.92em; color:var(--muted); margin:0 0 18px; }
 
-  .ask { position:sticky; bottom:0; background:var(--bg); padding:16px 0;
-         border-top:1px solid var(--line); display:flex; gap:10px; flex:none; }
-  input { flex:1; font:inherit; padding:14px 16px; border:2px solid var(--line); border-radius:10px; }
-  input:focus { outline:3px solid var(--pick); outline-offset:1px; }
-  .send { font:inherit; font-size:17px; font-weight:600; padding:14px 20px;
-          background:var(--pick); color:#fff; border:0; border-radius:10px;
-          cursor:pointer; white-space:nowrap; flex:none; }
-  .send:disabled { background:#9aa4ab; }
+  /* ===== 버튼 ===== */
+  .btn { font:inherit; font-weight:700; padding:15px 22px; border-radius:10px;
+         cursor:pointer; border:2px solid transparent; }
+  .btn.key { background:var(--key); color:#fff; border-color:var(--key); }
+  .btn.key:hover { background:var(--key-d); border-color:var(--key-d); }
+  .btn.key:disabled { background:#a9b4bb; border-color:#a9b4bb; cursor:not-allowed; }
+  .btn.ghost { background:var(--card); color:var(--ink); border-color:var(--line); }
+  .btn.ghost:hover { border-color:var(--key); color:var(--key-d); }
+  .btn.big { width:100%; font-size:1.1em; padding:18px; }
 
-  .note { font-size:15px; color:var(--muted); margin-top:8px; }
-  .empty { background:var(--card); border-radius:14px;
-           padding:32px 20px; text-align:center; color:var(--muted); }
-  .empty b { display:block; font-size:19px; font-weight:600; color:var(--ink); margin-bottom:8px; }
-  .empty span { font-size:16px; line-height:1.7; }
+  /* ===== 입력 ===== */
+  label { display:flex; align-items:center; gap:6px; font-size:0.9em;
+          font-weight:700; margin:0 0 7px; }
+  input, select, textarea { width:100%; font:inherit; color:inherit; background:#fff;
+    padding:13px 15px; border:2px solid var(--line); border-radius:9px; }
+  input:focus, select:focus, textarea:focus { outline:3px solid var(--key); outline-offset:1px; }
+  input[readonly] { background:var(--soft); color:var(--muted); }
+  textarea { resize:vertical; line-height:1.6; }
+  .hint { font-size:0.8em; color:#7b8892; margin:6px 0 0; }
+  .hint.good { color:var(--ok); font-weight:700; }
+  .req { display:inline-block; color:var(--bad); font-weight:800; }
+  .badge-must { display:inline-block; font-size:0.62em; font-weight:800; letter-spacing:.02em;
+                background:var(--bad-bg); color:var(--bad); padding:3px 8px;
+                border-radius:5px; vertical-align:2px; }
+  .bad-field { border-color:var(--bad) !important; background:var(--bad-bg) !important; }
 
-  .foot { border-top:1px solid var(--line); margin-top:28px; }
-  .foot-in { max-width:1360px; margin:0 auto; padding:22px 28px 40px;
-             display:flex; gap:28px; flex-wrap:wrap; align-items:flex-start; }
-  .foot .call { background:var(--card); border:2px solid var(--pick);
-                border-radius:12px; padding:14px 20px; }
-  .foot .call b { display:block; font-size:1.25em; color:var(--pick); }
-  .foot .call span { font-size:0.82em; color:var(--muted); }
-  .foot .help { flex:1; min-width:240px; font-size:0.85em; color:var(--muted); line-height:1.8; }
-  .foot .help a { color:var(--pick); }
+  /* ===== 알림 ===== */
+  .msg { margin:14px 0 0; padding:15px 18px; border-radius:10px; font-size:0.92em;
+         font-weight:700; display:flex; align-items:flex-start; gap:10px; }
+  .msg::before { font-size:1.15em; flex:none; }
+  .msg.ok  { background:var(--ok-bg);  color:var(--ok);  border:2px solid var(--ok); }
+  .msg.ok::before  { content:"\2713"; }
+  .msg.bad { background:var(--bad-bg); color:var(--bad); border:2px solid var(--bad); }
+  .msg.bad::before { content:"\26A0"; }
+  .note { padding:14px 18px; border:2px solid var(--line); border-radius:10px;
+          font-size:0.86em; color:var(--muted); }
+  .note.tip { background:var(--key-bg); border-color:var(--key-bg); color:var(--key-d); }
+
+  /* ===== 비어있음 ===== */
+  .empty { padding:38px 20px; text-align:center; color:var(--muted); }
+  .empty b { display:block; font-size:1.1em; color:var(--ink); margin-bottom:8px; }
+  .empty span { font-size:0.88em; line-height:1.75; }
+
+  /* ===== 꼬리 ===== */
+  .foot { background:var(--navy-d); color:#a9c3d1; margin-top:36px; }
+  .foot-in { max-width:1200px; margin:0 auto; padding:26px 24px 34px;
+             display:flex; gap:32px; flex-wrap:wrap; align-items:center; }
+  .foot .call { display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; }
+  .foot .call .lb { font-size:0.82em; }
+  .foot .call b { font-size:1.35em; color:#fff; letter-spacing:.5px; }
+  .foot .call .hr { font-size:0.82em; }
+  .foot .help { flex:1; min-width:260px; font-size:0.82em; line-height:1.8; }
+  .foot .help a { color:#7fd4c4; }
+  .hide { display:none; }
+
+  @media (max-width:820px) {
+    .top-in { flex-wrap:wrap; padding:0 16px; }
+    .menu { margin-left:0; width:100%; overflow-x:auto; }
+    .staff-btn { margin:0 0 10px; }
+    .wrap { padding:16px 16px 32px; }
+    .sheet { padding:20px 18px 22px; }
+    .subtop-in, .foot-in { padding-left:16px; padding-right:16px; }
+  }
+
+  .cols { display:grid; grid-template-columns:1fr 320px; gap:16px; align-items:start; }
+  @media (max-width:940px) { .cols { grid-template-columns:1fr; } }
+
+  .talk { background:var(--card); border-radius:16px; overflow:hidden;
+          box-shadow:0 1px 3px rgba(0,0,0,.06); display:flex; flex-direction:column; }
+  .talk-top { background:var(--navy); color:#fff; padding:16px 20px;
+              display:flex; align-items:center; gap:12px; }
+  .talk-top .av { width:38px; height:38px; border-radius:10px; background:var(--key);
+                  display:flex; align-items:center; justify-content:center;
+                  font-size:0.72em; font-weight:700; flex:none; }
+  .talk-top b { display:block; font-size:0.95em; }
+  .talk-top span { font-size:0.78em; color:#a9c3d1; }
+  .log { padding:20px; min-height:220px; background:var(--soft); }
+  .turn { margin-bottom:18px; }
+  .q { background:var(--key); color:#fff; padding:12px 16px; font-size:0.88em;
+       border-radius:14px 14px 4px 14px; margin-left:auto; width:fit-content; max-width:85%; }
+  .a { background:var(--card); border:1px solid var(--line); padding:16px 18px;
+       border-radius:14px 14px 14px 4px; white-space:pre-wrap; line-height:1.85;
+       font-size:0.92em; margin-top:8px; }
+  .a.err { background:var(--bad-bg); border-color:var(--bad); color:var(--bad); }
+  .meta { font-size:0.72em; color:var(--muted); margin:6px 0 0 4px; }
+  .ask { display:flex; gap:10px; padding:16px 20px; border-top:1px solid var(--line);
+         background:var(--card); }
+  .ask input { flex:1; }
+  .ask .btn { flex:none; white-space:nowrap; }
+
+  .side .sheet { margin-bottom:12px; }
+  .chips { display:flex; flex-direction:column; gap:8px; }
+  .chip { font:inherit; font-size:0.85em; font-weight:700; text-align:left;
+          padding:13px 16px; background:var(--card); border:2px solid var(--line);
+          border-radius:10px; cursor:pointer; }
+  .chip:hover { border-color:var(--key); color:var(--key-d); }
+  .warnbox { background:var(--warn-bg); color:var(--warn); border-radius:10px;
+             padding:14px 16px; font-size:0.82em; line-height:1.7; }
+  .warnbox b { display:block; margin-bottom:4px; }
 </style>
 </head>
 <body>
+<div class="top"><div class="top-in"><a class="brandmark" href="/"><span class="sq">두두</span>두두자격지원센터</a><nav class="menu"><a href="/">접수 신청</a><a href="/check">접수 확인</a><a href="/chat" class="here">물어보기</a></nav><a class="staff-btn" href="/admin">직원용</a></div></div>
+
 <div class="wrap">
+  <p class="eyebrow">문서 근거 안내</p>
+  <h1>궁금한 점을 물어보세요</h1>
+  <p class="lead">응시료, 접수 일정, 준비물을 안내합니다.
+     안내 문서에서 확인되지 않는 것은 모른다고 말씀드립니다.</p>
 
-  <div class="top">
-    <h1>궁금한 것 물어보기</h1>
-    <a class="back" href="/">← 접수 화면으로</a>
-  </div>
-  <p class="lead" id="note">자격증 접수에 대해 물어보세요. 안내 문서에 있는 것만 답해 드립니다.</p>
+  <div class="cols">
+    <div class="talk">
+      <div class="talk-top">
+        <span class="av">두두</span>
+        <span><b>두두 안내 도우미</b><span>필기 접수 문서에서만 답변합니다</span></span>
+      </div>
+      <div class="log" id="log">
+        <div class="empty" id="empty">
+          <b>무엇이든 물어보세요</b>
+          <span>접수 기간, 응시료, 준비물 같은 것을 물어보시면<br>
+          안내 문서를 보고 답해 드립니다.</span>
+        </div>
+      </div>
+      <div class="ask">
+        <input id="q" type="text" placeholder="궁금한 것을 적어 주세요" autocomplete="off">
+        <button type="button" class="btn key" id="send">물어보기</button>
+      </div>
+    </div>
 
-  <div class="chips" id="chips"></div>
-
-  <div class="log" id="log">
-    <div class="empty" id="empty">
-      <b>무엇이든 물어보세요</b>
-      <span>접수 기간, 응시료, 준비물 같은 것을 물어보시면<br>
-      안내 문서를 보고 답해 드립니다.<br>
-      문서에 없는 것은 모른다고 말씀드립니다.</span>
+    <div class="side">
+      <div class="sheet">
+        <h2 class="sec">이런 질문을 해보세요</h2>
+        <p class="lead">눌러 보시면 바로 답해 드립니다.</p>
+        <div class="chips" id="chips"></div>
+      </div>
+      <div class="sheet">
+        <div class="warnbox">
+          <b>안내 범위</b>
+          필기 접수까지만 안내합니다. 실기나 문서에 없는 내용은 안내하지 않습니다.
+          그럴 때는 고객센터 02-000-0000으로 전화 주십시오.
+        </div>
+      </div>
     </div>
   </div>
-
-  <div class="ask">
-    <input id="q" type="text" placeholder="궁금한 것을 적어 주세요" autocomplete="off">
-    <button class="send" id="send">물어보기</button>
-  </div>
-
-  <p class="note" style="margin-top:20px; padding-top:16px; border-top:1px solid var(--line)">
-    문서에 없는 것은 답해 드릴 수 없습니다. 그럴 때는 고객센터 <b>02-000-0000</b>
-    (평일 09:00 ~ 18:00)으로 전화 주십시오.
-  </p>
 </div>
+
+<div class="foot"><div class="foot-in"><div class="call"><span class="lb">고객센터</span><b>02-000-0000</b><span class="hr">평일 09:00 ~ 18:00</span></div><div class="help">화면에서 막히시면 <b>궁금한 것 물어보기</b>를 눌러 주세요. 접수하신 뒤에는 <a href="/check">접수 확인</a>에서 진행 상황을 보실 수 있습니다.</div></div></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 const $ = function (id) { return document.getElementById(id); };
 let CFG = null, DOCS = [], busy = false, db = null;
 
-// 발주서 4절: 어떤 질문이 많이 들어오는지 보려면 질문을 남겨야 한다
+const SAMPLES = ["한식조리기능사 접수비가 얼마예요","전기기능사 언제 접수해요",
+                 "요양보호사는 어디서 신청해요","시험 볼 때 뭘 가져가야 하나요",
+                 "취소하면 돈 돌려받을 수 있나요"];
+
 async function logQ(question, answered, score, doc, route) {
   if (!db) return;
   try {
     await db.from("questions").insert({
-      question: question,
-      answered: answered,
-      score: Number(score.toFixed(2)),
-      doc_id: doc ? doc.id : null,
-      doc_title: doc ? doc.title : null,
-      route: route
-    });
-  } catch (e) {
-    console.log("질문 기록 실패:", e.message);
-  }
+      question:question, answered:answered, score:Number(score.toFixed(2)),
+      doc_id:doc?doc.id:null, doc_title:doc?doc.title:null, route:route });
+  } catch (e) { console.log("질문 기록 실패:", e.message); }
 }
-
-const SAMPLES = [
-  "한식조리기능사 접수비가 얼마예요",
-  "전기기능사 언제 접수해요",
-  "요양보호사는 어디서 신청해요",
-  "시험 볼 때 뭘 가져가야 하나요",
-  "취소하면 돈 돌려받을 수 있나요"
-];
-
-// ---------- 검색 ----------
-// 점수 = 겹친 질문 단어 수 / 질문 단어 수  (0.0 ~ 1.0)
-// 개수로 재면 짧은 질문이 영원히 불리해진다.
 
 function tokens(text) {
-  return (text || "")
-    .toLowerCase()
-    .replace(/[^0-9a-z가-힣\s]/g, " ")
-    .split(/\s+/)
-    .filter(function (w) { return w.length >= 2 && CFG.STOPWORDS.indexOf(w) < 0; });
+  return (text||"").toLowerCase().replace(/[^0-9a-z가-힣\s]/g," ").split(/\s+/)
+    .filter(function(w){ return w.length>=2 && CFG.STOPWORDS.indexOf(w)<0; });
 }
-
-// 어르신이 쓰는 말을 문서 표기로 바꾼다
 function expand(words) {
-  const out = [];
-  words.forEach(function (w) {
+  const out=[];
+  words.forEach(function(w){
     out.push(w);
-    Object.keys(CFG.SYNONYMS).forEach(function (key) {
-      const list = CFG.SYNONYMS[key];
-      if (key === w) { list.forEach(function (v) { out.push(v); }); return; }
-      list.forEach(function (v) { if (w.indexOf(v) >= 0 || v.indexOf(w) >= 0) out.push(key); });
+    Object.keys(CFG.SYNONYMS).forEach(function(key){
+      const list=CFG.SYNONYMS[key];
+      if(key===w){ list.forEach(function(v){ out.push(v); }); return; }
+      list.forEach(function(v){ if(w.indexOf(v)>=0||v.indexOf(w)>=0) out.push(key); });
     });
   });
   return Array.from(new Set(out));
 }
-
-// 조사가 붙어도 잡히도록 부분 일치를 본다
-function hits(word, bag) {
-  return bag.some(function (t) { return t === word || t.indexOf(word) >= 0 || word.indexOf(t) >= 0; });
-}
-
-function score(question, doc) {
-  const qWords = tokens(question);
-  if (!qWords.length) return { s: 0 };
-  const qAll = expand(qWords);
-  const bodyBag = tokens(doc.title + " " + doc.body);
-  const titleBag = tokens(doc.title);
-
-  let matched = 0, titleHit = 0;
-  qWords.forEach(function (w) {
-    const variants = expand([w]);
-    if (variants.some(function (v) { return hits(v, bodyBag); })) matched++;
-    if (variants.some(function (v) { return hits(v, titleBag); })) titleHit++;
+function hits(word,bag){ return bag.some(function(t){
+  return t===word||t.indexOf(word)>=0||word.indexOf(t)>=0; }); }
+function score(question,doc) {
+  const qw=tokens(question);
+  if(!qw.length) return { s:0 };
+  const bodyBag=tokens(doc.title+" "+doc.body), titleBag=tokens(doc.title);
+  let matched=0, titleHit=0;
+  qw.forEach(function(w){
+    const v=expand([w]);
+    if(v.some(function(x){ return hits(x,bodyBag); })) matched++;
+    if(v.some(function(x){ return hits(x,titleBag); })) titleHit++;
   });
-
-  const base = matched / qWords.length;
-  const bonus = titleHit / qWords.length * CFG.TITLE_WEIGHT;
-  return { s: Math.min(1, base + bonus), matched: matched, total: qWords.length };
+  return { s: Math.min(1, matched/qw.length + titleHit/qw.length*CFG.TITLE_WEIGHT) };
 }
-
 function search(question) {
-  return DOCS
-    .map(function (d) { const r = score(question, d); return { doc: d, s: r.s }; })
-    .sort(function (a, b) { return b.s - a.s; })
-    .slice(0, CFG.TOP_K);
+  return DOCS.map(function(d){ return { doc:d, s:score(question,d).s }; })
+    .sort(function(a,b){ return b.s-a.s; }).slice(0, CFG.TOP_K);
 }
 
-// ---------- 화면 ----------
+function readable(t) {
+  return String(t).replace(/([다요])\.\s+/g,"$1.\n").replace(/\n{3,}/g,"\n\n").trim();
+}
 function addTurn(question) {
-  const e = document.getElementById("empty");
-  if (e) e.remove();
-  const box = document.createElement("div");
-  box.className = "turn";
-  box.innerHTML = '<div class="q"></div><div class="a">생각하는 중…</div><p class="meta"></p>';
-  box.querySelector(".q").textContent = question;
+  const e=$("empty"); if(e) e.remove();
+  const box=document.createElement("div");
+  box.className="turn";
+  box.innerHTML='<div class="q"></div><div class="a">생각하는 중…</div><p class="meta"></p>';
+  box.querySelector(".q").textContent=question;
   $("log").appendChild(box);
-  box.scrollIntoView({ behavior:"smooth", block:"end" });
+  box.scrollIntoView({behavior:"smooth",block:"end"});
   return box;
 }
-// 한 덩어리로 붙은 문장을 한 줄씩 떼어 놓는다. 어르신이 읽기 쉽도록.
-function readable(t) {
-  return String(t)
-    .replace(/([다요])\.\s+/g, "$1.\n")
-    .replace(/\n{3,}/g, "\n\n")
-    .trim();
-}
-
-function fillTurn(box, text, meta, isErr) {
-  const a = box.querySelector(".a");
+function fillTurn(box,text,meta,isErr) {
+  const a=box.querySelector(".a");
   a.textContent = isErr ? text : readable(text);
-  a.className = "a" + (isErr ? " err" : "");
+  a.className = "a" + (isErr?" err":"");
   box.querySelector(".meta").textContent = meta;
-  box.scrollIntoView({ behavior:"smooth", block:"end" });
+  box.scrollIntoView({behavior:"smooth",block:"end"});
 }
 
-// ---------- 물어보기 ----------
 async function ask(question) {
-  if (busy || !question.trim() || !CFG) return;
-  busy = true;
-  $("send").disabled = true;
-  $("q").value = "";
+  if(busy||!question.trim()||!CFG) return;
+  busy=true; $("send").disabled=true; $("q").value="";
+  const box=addTurn(question);
+  const found=search(question), best=found[0];
 
-  const box = addTurn(question);
-  const found = search(question);
-  const best = found[0];
-
-  // 1) 점수가 충분하면 문서를 그대로 보여준다 (브라우저 안에서 끝남)
-  if (best && best.s >= CFG.MIN_SCORE) {
-    fillTurn(box, best.doc.body,
-      "출처: " + (best.doc.source || best.doc.title) + " · 규칙 답변 (" + best.s.toFixed(2) + ")");
-    logQ(question, true, best.s, best.doc, "규칙");
-    busy = false; $("send").disabled = false; $("q").focus();
-    return;
+  if(best && best.s>=CFG.MIN_SCORE){
+    fillTurn(box,best.doc.body,
+      "출처: "+(best.doc.source||best.doc.title)+" · 규칙 답변 ("+best.s.toFixed(2)+")");
+    logQ(question,true,best.s,best.doc,"규칙");
+    busy=false; $("send").disabled=false; $("q").focus(); return;
   }
-
-  // 2) 못 찾으면 AI에게 넘긴다. 이때 문서 전체를 근거로 준다.
-  //    근거 없이 넘기면 지어낸다.
-  if (!CFG.USE_AI) {
-    fillTurn(box, CFG.FALLBACK, "찾은 문서 없음 (최고 " + (best ? best.s.toFixed(2) : "0.00") + ")");
-    logQ(question, false, best ? best.s : 0, null, "못찾음");
-    busy = false; $("send").disabled = false; return;
+  if(!CFG.USE_AI){
+    fillTurn(box,CFG.FALLBACK,"찾은 문서 없음 (최고 "+(best?best.s.toFixed(2):"0.00")+")");
+    logQ(question,false,best?best.s:0,null,"못찾음");
+    busy=false; $("send").disabled=false; return;
   }
-
   try {
-    const r = await fetch("/api/chat", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        question: question,
-        docs: DOCS,
-        model: CFG.MODEL,
-        fallback: CFG.FALLBACK
-      })
-    });
-    const data = await r.json();
-    if (data.error) {
-      fillTurn(box, data.error, "AI 호출 단계", true);
-    } else {
-      fillTurn(box, data.answer, "AI 답변 · 문서 전체 참고 (검색 최고 " + (best ? best.s.toFixed(2) : "0.00") + ")");
-      logQ(question, true, best ? best.s : 0, null, "AI");
+    const r=await fetch("/api/chat",{ method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({ question:question, docs:DOCS,
+        model:CFG.MODEL, fallback:CFG.FALLBACK }) });
+    const data=await r.json();
+    if(data.error) fillTurn(box,data.error,"AI 호출 단계",true);
+    else {
+      fillTurn(box,data.answer,"AI 답변 · 문서 전체 참고 (검색 최고 "+
+        (best?best.s.toFixed(2):"0.00")+")");
+      logQ(question,true,best?best.s:0,null,"AI");
     }
-  } catch (e) {
-    fillTurn(box, "연결 실패: " + e.message, "AI 호출 단계", true);
-  }
-
-  busy = false; $("send").disabled = false; $("q").focus();
+  } catch(e){ fillTurn(box,"연결 실패: "+e.message,"AI 호출 단계",true); }
+  busy=false; $("send").disabled=false; $("q").focus();
 }
 
-// ---------- 시작 ----------
 async function boot() {
+  try { CFG = await fetch("/settings.json").then(function(r){ return r.json(); }); }
+  catch(e){ console.log("settings.json 실패: "+e.message); return; }
   try {
-    CFG = await fetch("/settings.json").then(function (r) { return r.json(); });
-  } catch (e) {
-    $("note").textContent = "settings.json을 못 읽었습니다: " + e.message;
-    return;
-  }
+    const r=await fetch("/api/config"); const conf=await r.json();
+    if(!conf.url||!conf.key){ console.log("환경변수 없음"); return; }
+    db=supabase.createClient(conf.url,conf.key);
+    const res=await db.from("docs").select("*").order("id");
+    if(res.error){ console.log("문서 실패: "+res.error.message); return; }
+    DOCS=res.data||[];
+    console.log("문서 "+DOCS.length+"건 · 기준값 "+CFG.MIN_SCORE);
+  } catch(e){ console.log("문서 실패: "+e.message); return; }
 
-  try {
-    const r = await fetch("/api/config");
-    const conf = await r.json();
-    if (!conf.url || !conf.key) { $("note").textContent = "서버에 환경변수가 설정되어 있지 않습니다"; return; }
-    db = supabase.createClient(conf.url, conf.key);
-    const res = await db.from("docs").select("*").order("id");
-    if (res.error) { $("note").textContent = "문서 불러오기 실패: " + res.error.message; return; }
-    DOCS = res.data || [];
-    console.log("문서 " + DOCS.length + "건 · 기준값 " + CFG.MIN_SCORE);
-  } catch (e) {
-    $("note").textContent = "문서 불러오기 실패: " + e.message;
-    return;
-  }
-
-  $("chips").innerHTML = SAMPLES.map(function (s) {
-    return '<button class="chip" type="button">' + s + '</button>';
-  }).join("");
-  document.querySelectorAll(".chip").forEach(function (b) {
-    b.addEventListener("click", function () { ask(b.textContent); });
-  });
+  $("chips").innerHTML = SAMPLES.map(function(s){
+    return '<button class="chip" type="button">'+s+'</button>'; }).join("");
+  document.querySelectorAll(".chip").forEach(function(b){
+    b.addEventListener("click", function(){ ask(b.textContent); }); });
 }
 
-$("send").addEventListener("click", function () { ask($("q").value); });
-$("q").addEventListener("keydown", function (e) { if (e.key === "Enter") ask($("q").value); });
+$("send").addEventListener("click", function(){ ask($("q").value); });
+$("q").addEventListener("keydown", function(e){ if(e.key==="Enter") ask($("q").value); });
 
-// 접수 화면 안에 겹쳐 떠 있을 때는 되돌아가기 링크를 숨긴다
+// 접수 화면 안에 겹쳐 떠 있을 때는 머리·꼬리를 숨긴다
 if (window.self !== window.top) {
-  document.querySelector(".back").style.display = "none";
-  document.querySelector(".wrap").style.padding = "20px 16px 24px";
-  document.querySelector("h1").style.display = "none";
+  [".top",".foot",".eyebrow","h1",".lead",".talk-top",".side"].forEach(function(sel){
+    document.querySelectorAll(sel).forEach(function(e){ e.style.display="none"; }); });
+  document.querySelector(".wrap").style.padding="12px 14px 14px";
+  document.querySelector(".cols").style.gridTemplateColumns="1fr";
+  document.querySelector(".talk").style.boxShadow="none";
+  document.querySelector(".log").style.minHeight="calc(100vh - 190px)";
 }
 
 boot();

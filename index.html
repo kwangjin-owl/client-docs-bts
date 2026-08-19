@@ -3,177 +3,247 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>자격증 접수 - 두두자격지원센터</title>
+<title>자격증 접수 신청 - 두두자격지원센터</title>
 <style>
   :root {
     --fs:20px;
-    --ink:#1a1a1a; --muted:#5a5f66; --line:#dde1e4;
-    --bg:#eef1f3; --card:#fff; --soft:#f5f7f8; --head:#12455c;
-    --pick:#1b5e7e; --pick-bg:#e7f1f6;
-    --stop:#8a5a00; --stop-bg:#fdf2dc;
+    --ink:#16202a; --muted:#5c6a75; --line:#dfe4e8;
+    --bg:#f2f5f7; --card:#fff; --soft:#f6f8f9;
+    --navy:#123a52; --navy-d:#0d2a3c;
+    --key:#0f7b6c; --key-d:#0b6357; --key-bg:#e5f4f1;
+    --hot:#d9660a; --hot-bg:#fdf0e3;
     --ok:#1c6b3a; --ok-bg:#e6f4ea;
     --bad:#c62828; --bad-bg:#fdecec;
+    --warn:#8a5a00; --warn-bg:#fdf2dc;
   }
   * { box-sizing:border-box; }
-  body { margin:0; background:var(--bg); color:var(--ink); font-size:var(--fs); line-height:1.6;
-         font-family:system-ui,"Malgun Gothic","Apple SD Gothic Neo",sans-serif; }
+  body { margin:0; background:var(--bg); color:var(--ink); font-size:var(--fs);
+         line-height:1.65; font-family:system-ui,"Malgun Gothic","Apple SD Gothic Neo",sans-serif; }
+  a { color:var(--key-d); }
 
-  /* ===== 공통 머리·꼬리 ===== */
-  .top { background:var(--head); }
-  .top-in { max-width:1360px; margin:0 auto; padding:0 28px;
-            display:flex; align-items:center; gap:20px; }
-  .brandmark { display:flex; align-items:center; gap:10px; padding:14px 0;
-               color:#fff; font-weight:600; font-size:1.02em;
+  /* ===== 머리 ===== */
+  .top { background:var(--navy); }
+  .top-in { max-width:1200px; margin:0 auto; padding:0 24px;
+            display:flex; align-items:center; gap:18px; }
+  .brandmark { display:flex; align-items:center; gap:10px; padding:13px 0;
+               color:#fff; font-weight:700; font-size:1em;
                white-space:nowrap; text-decoration:none; }
-  .brandmark .sq { width:32px; height:32px; border-radius:8px; background:#fff;
-                   color:var(--head); display:flex; align-items:center;
-                   justify-content:center; font-weight:700; font-size:0.9em; }
+  .brandmark .sq { width:34px; height:34px; border-radius:9px; background:var(--key);
+                   color:#fff; display:flex; align-items:center; justify-content:center;
+                   font-weight:700; font-size:0.82em; }
   .menu { display:flex; gap:2px; margin-left:auto; }
-  .menu a { font-size:0.92em; padding:16px 18px; color:#bcd3dd; text-decoration:none;
+  .menu a { font-size:0.9em; padding:15px 16px; color:#a9c3d1; text-decoration:none;
             border-bottom:4px solid transparent; white-space:nowrap; }
   .menu a:hover { color:#fff; }
-  .menu a.here { color:#fff; font-weight:600; border-bottom-color:#fff; }
-  .staff-btn { font-size:0.85em; padding:8px 16px; margin-left:14px;
-               color:#bcd3dd; text-decoration:none; white-space:nowrap;
-               border:1px solid rgba(255,255,255,.35); border-radius:8px; }
+  .menu a.here { color:#fff; font-weight:700; border-bottom-color:var(--key); }
+  .staff-btn { font-size:0.82em; padding:8px 15px; margin-left:12px; color:#a9c3d1;
+               text-decoration:none; white-space:nowrap;
+               border:1px solid rgba(255,255,255,.3); border-radius:8px; }
   .staff-btn:hover { color:#fff; border-color:#fff; }
+  .staff-btn.here { background:#fff; color:var(--navy); border-color:#fff; font-weight:700; }
 
-  .foot { border-top:1px solid var(--line); margin-top:32px; background:var(--card); }
-  .foot-in { max-width:1360px; margin:0 auto; padding:24px 28px 32px;
-             display:flex; gap:32px; flex-wrap:wrap; align-items:center; }
-  .foot .call { display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; }
-  .foot .call .lb { font-size:0.85em; color:var(--muted); }
-  .foot .call b { font-size:1.3em; color:var(--pick); letter-spacing:.5px; }
-  .foot .call .hr { font-size:0.85em; color:var(--muted); }
-  .foot .help { flex:1; min-width:260px; font-size:0.85em; color:var(--muted); line-height:1.8; }
-  .foot .help a { color:var(--pick); }
+  .subtop { background:var(--card); border-bottom:1px solid var(--line); }
+  .subtop-in { max-width:1200px; margin:0 auto; padding:0 24px;
+               display:flex; align-items:center; gap:4px; }
+  .subtop .stitle { font-size:0.82em; color:var(--muted); margin-right:10px; }
+  .subtop a { font-size:0.9em; padding:12px 15px; color:var(--muted);
+              text-decoration:none; border-bottom:3px solid transparent; }
+  .subtop a:hover { color:var(--key-d); }
+  .subtop a.here { color:var(--key-d); font-weight:700; border-bottom-color:var(--key); }
+  .subtop .lock { margin-left:auto; font:inherit; font-size:0.82em; padding:7px 14px;
+                  border:2px solid var(--line); border-radius:8px;
+                  background:var(--card); color:var(--muted); cursor:pointer; }
+  .subtop .lead-bar { margin-left:auto; font-size:0.82em; color:var(--muted); }
 
-  /* ===== 본문 ===== */
-  .wrap { max-width:1200px; margin:0 auto; padding:22px 28px 40px; }
-  .sheet { background:var(--card); border-radius:16px; padding:26px 30px 30px;
-           box-shadow:0 1px 3px rgba(0,0,0,.06); }
-  h1 { font-size:1.6em; font-weight:600; margin:0 0 6px; }
-  .lead { font-size:0.95em; color:var(--muted); margin:0 0 6px; }
-  .must-note { font-size:0.88em; color:var(--muted); margin:0 0 24px; }
+  /* ===== 뼈대 ===== */
+  .wrap { max-width:1200px; margin:0 auto; padding:22px 24px 40px; }
+  .sheet { background:var(--card); border-radius:16px; padding:26px 28px 28px;
+           box-shadow:0 1px 3px rgba(0,0,0,.06); margin-bottom:16px; }
+  .eyebrow { display:flex; align-items:center; gap:8px; font-size:0.78em;
+             font-weight:700; color:var(--key-d); margin:0 0 6px; letter-spacing:.02em; }
+  .eyebrow::before { content:""; width:18px; height:3px; border-radius:2px; background:var(--key); }
+  h1 { font-size:1.65em; font-weight:700; margin:0 0 6px; letter-spacing:-.01em; }
+  h2.sec { font-size:1.15em; font-weight:700; margin:0 0 4px; }
+  .lead { font-size:0.92em; color:var(--muted); margin:0 0 18px; }
 
-  /* 항목 하나 */
-  .item { border-top:1px solid var(--line); padding:22px 0 0; margin-top:22px; }
-  .item:first-of-type { border-top:0; padding-top:0; margin-top:0; }
-  .ihead { display:flex; align-items:center; gap:10px; margin:0 0 4px; }
-  .num { flex:none; width:30px; height:30px; border-radius:50%; background:var(--pick);
-         color:#fff; font-size:0.8em; font-weight:700;
-         display:flex; align-items:center; justify-content:center; }
-  .ihead h2 { font-size:1.12em; font-weight:600; margin:0; }
-  .req { color:var(--bad); font-weight:700; }
-  .ihint { font-size:0.85em; color:var(--muted); margin:0 0 12px 40px; }
-  .item.done .num { background:var(--ok); }
-  .item.done .num::after { content:"\2713"; }
-  .item.done .num span { display:none; }
+  /* ===== 버튼 ===== */
+  .btn { font:inherit; font-weight:700; padding:15px 22px; border-radius:10px;
+         cursor:pointer; border:2px solid transparent; }
+  .btn.key { background:var(--key); color:#fff; border-color:var(--key); }
+  .btn.key:hover { background:var(--key-d); border-color:var(--key-d); }
+  .btn.key:disabled { background:#a9b4bb; border-color:#a9b4bb; cursor:not-allowed; }
+  .btn.ghost { background:var(--card); color:var(--ink); border-color:var(--line); }
+  .btn.ghost:hover { border-color:var(--key); color:var(--key-d); }
+  .btn.big { width:100%; font-size:1.1em; padding:18px; }
 
-  /* 자격증 카드 */
-  .group { display:flex; align-items:center; gap:8px; font-size:0.82em;
-           font-weight:600; color:var(--ink); margin:16px 0 8px; }
-  .group::before { content:""; width:4px; height:15px; border-radius:2px; background:var(--pick); }
-  .grid { display:grid; grid-template-columns:repeat(4, 1fr); gap:10px; }
-  @media (max-width:1080px) { .grid { grid-template-columns:repeat(2, 1fr); } }
-  @media (max-width:620px)  { .grid { grid-template-columns:1fr; } }
-  .card { display:flex; align-items:center; justify-content:space-between; gap:10px;
-          width:100%; text-align:left; background:var(--card);
-          border:2px solid var(--line); border-left:7px solid var(--line);
-          border-radius:10px; padding:14px 16px; font:inherit; color:inherit; cursor:pointer; }
-  .card.s-now  { border-left-color:#1c6b3a; }
-  .card.s-soon { border-left-color:#1b5e7e; }
-  .card.s-late { border-left-color:#c9a227; }
-  .card:hover { background:var(--soft); }
-  .card:focus-visible { outline:3px solid var(--pick); outline-offset:2px; }
-  .card.picked { border-color:var(--pick); background:var(--pick-bg); }
-  .card .nm { display:block; font-size:1.02em; font-weight:600; }
-  .card .al { display:block; font-size:0.76em; color:var(--muted); min-height:1.3em; }
-  .card .tg { display:inline-block; font-size:0.72em; padding:2px 8px; border-radius:5px; }
-  .tg.now  { background:var(--ok-bg);   color:var(--ok); }
-  .tg.soon { background:var(--pick-bg); color:var(--pick); }
-  .tg.late { background:var(--stop-bg); color:var(--stop); }
-  .card .go { flex:none; color:var(--muted); font-size:1.2em; }
-  .card.picked .nm, .card.picked .al, .card.picked .go { color:var(--pick); }
-
-  .picked-line { background:var(--pick-bg); color:var(--pick); border-radius:10px;
-                 padding:12px 18px; margin:12px 0 0; font-size:0.95em; font-weight:600; }
-  .late-line { background:var(--stop-bg); color:var(--stop); border-radius:10px;
-               padding:12px 18px; margin:10px 0 0; font-size:0.88em; line-height:1.7; }
-
-  /* 입력 */
-  .flds { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-left:40px; }
-  @media (max-width:760px) { .flds { grid-template-columns:1fr; margin-left:0; } }
-  .fld label { display:flex; align-items:center; gap:6px;
-               font-size:0.9em; font-weight:600; margin:0 0 6px; }
-  input, textarea, select { width:100%; font:inherit; color:inherit; background:#fff;
-    padding:13px 15px; border:2px solid var(--line); border-radius:8px; }
-  input:focus, textarea:focus { outline:3px solid var(--pick); outline-offset:1px; }
+  /* ===== 입력 ===== */
+  label { display:flex; align-items:center; gap:6px; font-size:0.9em;
+          font-weight:700; margin:0 0 7px; }
+  input, select, textarea { width:100%; font:inherit; color:inherit; background:#fff;
+    padding:13px 15px; border:2px solid var(--line); border-radius:9px; }
+  input:focus, select:focus, textarea:focus { outline:3px solid var(--key); outline-offset:1px; }
+  input[readonly] { background:var(--soft); color:var(--muted); }
   textarea { resize:vertical; line-height:1.6; }
-  .hint { font-size:0.8em; color:#8b9096; margin:6px 0 0; }
-  .hint.good { color:var(--ok); font-weight:600; }
+  .hint { font-size:0.8em; color:#7b8892; margin:6px 0 0; }
+  .hint.good { color:var(--ok); font-weight:700; }
+  .req { display:inline-block; color:var(--bad); font-weight:800; }
+  .badge-must { display:inline-block; font-size:0.62em; font-weight:800; letter-spacing:.02em;
+                background:var(--bad-bg); color:var(--bad); padding:3px 8px;
+                border-radius:5px; vertical-align:2px; }
   .bad-field { border-color:var(--bad) !important; background:var(--bad-bg) !important; }
 
-  /* 동의 */
-  .agree { display:flex; align-items:flex-start; gap:12px; padding:14px 18px;
-           border:2px solid var(--line); border-radius:10px; margin:0 0 10px;
-           cursor:pointer; font-size:0.9em; }
-  .agree input { width:26px; height:26px; flex:none; margin-top:2px; cursor:pointer; }
-  .agree dl { margin:6px 0 0; display:grid; grid-template-columns:auto 1fr;
-              gap:2px 10px; font-size:0.85em; color:var(--muted); }
-  .agree dt { white-space:nowrap; }
-  .agree dd { margin:0; }
-  .todo { color:var(--stop); }
-
-  /* 알림 */
-  .msg { margin:16px 0 0; padding:16px 20px; border-radius:10px; font-size:0.95em;
-         font-weight:600; display:flex; align-items:flex-start; gap:10px; }
-  .msg::before { font-size:1.2em; flex:none; }
+  /* ===== 알림 ===== */
+  .msg { margin:14px 0 0; padding:15px 18px; border-radius:10px; font-size:0.92em;
+         font-weight:700; display:flex; align-items:flex-start; gap:10px; }
+  .msg::before { font-size:1.15em; flex:none; }
   .msg.ok  { background:var(--ok-bg);  color:var(--ok);  border:2px solid var(--ok); }
   .msg.ok::before  { content:"\2713"; }
   .msg.bad { background:var(--bad-bg); color:var(--bad); border:2px solid var(--bad); }
   .msg.bad::before { content:"\26A0"; }
+  .note { padding:14px 18px; border:2px solid var(--line); border-radius:10px;
+          font-size:0.86em; color:var(--muted); }
+  .note.tip { background:var(--key-bg); border-color:var(--key-bg); color:var(--key-d); }
 
-  .done-box { background:var(--ok-bg); border:2px solid var(--ok); border-radius:12px;
-              padding:20px 24px; margin-top:16px; font-size:0.9em; line-height:1.75; }
-  .done-box .rno { font-size:0.95em; margin:0; color:var(--ok); }
-  .done-box .rno b { font-size:1.7em; letter-spacing:1px; }
-  .done-box .rno-hint { font-size:0.85em; color:var(--muted); margin:4px 0 0; }
-  .done-box h3 { font-size:1.05em; font-weight:600; margin:16px 0 6px; color:var(--ok); }
-  .done-box ol { margin:6px 0 0; padding-left:20px; }
-  .done-box a { color:var(--pick); }
+  /* ===== 비어있음 ===== */
+  .empty { padding:38px 20px; text-align:center; color:var(--muted); }
+  .empty b { display:block; font-size:1.1em; color:var(--ink); margin-bottom:8px; }
+  .empty span { font-size:0.88em; line-height:1.75; }
 
-  .send { width:100%; margin-top:18px; font:inherit; font-size:1.15em; font-weight:700;
-          padding:19px; background:var(--pick); color:#fff;
-          border:2px solid var(--pick); border-radius:12px; cursor:pointer; }
-  .send:disabled { background:#b4b9bd; border-color:#b4b9bd; cursor:not-allowed; }
-
-  /* 챗봇 */
-  .ask-btn { position:fixed; right:28px; bottom:28px; z-index:50; font:inherit;
-             font-size:0.95em; font-weight:600; padding:15px 22px; border:0;
-             border-radius:999px; background:var(--pick); color:#fff; cursor:pointer;
-             box-shadow:0 4px 16px rgba(0,0,0,.2); }
-  .panel { position:fixed; right:24px; bottom:24px; z-index:60; width:540px;
-           max-width:calc(100vw - 40px); height:min(680px, calc(100vh - 48px));
-           background:#fff; border:1px solid var(--line); border-radius:16px;
-           box-shadow:0 8px 40px rgba(0,0,0,.22); display:none;
-           flex-direction:column; overflow:hidden; }
-  .panel.on { display:flex; }
-  .panel.wide { width:min(940px, calc(100vw - 40px)); height:calc(100vh - 40px); }
-  .panel-top { display:flex; align-items:center; justify-content:space-between; gap:8px;
-               padding:12px 16px; border-bottom:1px solid var(--line); flex:none; }
-  .panel-top button { font:inherit; font-size:0.85em; padding:7px 14px;
-                      border:1px solid var(--line); border-radius:8px;
-                      background:#fff; cursor:pointer; white-space:nowrap; }
-  .panel iframe { flex:1; width:100%; border:0; }
+  /* ===== 꼬리 ===== */
+  .foot { background:var(--navy-d); color:#a9c3d1; margin-top:36px; }
+  .foot-in { max-width:1200px; margin:0 auto; padding:26px 24px 34px;
+             display:flex; gap:32px; flex-wrap:wrap; align-items:center; }
+  .foot .call { display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; }
+  .foot .call .lb { font-size:0.82em; }
+  .foot .call b { font-size:1.35em; color:#fff; letter-spacing:.5px; }
+  .foot .call .hr { font-size:0.82em; }
+  .foot .help { flex:1; min-width:260px; font-size:0.82em; line-height:1.8; }
+  .foot .help a { color:#7fd4c4; }
   .hide { display:none; }
+
   @media (max-width:820px) {
     .top-in { flex-wrap:wrap; padding:0 16px; }
     .menu { margin-left:0; width:100%; overflow-x:auto; }
     .staff-btn { margin:0 0 10px; }
     .wrap { padding:16px 16px 32px; }
-    .sheet { padding:20px 18px 24px; }
-    .foot-in { padding:20px 16px 28px; }
+    .sheet { padding:20px 18px 22px; }
+    .subtop-in, .foot-in { padding-left:16px; padding-right:16px; }
+  }
+
+
+  /* ===== 소개 ===== */
+  .hero { background:var(--navy); color:#fff; }
+  .hero-in { max-width:1200px; margin:0 auto; padding:38px 24px 40px;
+             display:grid; grid-template-columns:1.3fr 1fr; gap:36px; align-items:center; }
+  @media (max-width:900px) { .hero-in { grid-template-columns:1fr; gap:22px; padding:28px 16px 30px; } }
+  .hero .eyebrow { color:#7fd4c4; }
+  .hero .eyebrow::before { background:var(--key); }
+  .hero h1 { font-size:2em; line-height:1.35; margin:0 0 12px; color:#fff; }
+  .hero p { font-size:0.95em; color:#bcd3dd; margin:0; line-height:1.8; }
+  .steps3 { background:rgba(255,255,255,.08); border-radius:14px; padding:20px 24px; }
+  .steps3 .t { font-size:0.82em; font-weight:700; color:#7fd4c4; margin:0 0 12px; }
+  .steps3 ol { margin:0; padding:0; list-style:none; }
+  .steps3 li { display:flex; gap:12px; align-items:flex-start; padding:9px 0; font-size:0.9em; }
+  .steps3 li + li { border-top:1px solid rgba(255,255,255,.12); }
+  .steps3 .n { flex:none; width:26px; height:26px; border-radius:50%; background:var(--key);
+               color:#fff; font-size:0.75em; font-weight:800;
+               display:flex; align-items:center; justify-content:center; }
+  .steps3 b { display:block; color:#fff; font-weight:700; }
+  .steps3 span { color:#bcd3dd; font-size:0.88em; }
+
+  /* ===== 항목 ===== */
+  .item { position:relative; padding-left:52px; }
+  .item + .item { margin-top:14px; }
+  .inum { position:absolute; left:0; top:26px; width:36px; height:36px; border-radius:50%;
+          background:var(--key); color:#fff; font-size:0.85em; font-weight:800;
+          display:flex; align-items:center; justify-content:center; }
+  .item.done .inum { background:var(--ok); }
+  .item.done .inum span { display:none; }
+  .item.done .inum::after { content:"\2713"; font-size:1.1em; }
+  @media (max-width:620px) { .item { padding-left:0; } .inum { position:static; margin-bottom:10px; } }
+
+  /* ===== 자격증 카드 ===== */
+  .group { display:flex; align-items:center; gap:8px; font-size:0.8em;
+           font-weight:700; color:var(--muted); margin:18px 0 8px; }
+  .group::before { content:""; width:4px; height:14px; border-radius:2px; background:var(--key); }
+  .grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
+  @media (max-width:1080px) { .grid { grid-template-columns:repeat(2,1fr); } }
+  @media (max-width:620px)  { .grid { grid-template-columns:1fr; } }
+  .card { display:flex; flex-direction:column; gap:6px; width:100%; height:100%;
+          text-align:left; background:var(--card); border:2px solid var(--line);
+          border-radius:12px; padding:15px 16px; font:inherit; color:inherit; cursor:pointer; }
+  .card:hover { border-color:var(--key); box-shadow:0 3px 10px rgba(0,0,0,.07); }
+  .card:focus-visible { outline:3px solid var(--key); outline-offset:2px; }
+  .card.picked { border-color:var(--key); background:var(--key-bg); box-shadow:0 0 0 3px rgba(15,123,108,.15); }
+  .card .tags { display:flex; gap:5px; flex-wrap:wrap; }
+  .tg { font-size:0.68em; font-weight:700; padding:3px 9px; border-radius:5px; }
+  .tg.trk  { background:#e8edf1; color:#44586a; }
+  .tg.now  { background:var(--ok-bg);   color:var(--ok); }
+  .tg.soon { background:var(--key-bg);  color:var(--key-d); }
+  .tg.late { background:var(--warn-bg); color:var(--warn); }
+  .card .nm { font-size:1.02em; font-weight:700; }
+  .card .why { font-size:0.78em; color:var(--muted); line-height:1.55; flex:1; }
+  .card .bot { display:flex; justify-content:space-between; align-items:baseline;
+               gap:8px; margin-top:6px; padding-top:9px; border-top:1px solid var(--line);
+               font-size:0.78em; }
+  .card .bot .w { color:var(--muted); }
+  .card .bot .f { font-weight:700; }
+  .card.picked .nm, .card.picked .why, .card.picked .bot .w, .card.picked .bot .f { color:var(--key-d); }
+  .card.picked .bot { border-top-color:rgba(15,123,108,.25); }
+
+  .picked-line { display:flex; align-items:center; gap:10px; background:var(--key-bg);
+                 color:var(--key-d); border-radius:10px; padding:13px 18px;
+                 margin:14px 0 0; font-size:0.92em; font-weight:700; }
+  .picked-line::before { content:"\2713"; font-size:1.1em; }
+  .late-line { background:var(--warn-bg); color:var(--warn); border-radius:10px;
+               padding:13px 18px; margin:10px 0 0; font-size:0.85em; line-height:1.7; }
+
+  /* ===== 입력 ===== */
+  .flds { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  @media (max-width:760px) { .flds { grid-template-columns:1fr; } }
+  .wide { grid-column:1/-1; }
+
+  .agree { display:flex; align-items:flex-start; gap:13px; padding:15px 18px;
+           border:2px solid var(--line); border-radius:10px; margin:0 0 10px;
+           cursor:pointer; font-size:0.88em; background:var(--card); }
+  .agree:hover { border-color:var(--key); }
+  .agree input { width:26px; height:26px; flex:none; margin-top:1px; cursor:pointer;
+                 accent-color:var(--key); }
+  .agree dl { margin:7px 0 0; display:grid; grid-template-columns:auto 1fr;
+              gap:2px 10px; font-size:0.85em; color:var(--muted); }
+  .agree dt { white-space:nowrap; }
+  .agree dd { margin:0; }
+  .todo { color:var(--warn); font-weight:700; }
+
+  .done-box { background:var(--ok-bg); border:2px solid var(--ok); border-radius:12px;
+              padding:22px 24px; margin-top:16px; font-size:0.88em; line-height:1.75; }
+  .done-box .rno { margin:0; color:var(--ok); font-weight:700; }
+  .done-box .rno b { display:block; font-size:1.9em; letter-spacing:1px; margin-top:2px; }
+  .done-box .rno-hint { font-size:0.85em; color:var(--muted); margin:6px 0 0; }
+  .done-box h3 { font-size:1.05em; font-weight:700; margin:18px 0 6px; color:var(--ok); }
+  .done-box ol { margin:6px 0 0; padding-left:20px; }
+
+  /* ===== 챗봇 ===== */
+  .ask-btn { position:fixed; right:24px; bottom:24px; z-index:50; font:inherit;
+             font-size:0.92em; font-weight:700; padding:15px 22px; border:0;
+             border-radius:999px; background:var(--hot); color:#fff; cursor:pointer;
+             box-shadow:0 5px 18px rgba(217,102,10,.35); }
+  .ask-btn:hover { background:#c25a08; }
+  .panel { position:fixed; right:22px; bottom:22px; z-index:60; width:540px;
+           max-width:calc(100vw - 36px); height:min(680px, calc(100vh - 44px));
+           background:#fff; border:1px solid var(--line); border-radius:16px;
+           box-shadow:0 10px 44px rgba(0,0,0,.25); display:none;
+           flex-direction:column; overflow:hidden; }
+  .panel.on { display:flex; }
+  .panel.wide { width:min(940px, calc(100vw - 40px)); height:calc(100vh - 40px); }
+  .panel-top { display:flex; align-items:center; justify-content:space-between; gap:8px;
+               padding:13px 16px; background:var(--navy); color:#fff; flex:none; }
+  .panel-top button { font:inherit; font-size:0.8em; padding:7px 14px; color:#fff;
+                      border:1px solid rgba(255,255,255,.35); border-radius:8px;
+                      background:transparent; cursor:pointer; white-space:nowrap; }
+  .panel-top button:hover { background:rgba(255,255,255,.12); }
+  .panel iframe { flex:1; width:100%; border:0; }
+  @media (max-width:820px) {
     .panel { left:0; right:0; top:0; bottom:0; width:100%; height:100%;
              max-width:none; border-radius:0; }
     .ask-btn { right:16px; bottom:16px; }
@@ -181,28 +251,36 @@
 </style>
 </head>
 <body>
-<div class="top"><div class="top-in">
-  <a class="brandmark" href="/"><span class="sq">두</span>두두자격지원센터</a>
-  <nav class="menu">
-    <a href="/" class="here">접수 신청</a>
-    <a href="/check">접수 확인</a>
-    <a href="/chat">물어보기</a>
-  </nav>
-  <a class="staff-btn" href="/admin">직원용</a>
+<div class="top"><div class="top-in"><a class="brandmark" href="/"><span class="sq">두두</span>두두자격지원센터</a><nav class="menu"><a href="/" class="here">접수 신청</a><a href="/check">접수 확인</a><a href="/chat">물어보기</a></nav><a class="staff-btn" href="/admin">직원용</a></div></div>
+
+<div class="hero"><div class="hero-in">
+  <div>
+    <p class="eyebrow">필기 접수 도움</p>
+    <h1>복잡한 원서접수,<br>저희가 대신 해 드립니다</h1>
+    <p>자격증 하나를 고르고 성함과 연락처만 남겨 주세요.<br>
+       직원이 확인한 뒤 두두넷·두두보건 원서접수를 대신 진행합니다.</p>
+  </div>
+  <div class="steps3">
+    <p class="t">이렇게 진행됩니다</p>
+    <ol>
+      <li><span class="n">1</span><span><b>신청서 접수</b>
+        <span>이 화면에서 세 가지만 넣으시면 됩니다</span></span></li>
+      <li><span class="n">2</span><span><b>담당자 연락</b>
+        <span>시험 일정과 준비물을 알려 드립니다</span></span></li>
+      <li><span class="n">3</span><span><b>원서접수 대행</b>
+        <span>공식 사이트 접수를 저희가 진행합니다</span></span></li>
+    </ol>
+  </div>
 </div></div>
 
 <div class="wrap">
- <div class="sheet">
 
-  <h1>자격증 접수 신청</h1>
-  <p class="lead">이 화면에서 세 가지만 넣으시면 접수가 끝납니다.</p>
-  <p class="must-note"><span class="req">*</span> 표시는 꼭 넣으셔야 하는 칸입니다.</p>
-
-  <!-- 1. 자격증 -->
-  <div class="item" id="it1">
-    <div class="ihead"><span class="num"><span>1</span></span>
-      <h2>어떤 자격증을 신청하시나요 <span class="req">*</span></h2></div>
-    <p class="ihint">아래에서 하나를 눌러 주세요.</p>
+  <!-- 1 -->
+  <div class="sheet item" id="it1">
+    <span class="inum"><span>1</span></span>
+    <p class="eyebrow">취급 자격증 8종</p>
+    <h2 class="sec">어떤 자격증을 신청하시나요 <span class="badge-must">필수</span></h2>
+    <p class="lead">아래에서 하나를 눌러 주세요.</p>
 
     <p class="group">두두넷 · 국가기술자격</p>
     <div class="grid" id="g-national"></div>
@@ -215,71 +293,68 @@
     <p class="late-line hide" id="late-line"></p>
   </div>
 
-  <!-- 2. 신청하시는 분 -->
-  <div class="item" id="it2">
-    <div class="ihead"><span class="num"><span>2</span></span>
-      <h2>신청하시는 분 <span class="req">*</span></h2></div>
-    <p class="ihint">성함과 연락처만 넣어 주시면 됩니다.</p>
+  <!-- 2 -->
+  <div class="sheet item" id="it2">
+    <span class="inum"><span>2</span></span>
+    <p class="eyebrow">신청하시는 분</p>
+    <h2 class="sec">성함과 연락처를 넣어 주세요 <span class="badge-must">필수</span></h2>
+    <p class="lead">이 두 가지만 있으면 접수됩니다. <span class="req">*</span> 표시가 꼭 넣으실 칸입니다.</p>
 
     <div class="flds">
-      <div class="fld">
+      <div>
         <label for="f-name">성함 <span class="req">*</span></label>
         <input id="f-name" type="text" placeholder="홍길동" maxlength="20" autocomplete="name">
         <p class="hint">주민등록증에 있는 이름</p>
       </div>
-      <div class="fld">
+      <div>
         <label for="f-phone">연락처 <span class="req">*</span></label>
         <input id="f-phone" type="text" inputmode="tel" placeholder="010-1234-5678" autocomplete="tel">
         <p class="hint">휴대폰이나 집 전화 (하이픈은 자동)</p>
       </div>
-      <div class="fld" style="grid-column:1/-1">
-        <label for="f-memo">남기실 말씀</label>
-        <textarea id="f-memo" rows="2" placeholder="예: 딸이 대신 문의합니다" maxlength="200"></textarea>
-        <p class="hint">안 쓰셔도 됩니다</p>
+      <div class="wide">
+        <label for="f-memo">남기실 말씀 <span class="hint" style="margin:0">안 쓰셔도 됩니다</span></label>
+        <textarea id="f-memo" rows="2" maxlength="200"
+          placeholder="예: 통화하기 편한 시간이나 궁금한 점을 적어 주세요"></textarea>
       </div>
     </div>
   </div>
 
-  <!-- 3. 동의하고 접수 -->
-  <div class="item" id="it3">
-    <div class="ihead"><span class="num"><span>3</span></span>
-      <h2>동의하고 접수 <span class="req">*</span></h2></div>
-    <p class="ihint">두 가지에 동의해 주셔야 접수됩니다.</p>
+  <!-- 3 -->
+  <div class="sheet item" id="it3">
+    <span class="inum"><span>3</span></span>
+    <p class="eyebrow">동의하고 접수</p>
+    <h2 class="sec">두 가지에 동의해 주세요 <span class="badge-must">필수</span></h2>
+    <p class="lead">동의하셔야 접수됩니다.</p>
 
-    <div class="flds" style="grid-template-columns:1fr">
-      <label class="agree" id="ag1-box" for="f-ag1">
-        <input type="checkbox" id="f-ag1">
-        <span><b>[필수]</b> 개인정보 수집 · 이용에 동의합니다
-          <dl>
-            <dt>받는 정보</dt><dd>이름, 연락처, 신청 자격증, 남기신 말씀</dd>
-            <dt>쓰는 곳</dt><dd>자격증 필기 접수를 대신 해 드리는 데에만 씁니다</dd>
-            <dt>보관 기간</dt><dd class="todo">확인 필요</dd>
-          </dl>
-        </span>
-      </label>
+    <label class="agree" id="ag1-box" for="f-ag1">
+      <input type="checkbox" id="f-ag1">
+      <span><b>[필수]</b> 개인정보 수집 · 이용에 동의합니다
+        <dl>
+          <dt>받는 정보</dt><dd>이름, 연락처, 신청 자격증, 남기신 말씀</dd>
+          <dt>쓰는 곳</dt><dd>자격증 필기 접수를 대신 해 드리는 데에만 씁니다</dd>
+          <dt>보관 기간</dt><dd class="todo">확인 필요</dd>
+        </dl></span>
+    </label>
 
-      <label class="agree" id="ag2-box" for="f-ag2">
-        <input type="checkbox" id="f-ag2">
-        <span><b>[필수]</b> 이용약관에 동의합니다
-          <dl>
-            <dt>내용</dt><dd>두두넷 원서접수 첫 단계에서 약관 4가지에 동의하셔야 합니다.
-              사진 규격, 신분증 범위 등입니다</dd>
-            <dt>약관 전문</dt><dd class="todo">확인 필요</dd>
-          </dl>
-        </span>
-      </label>
-    </div>
+    <label class="agree" id="ag2-box" for="f-ag2">
+      <input type="checkbox" id="f-ag2">
+      <span><b>[필수]</b> 이용약관에 동의합니다
+        <dl>
+          <dt>내용</dt><dd>두두넷 원서접수 첫 단계에서 약관 4가지에 동의하셔야 합니다.
+            사진 규격, 신분증 범위 등입니다</dd>
+          <dt>약관 전문</dt><dd class="todo">확인 필요</dd>
+        </dl></span>
+    </label>
 
     <p class="msg hide" id="msg"></p>
-    <button type="button" class="send" id="send">접수하기</button>
+    <button type="button" class="btn key big" id="send">접수 신청하기</button>
 
     <div class="done-box hide" id="done-box">
-      <p class="rno">접수번호 <b id="receipt-no"></b></p>
+      <p class="rno">접수번호<b id="receipt-no"></b></p>
       <p class="rno-hint">이 번호를 적어 두시거나 화면을 찍어 두십시오.
-        <a href="/check">접수 확인</a> 화면에서 이 번호로 찾으실 수 있습니다.</p>
-      <h3>다음은 이렇게 됩니다</h3>
-      저희 직원이 확인한 뒤 두두넷 또는 두두보건에서 원서접수를 대신 해 드립니다.
-      그 전에 세 가지를 준비해 주십시오.
+        <a href="/check">접수 확인</a>에서 이 번호로 찾으실 수 있습니다.</p>
+      <h3>접수 전에 준비하실 것</h3>
+      직원이 두두넷 또는 두두보건에서 대신 접수해 드립니다. 그 전에 세 가지를 준비해 주십시오.
       <ol>
         <li>해당 사이트 회원가입</li>
         <li>공동인증서 또는 금융인증서 등록</li>
@@ -288,28 +363,15 @@
     </div>
   </div>
 
- </div>
 </div>
 
-<div class="foot">
-  <div class="foot-in">
-    <div class="call">
-      <span class="lb">고객센터</span><b>02-000-0000</b>
-      <span class="hr">평일 09:00 ~ 18:00</span>
-    </div>
-    <div class="help">
-      화면에서 막히시면 <b>궁금한 것 물어보기</b>를 눌러 주세요.
-      접수하신 뒤에는 <a href="/check">접수 확인</a>에서 진행 상황을 보실 수 있습니다.
-    </div>
-  </div>
-</div>
+<div class="foot"><div class="foot-in"><div class="call"><span class="lb">고객센터</span><b>02-000-0000</b><span class="hr">평일 09:00 ~ 18:00</span></div><div class="help">화면에서 막히시면 <b>궁금한 것 물어보기</b>를 눌러 주세요. 접수하신 뒤에는 <a href="/check">접수 확인</a>에서 진행 상황을 보실 수 있습니다.</div></div></div>
 
 <button type="button" class="ask-btn" id="ask-btn">궁금한 것 물어보기</button>
 <div class="panel" id="panel" role="dialog" aria-label="문의 챗봇">
   <div class="panel-top"><b>궁금한 것 물어보기</b>
     <span><button type="button" id="panel-wide">창 크게</button>
-    <button type="button" id="panel-close">닫기</button></span>
-  </div>
+    <button type="button" id="panel-close">닫기</button></span></div>
   <iframe id="panel-frame" title="문의 챗봇"></iframe>
 </div>
 
@@ -317,53 +379,50 @@
 <script>
 const $ = function (id) { return document.getElementById(id); };
 
-// ---------- 01_form_정책.md 의 값 ----------
+// 01_사업현황_발주서.md 2절 "왜 찾는가" + 01_form_정책.md 값
 const CERTS = [
   { code:"7910", name:"한식조리기능사",   track:"국가기술", agency:"두두넷", examType:"상시CBT",
-    fee:14500, state:"now",  alias:null,         note:"아무 때나 접수" },
+    fee:14500, state:"now",  why:"식당 취업이나 창업을 준비하시는 분",       when:"아무 때나 접수" },
   { code:"7520", name:"지게차운전기능사", track:"국가기술", agency:"두두넷", examType:"상시CBT",
-    fee:14500, state:"now",  alias:"지게차 면허", note:"아무 때나 접수" },
+    fee:14500, state:"now",  why:"물류창고 취업을 준비하시는 분 (지게차 면허)", when:"아무 때나 접수" },
   { code:"7530", name:"굴착기운전기능사", track:"국가기술", agency:"두두넷", examType:"상시CBT",
-    fee:14500, state:"now",  alias:"포크레인",    note:"아무 때나 접수" },
+    fee:14500, state:"now",  why:"건설현장 취업을 준비하시는 분 (포크레인)",   when:"아무 때나 접수" },
   { code:"2300", name:"전기기능사",       track:"국가기술", agency:"두두넷", examType:"정기",
-    fee:14500, state:"soon", alias:null,         note:"제4회 8월 24일 ~ 27일" },
+    fee:14500, state:"soon", why:"시설관리 취업을 준비하시는 분",           when:"8월 24일 ~ 27일" },
   { code:"P001", name:"손해평가사",       track:"전문",   agency:"두두넷",
-    fee:30000, state:"late", alias:null,         note:"올해 1차 접수 끝남" },
+    fee:30000, state:"late", why:"농작물 재해 평가 업무를 준비하시는 분",     when:"올해 1차 끝남" },
   { code:"P002", name:"공인중개사",       track:"전문",   agency:"두두넷",
-    fee:13400, state:"late", alias:null,         note:"올해 1차 접수 끝남" },
+    fee:13400, state:"late", why:"부동산 개업을 준비하시는 분",             when:"올해 1차 끝남" },
   { code:"H001", name:"요양보호사",       track:"보건", agency:"두두보건", hours:240,
-    fee:32000, state:"now",  alias:"요양사",      note:"아무 때나 접수" },
+    fee:32000, state:"now",  why:"요양원·재가센터 취업을 준비하시는 분 (요양사)", when:"시험 7일 전까지" },
   { code:"H002", name:"위생사",           track:"보건", agency:"두두보건", hours:null,
-    fee:30000, state:"late", alias:null,         note:"시험 일정 확인 중" }
+    fee:30000, state:"late", why:"급식소·위생 업무 취업을 준비하시는 분",     when:"일정 확인 중" }
 ];
+const TRACK_LB = { "국가기술":"국가기술", "전문":"전문자격", "보건":"보건자격" };
+const TAG = { now:"지금 접수 가능", soon:"접수 예정", late:"접수 기간 아님" };
 
-// ---------- 상태 ----------
 let db = null, picked = null, sent = false;
 
 function makeReceiptNo(track) {
-  const head = track === "국가기술" ? "DN" : track === "전문" ? "DP" : "DH";
-  return head + new Date().getFullYear() +
-         String(Math.floor(Math.random() * 900000) + 100000);
+  const h = track === "국가기술" ? "DN" : track === "전문" ? "DP" : "DH";
+  return h + new Date().getFullYear() + String(Math.floor(Math.random()*900000)+100000);
 }
 
-// ---------- 입력 검사 ----------
-function digits(v, max) { return v.replace(/[^0-9]/g, "").slice(0, max); }
-
+// ---------- 입력 형태 ----------
+function digits(v, m) { return v.replace(/[^0-9]/g, "").slice(0, m); }
 function maskPhone(v) {
   const d = digits(v, 11);
   if (d.startsWith("02")) {
     if (d.length <= 2) return d;
-    if (d.length <= 5) return d.slice(0,2) + "-" + d.slice(2);
-    if (d.length <= 9) return d.slice(0,2) + "-" + d.slice(2,5) + "-" + d.slice(5);
-    return d.slice(0,2) + "-" + d.slice(2,6) + "-" + d.slice(6);
+    if (d.length <= 5) return d.slice(0,2)+"-"+d.slice(2);
+    if (d.length <= 9) return d.slice(0,2)+"-"+d.slice(2,5)+"-"+d.slice(5);
+    return d.slice(0,2)+"-"+d.slice(2,6)+"-"+d.slice(6);
   }
   if (d.length <= 3) return d;
-  if (d.length <= 6) return d.slice(0,3) + "-" + d.slice(3);
-  if (d.length <= 10) return d.slice(0,3) + "-" + d.slice(3,6) + "-" + d.slice(6);
-  return d.slice(0,3) + "-" + d.slice(3,7) + "-" + d.slice(7);
+  if (d.length <= 6) return d.slice(0,3)+"-"+d.slice(3);
+  if (d.length <= 10) return d.slice(0,3)+"-"+d.slice(3,6)+"-"+d.slice(6);
+  return d.slice(0,3)+"-"+d.slice(3,7)+"-"+d.slice(7);
 }
-
-// 이름에는 한글·영문·공백만. 숫자나 기호는 받지 않는다.
 function checkName(v) {
   const n = v.trim();
   if (!n) return { ok:false, why:"성함을 넣어 주세요." };
@@ -373,22 +432,19 @@ function checkName(v) {
     return { ok:false, why:"성함에는 숫자나 기호를 넣을 수 없습니다." };
   return { ok:true, value:n };
 }
-
-// 실제로 쓰는 국번만 받는다. 같은 숫자만 반복되는 번호는 막는다.
 const AREA = ["02","031","032","033","041","042","043","044","051","052","053",
               "054","055","061","062","063","064","070","0505"];
 function checkPhone(v) {
   const d = digits(v, 11);
   if (!d) return { ok:false, why:"연락처를 넣어 주세요." };
   if (/^(\d)\1+$/.test(d)) return { ok:false, why:"연락처를 다시 확인해 주세요." };
-
   if (/^01[016789]/.test(d)) {
     if (d.length !== 10 && d.length !== 11)
       return { ok:false, why:"휴대전화 번호를 끝까지 넣어 주세요. 예: 010-1234-5678" };
     return { ok:true, value:maskPhone(v) };
   }
   const hit = AREA.filter(function (a) { return d.startsWith(a); })
-                  .sort(function (a,b) { return b.length - a.length; })[0];
+                  .sort(function (a,b) { return b.length-a.length; })[0];
   if (!hit) return { ok:false, why:"쓰지 않는 번호입니다. 다시 확인해 주세요." };
   if (d.length < 9 || d.length > 11)
     return { ok:false, why:"연락처 자릿수를 다시 확인해 주세요. 예: 02-123-4567" };
@@ -400,63 +456,53 @@ function clearMsg() { $("msg").textContent = ""; $("msg").className = "msg hide"
 function clearMarks() {
   document.querySelectorAll(".bad-field").forEach(function (e) { e.classList.remove("bad-field"); });
 }
-function show(t, k) { $("msg").textContent = t; $("msg").className = "msg " + k; }
-function fail(text, id) {
-  clearMarks(); show(text, "bad");
+function show(t,k) { $("msg").textContent = t; $("msg").className = "msg " + k; }
+function fail(t, id) {
+  clearMarks(); show(t, "bad");
   const el = id ? $(id) : null;
-  if (el) {
-    el.classList.add("bad-field");
-    el.scrollIntoView({ behavior:"smooth", block:"center" });
-    if (el.focus) el.focus();
-  }
+  if (el) { el.classList.add("bad-field");
+            el.scrollIntoView({behavior:"smooth",block:"center"});
+            if (el.focus) el.focus(); }
   return false;
 }
-
-// ---------- 다 넣은 항목은 초록 체크 ----------
 function markDone() {
   $("it1").classList.toggle("done", !!picked);
   $("it2").classList.toggle("done",
     checkName($("f-name").value).ok && checkPhone($("f-phone").value).ok);
   $("it3").classList.toggle("done", $("f-ag1").checked && $("f-ag2").checked);
 }
-
-$("f-name").addEventListener("input", function () {
-  this.classList.remove("bad-field"); markDone();
-});
-$("f-phone").addEventListener("input", function () {
-  this.value = maskPhone(this.value); this.classList.remove("bad-field"); markDone();
-});
-[$("f-ag1"), $("f-ag2")].forEach(function (c) {
-  c.addEventListener("change", function () {
-    $(c.id === "f-ag1" ? "ag1-box" : "ag2-box").classList.remove("bad-field");
-    markDone();
-  });
+$("f-name").addEventListener("input", function(){ this.classList.remove("bad-field"); markDone(); });
+$("f-phone").addEventListener("input", function(){
+  this.value = maskPhone(this.value); this.classList.remove("bad-field"); markDone(); });
+[$("f-ag1"),$("f-ag2")].forEach(function(c){
+  c.addEventListener("change", function(){
+    $(c.id==="f-ag1"?"ag1-box":"ag2-box").classList.remove("bad-field"); markDone(); });
 });
 
-// ---------- 자격증 카드 ----------
+// ---------- 카드 ----------
 function drawCards() {
   const box = { "국가기술":$("g-national"), "전문":$("g-professional"), "보건":$("g-health") };
-  const TAG = { now:"지금 접수 가능", soon:"접수 예정", late:"접수 기간 아님" };
   CERTS.forEach(function (c) {
     const b = document.createElement("button");
-    b.type = "button"; b.className = "card s-" + c.state;
-    b.innerHTML = '<span>' +
-        '<span class="tg ' + c.state + '">' + TAG[c.state] + '</span>' +
-        '<span class="nm">' + c.name + '</span>' +
-        '<span class="al">' + (c.alias || "&nbsp;") + '</span>' +
-      '</span><span class="go">&rsaquo;</span>';
+    b.type = "button"; b.className = "card";
+    b.innerHTML =
+      '<span class="tags"><span class="tg trk">' + TRACK_LB[c.track] + '</span>' +
+      '<span class="tg ' + c.state + '">' + TAG[c.state] + '</span></span>' +
+      '<span class="nm">' + c.name + '</span>' +
+      '<span class="why">' + c.why + '</span>' +
+      '<span class="bot"><span class="w">' + c.when + '</span>' +
+      '<span class="f">' + c.fee.toLocaleString() + '원</span></span>';
     b.addEventListener("click", function () { pick(c, b); });
     box[c.track].appendChild(b);
   });
 }
 
 function pick(cert, btn) {
-  document.querySelectorAll(".card").forEach(function (c) { c.classList.remove("picked"); });
+  document.querySelectorAll(".card").forEach(function(c){ c.classList.remove("picked"); });
   btn.classList.add("picked");
-  picked = cert;
-  sent = false;
+  picked = cert; sent = false;
   $("send").disabled = false;
-  $("send").textContent = cert.state === "late" ? "문의 남기기" : "접수하기";
+  $("send").textContent = cert.state === "late" ? "문의 남기기" : "접수 신청하기";
   $("done-box").classList.add("hide");
   clearMsg(); clearMarks();
 
@@ -466,7 +512,7 @@ function pick(cert, btn) {
 
   const late = cert.state === "late";
   $("late-line").textContent = late
-    ? cert.name + "는 지금 접수 기간이 아닙니다. " + cert.note + ". " +
+    ? cert.name + "는 지금 접수 기간이 아닙니다. " + cert.when + ". " +
       "넣어 주시면 문의로 남고, 다음 접수 일정이 정해지면 저희가 연락드립니다."
     : "";
   $("late-line").classList.toggle("hide", !late);
@@ -475,53 +521,41 @@ function pick(cert, btn) {
   $("it2").scrollIntoView({ behavior:"smooth", block:"start" });
 }
 
-// ---------- 연결 ----------
 async function connect() {
   try {
     const r = await fetch("/api/config");
-    if (!r.ok) { console.log("[DB] 서버 함수 응답 " + r.status); return; }
+    if (!r.ok) { console.log("[DB] " + r.status); return; }
     const conf = await r.json();
     if (!conf.url || !conf.key) { console.log("[DB] 환경변수 없음"); return; }
     db = supabase.createClient(conf.url, conf.key);
     console.log("[DB] 연결됨");
-  } catch (e) { console.log("[DB] 연결 실패: " + e.message); }
+  } catch (e) { console.log("[DB] " + e.message); }
 }
 
-// ---------- 접수 ----------
 $("send").addEventListener("click", async function () {
   clearMsg(); clearMarks();
-
-  if (!picked) {
-    show("자격증을 골라 주세요.", "bad");
-    $("it1").scrollIntoView({ behavior:"smooth", block:"start" });
-    return;
-  }
+  if (!picked) { show("자격증을 골라 주세요.", "bad");
+    $("it1").scrollIntoView({behavior:"smooth",block:"start"}); return; }
   const nm = checkName($("f-name").value);
   if (!nm.ok) return fail(nm.why, "f-name");
   const ph = checkPhone($("f-phone").value);
   if (!ph.ok) return fail(ph.why, "f-phone");
-
-  if (!$("f-ag1").checked) {
-    $("ag1-box").classList.add("bad-field");
+  if (!$("f-ag1").checked) { $("ag1-box").classList.add("bad-field");
     show("개인정보 수집에 동의해 주셔야 접수할 수 있습니다.", "bad");
-    $("ag1-box").scrollIntoView({ behavior:"smooth", block:"center" }); return;
-  }
-  if (!$("f-ag2").checked) {
-    $("ag2-box").classList.add("bad-field");
+    $("ag1-box").scrollIntoView({behavior:"smooth",block:"center"}); return; }
+  if (!$("f-ag2").checked) { $("ag2-box").classList.add("bad-field");
     show("이용약관에 동의해 주셔야 접수할 수 있습니다.", "bad");
-    $("ag2-box").scrollIntoView({ behavior:"smooth", block:"center" }); return;
-  }
+    $("ag2-box").scrollIntoView({behavior:"smooth",block:"center"}); return; }
   if (!db) { show("아직 데이터베이스에 연결되지 않았습니다.", "bad"); return; }
   if (sent) { show("이미 접수하셨습니다. 다시 하시려면 자격증부터 다시 골라 주세요.", "bad"); return; }
 
-  // 같은 분이 같은 자격증으로 이미 접수하셨는지 본다 (막지 않고 여쭤본다)
   const dup = await db.from("applications").select("receipt_no, created_at")
     .eq("name", nm.value).eq("phone", ph.value).eq("cert_name", picked.name).limit(1);
   if (dup.data && dup.data.length) {
     const d = new Date(dup.data[0].created_at);
     if (!confirm(nm.value + " 님은 " + picked.name + "를 이미 접수하셨습니다.\n" +
-        "접수번호 " + dup.data[0].receipt_no + " (" +
-        (d.getMonth()+1) + "월 " + d.getDate() + "일)\n\n한 번 더 접수하시겠습니까?")) return;
+      "접수번호 " + dup.data[0].receipt_no + " (" + (d.getMonth()+1) + "월 " + d.getDate() +
+      "일)\n\n한 번 더 접수하시겠습니까?")) return;
   }
 
   const rno = makeReceiptNo(picked.track);
@@ -529,54 +563,47 @@ $("send").addEventListener("click", async function () {
   btn.disabled = true; btn.textContent = "보내는 중…";
 
   const res = await db.from("applications").insert({
-    track: picked.track, agency: picked.agency,
-    cert_code: picked.code, cert_name: picked.name,
-    name: nm.value, phone: ph.value,
-    fee_amount: picked.fee, fee_discount_type: "없음",
-    fee_discount_amount: 0, fee_final: picked.fee,
+    track:picked.track, agency:picked.agency,
+    cert_code:picked.code, cert_name:picked.name,
+    name:nm.value, phone:ph.value,
+    fee_amount:picked.fee, fee_discount_type:"없음",
+    fee_discount_amount:0, fee_final:picked.fee,
     status: picked.state === "late" ? "문의" : "접수완료",
-    usage_context: "본인단독", channel: "온라인",
+    usage_context:"본인단독", channel:"온라인",
     memo: $("f-memo").value.trim() || null,
-    receipt_no: rno, agreed_privacy: true, agreed_terms: true,
-    extra: { exam_category:"필기",
-             grade: picked.track === "국가기술" ? "기능사" : null,
-             exam_type: picked.examType || null }
+    receipt_no:rno, agreed_privacy:true, agreed_terms:true,
+    extra:{ exam_category:"필기",
+            grade: picked.track === "국가기술" ? "기능사" : null,
+            exam_type: picked.examType || null }
   });
 
   if (res.error) {
     btn.disabled = false;
-    btn.textContent = picked.state === "late" ? "문의 남기기" : "접수하기";
+    btn.textContent = picked.state === "late" ? "문의 남기기" : "접수 신청하기";
     show("저장 실패: " + res.error.message, "bad"); return;
   }
 
-  sent = true;
-  btn.textContent = "접수 완료";
-  show(picked.state === "late"
-    ? nm.value + " 님, 문의로 접수되었습니다."
-    : nm.value + " 님, 접수되었습니다.", "ok");
+  sent = true; btn.textContent = "접수 완료";
+  show(picked.state === "late" ? nm.value + " 님, 문의로 접수되었습니다."
+                               : nm.value + " 님, 접수되었습니다.", "ok");
   $("receipt-no").textContent = rno;
   $("done-box").classList.remove("hide");
   $("done-box").scrollIntoView({ behavior:"smooth", block:"center" });
 });
 
-// ---------- 챗봇 ----------
 (function () {
-  const btn = $("ask-btn"), panel = $("panel"), frame = $("panel-frame"),
-        close = $("panel-close"), wide = $("panel-wide");
-  wide.addEventListener("click", function () {
+  const btn=$("ask-btn"), panel=$("panel"), frame=$("panel-frame"),
+        close=$("panel-close"), wide=$("panel-wide");
+  wide.addEventListener("click", function(){
     const on = panel.classList.toggle("wide");
-    wide.textContent = on ? "창 작게" : "창 크게";
-  });
-  btn.addEventListener("click", function () {
+    wide.textContent = on ? "창 작게" : "창 크게"; });
+  btn.addEventListener("click", function(){
     if (!frame.getAttribute("src")) frame.setAttribute("src", "/chat");
-    panel.classList.add("on"); btn.style.display = "none"; close.focus();
-  });
-  close.addEventListener("click", function () {
-    panel.classList.remove("on"); btn.style.display = "block"; btn.focus();
-  });
-  document.addEventListener("keydown", function (e) {
-    if (e.key === "Escape" && panel.classList.contains("on")) close.click();
-  });
+    panel.classList.add("on"); btn.style.display="none"; close.focus(); });
+  close.addEventListener("click", function(){
+    panel.classList.remove("on"); btn.style.display="block"; btn.focus(); });
+  document.addEventListener("keydown", function(e){
+    if (e.key === "Escape" && panel.classList.contains("on")) close.click(); });
 })();
 
 drawCards();

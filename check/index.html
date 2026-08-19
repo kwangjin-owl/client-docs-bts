@@ -7,295 +7,302 @@
 <style>
   :root {
     --fs:20px;
-    --ink:#1a1a1a; --muted:#5a5f66; --line:#dde1e4;
-    --bg:#eef1f3; --card:#fff; --soft:#f5f7f8; --head:#12455c;
-    --pick:#1b5e7e; --pick-bg:#e7f1f6;
-    --stop:#8a5a00; --stop-bg:#fdf2dc;
+    --ink:#16202a; --muted:#5c6a75; --line:#dfe4e8;
+    --bg:#f2f5f7; --card:#fff; --soft:#f6f8f9;
+    --navy:#123a52; --navy-d:#0d2a3c;
+    --key:#0f7b6c; --key-d:#0b6357; --key-bg:#e5f4f1;
+    --hot:#d9660a; --hot-bg:#fdf0e3;
     --ok:#1c6b3a; --ok-bg:#e6f4ea;
-    --bad:#a32d2d; --bad-bg:#fceceb;
+    --bad:#c62828; --bad-bg:#fdecec;
+    --warn:#8a5a00; --warn-bg:#fdf2dc;
   }
   * { box-sizing:border-box; }
-  body { margin:0; background:var(--bg); color:var(--ink); font-size:var(--fs); line-height:1.6;
-         font-family:system-ui,"Malgun Gothic","Apple SD Gothic Neo",sans-serif; }
+  body { margin:0; background:var(--bg); color:var(--ink); font-size:var(--fs);
+         line-height:1.65; font-family:system-ui,"Malgun Gothic","Apple SD Gothic Neo",sans-serif; }
+  a { color:var(--key-d); }
 
-  .top { background:var(--head); }
-  .top-in { max-width:1360px; margin:0 auto; padding:0 28px;
-            display:flex; align-items:center; gap:24px; flex-wrap:wrap; }
-  .brandmark { display:flex; align-items:center; gap:10px; padding:14px 0;
-               color:#fff; font-weight:600; font-size:1.05em; white-space:nowrap; }
-  .brandmark .sq { width:32px; height:32px; border-radius:8px; background:#fff;
-                   color:var(--head); display:flex; align-items:center;
-                   justify-content:center; font-weight:700; font-size:0.9em; }
-  .menu { display:flex; gap:2px; flex-wrap:wrap; margin-left:auto; }
-  .menu a { font-size:0.92em; padding:14px 16px; color:#c9dbe4; text-decoration:none;
-            border-bottom:4px solid transparent; }
+  /* ===== 머리 ===== */
+  .top { background:var(--navy); }
+  .top-in { max-width:1200px; margin:0 auto; padding:0 24px;
+            display:flex; align-items:center; gap:18px; }
+  .brandmark { display:flex; align-items:center; gap:10px; padding:13px 0;
+               color:#fff; font-weight:700; font-size:1em;
+               white-space:nowrap; text-decoration:none; }
+  .brandmark .sq { width:34px; height:34px; border-radius:9px; background:var(--key);
+                   color:#fff; display:flex; align-items:center; justify-content:center;
+                   font-weight:700; font-size:0.82em; }
+  .menu { display:flex; gap:2px; margin-left:auto; }
+  .menu a { font-size:0.9em; padding:15px 16px; color:#a9c3d1; text-decoration:none;
+            border-bottom:4px solid transparent; white-space:nowrap; }
   .menu a:hover { color:#fff; }
-  .menu a.here { color:#fff; font-weight:600; border-bottom-color:#fff; }
+  .menu a.here { color:#fff; font-weight:700; border-bottom-color:var(--key); }
+  .staff-btn { font-size:0.82em; padding:8px 15px; margin-left:12px; color:#a9c3d1;
+               text-decoration:none; white-space:nowrap;
+               border:1px solid rgba(255,255,255,.3); border-radius:8px; }
+  .staff-btn:hover { color:#fff; border-color:#fff; }
+  .staff-btn.here { background:#fff; color:var(--navy); border-color:#fff; font-weight:700; }
 
-  .wrap { max-width:1100px; margin:0 auto; padding:20px 28px 60px; }
-  .find-row { display:grid; grid-template-columns:1fr 1fr; gap:14px; align-items:stretch; }
-  .find-row .box { display:flex; flex-direction:column; }
-  .find-row .find { margin-top:auto; }
-  @media (max-width:820px) { .find-row { grid-template-columns:1fr; } }
-  .fld-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-  @media (max-width:620px) { .fld-row { grid-template-columns:1fr; } }
-  .items { display:grid; grid-template-columns:repeat(auto-fit,minmax(340px,1fr)); gap:12px; }
-  .sheet { background:var(--card); border-radius:16px; padding:24px 26px;
-           box-shadow:0 1px 3px rgba(0,0,0,.06); }
-  h1 { font-size:1.5em; font-weight:600; margin:0 0 4px; }
-  .lead { font-size:0.95em; color:var(--muted); margin:0 0 20px; }
+  .subtop { background:var(--card); border-bottom:1px solid var(--line); }
+  .subtop-in { max-width:1200px; margin:0 auto; padding:0 24px;
+               display:flex; align-items:center; gap:4px; }
+  .subtop .stitle { font-size:0.82em; color:var(--muted); margin-right:10px; }
+  .subtop a { font-size:0.9em; padding:12px 15px; color:var(--muted);
+              text-decoration:none; border-bottom:3px solid transparent; }
+  .subtop a:hover { color:var(--key-d); }
+  .subtop a.here { color:var(--key-d); font-weight:700; border-bottom-color:var(--key); }
+  .subtop .lock { margin-left:auto; font:inherit; font-size:0.82em; padding:7px 14px;
+                  border:2px solid var(--line); border-radius:8px;
+                  background:var(--card); color:var(--muted); cursor:pointer; }
+  .subtop .lead-bar { margin-left:auto; font-size:0.82em; color:var(--muted); }
 
-  .box { border:1px solid var(--line); border-radius:14px; padding:18px 20px 22px; }
-  .box > h2 { font-size:1em; font-weight:600; color:var(--ink); margin:0 0 14px;
-              padding-bottom:12px; border-bottom:1px solid var(--line); }
-  .fld { background:var(--soft); border-radius:12px; padding:14px 16px 16px; margin-bottom:10px; }
-  .rno { font-size:0.85em; color:var(--muted); margin:0 0 8px; }
-  .rno b { font-size:1.25em; color:var(--ink); letter-spacing:1px; }
-  label { display:flex; align-items:center; gap:8px; font-size:0.9em;
-          font-weight:600; color:var(--ink); margin:0 0 8px; }
-  .num { flex:none; width:26px; height:26px; border-radius:50%; background:var(--pick);
-         color:#fff; font-size:0.72em; font-weight:600;
-         display:flex; align-items:center; justify-content:center; }
-  input { width:100%; font:inherit; padding:12px 14px;
-          border:2px solid var(--line); border-radius:8px; background:#fff; }
-  input:focus { outline:3px solid var(--pick); outline-offset:1px; }
-  .hint { font-size:0.78em; color:#8b9096; margin:6px 0 0; }
-  .find { width:100%; margin-top:18px; font:inherit; font-size:1.05em; font-weight:600;
-          padding:15px; background:var(--pick); color:#fff; border:2px solid var(--pick);
-          border-radius:10px; cursor:pointer; }
-  .find:disabled { background:#9aa4ab; cursor:not-allowed; }
+  /* ===== 뼈대 ===== */
+  .wrap { max-width:1200px; margin:0 auto; padding:22px 24px 40px; }
+  .sheet { background:var(--card); border-radius:16px; padding:26px 28px 28px;
+           box-shadow:0 1px 3px rgba(0,0,0,.06); margin-bottom:16px; }
+  .eyebrow { display:flex; align-items:center; gap:8px; font-size:0.78em;
+             font-weight:700; color:var(--key-d); margin:0 0 6px; letter-spacing:.02em; }
+  .eyebrow::before { content:""; width:18px; height:3px; border-radius:2px; background:var(--key); }
+  h1 { font-size:1.65em; font-weight:700; margin:0 0 6px; letter-spacing:-.01em; }
+  h2.sec { font-size:1.15em; font-weight:700; margin:0 0 4px; }
+  .lead { font-size:0.92em; color:var(--muted); margin:0 0 18px; }
 
-  .msg { margin-top:16px; padding:14px 18px; border-radius:10px; font-size:0.95em;
-         font-weight:600; display:flex; align-items:center; gap:10px; }
-  .msg::before { font-size:1.2em; flex:none; }
-  .msg.bad { background:var(--bad-bg); color:var(--bad); border:2px solid var(--bad); }
-  .msg.bad::before { content:"\26A0"; }
+  /* ===== 버튼 ===== */
+  .btn { font:inherit; font-weight:700; padding:15px 22px; border-radius:10px;
+         cursor:pointer; border:2px solid transparent; }
+  .btn.key { background:var(--key); color:#fff; border-color:var(--key); }
+  .btn.key:hover { background:var(--key-d); border-color:var(--key-d); }
+  .btn.key:disabled { background:#a9b4bb; border-color:#a9b4bb; cursor:not-allowed; }
+  .btn.ghost { background:var(--card); color:var(--ink); border-color:var(--line); }
+  .btn.ghost:hover { border-color:var(--key); color:var(--key-d); }
+  .btn.big { width:100%; font-size:1.1em; padding:18px; }
+
+  /* ===== 입력 ===== */
+  label { display:flex; align-items:center; gap:6px; font-size:0.9em;
+          font-weight:700; margin:0 0 7px; }
+  input, select, textarea { width:100%; font:inherit; color:inherit; background:#fff;
+    padding:13px 15px; border:2px solid var(--line); border-radius:9px; }
+  input:focus, select:focus, textarea:focus { outline:3px solid var(--key); outline-offset:1px; }
+  input[readonly] { background:var(--soft); color:var(--muted); }
+  textarea { resize:vertical; line-height:1.6; }
+  .hint { font-size:0.8em; color:#7b8892; margin:6px 0 0; }
+  .hint.good { color:var(--ok); font-weight:700; }
+  .req { display:inline-block; color:var(--bad); font-weight:800; }
+  .badge-must { display:inline-block; font-size:0.62em; font-weight:800; letter-spacing:.02em;
+                background:var(--bad-bg); color:var(--bad); padding:3px 8px;
+                border-radius:5px; vertical-align:2px; }
   .bad-field { border-color:var(--bad) !important; background:var(--bad-bg) !important; }
 
-  .item { background:var(--card); border:1px solid var(--line); border-left:7px solid var(--pick);
-          border-radius:12px; padding:18px 20px; margin-top:12px;
-          box-shadow:0 1px 3px rgba(0,0,0,.06); }
-  .item .cert { font-size:1.15em; font-weight:600; margin:0 0 2px; }
-  .item .when { font-size:0.85em; color:var(--muted); margin:0 0 12px; }
-  .item dl { margin:0; display:grid; grid-template-columns:auto 1fr; gap:4px 16px; font-size:0.9em; }
-  .item dt { color:var(--muted); }
-  .item dd { margin:0; }
-  .pill { display:inline-block; font-size:0.78em; padding:4px 12px; border-radius:6px; }
-  .pill.ok   { background:var(--ok-bg);   color:var(--ok); }
-  .pill.wait { background:var(--stop-bg); color:var(--stop); }
-  .pill.no   { background:var(--bad-bg);  color:var(--bad); }
+  /* ===== 알림 ===== */
+  .msg { margin:14px 0 0; padding:15px 18px; border-radius:10px; font-size:0.92em;
+         font-weight:700; display:flex; align-items:flex-start; gap:10px; }
+  .msg::before { font-size:1.15em; flex:none; }
+  .msg.ok  { background:var(--ok-bg);  color:var(--ok);  border:2px solid var(--ok); }
+  .msg.ok::before  { content:"\2713"; }
+  .msg.bad { background:var(--bad-bg); color:var(--bad); border:2px solid var(--bad); }
+  .msg.bad::before { content:"\26A0"; }
+  .note { padding:14px 18px; border:2px solid var(--line); border-radius:10px;
+          font-size:0.86em; color:var(--muted); }
+  .note.tip { background:var(--key-bg); border-color:var(--key-bg); color:var(--key-d); }
 
-  .empty { background:var(--card); border-radius:16px; margin-top:12px;
-           padding:36px 20px; text-align:center; color:var(--muted); }
+  /* ===== 비어있음 ===== */
+  .empty { padding:38px 20px; text-align:center; color:var(--muted); }
   .empty b { display:block; font-size:1.1em; color:var(--ink); margin-bottom:8px; }
-  .empty span { font-size:0.9em; line-height:1.7; }
-  .empty a { color:var(--pick); }
+  .empty span { font-size:0.88em; line-height:1.75; }
+
+  /* ===== 꼬리 ===== */
+  .foot { background:var(--navy-d); color:#a9c3d1; margin-top:36px; }
+  .foot-in { max-width:1200px; margin:0 auto; padding:26px 24px 34px;
+             display:flex; gap:32px; flex-wrap:wrap; align-items:center; }
+  .foot .call { display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; }
+  .foot .call .lb { font-size:0.82em; }
+  .foot .call b { font-size:1.35em; color:#fff; letter-spacing:.5px; }
+  .foot .call .hr { font-size:0.82em; }
+  .foot .help { flex:1; min-width:260px; font-size:0.82em; line-height:1.8; }
+  .foot .help a { color:#7fd4c4; }
   .hide { display:none; }
 
-  .foot { border-top:1px solid var(--line); margin-top:28px; }
-  .foot-in { max-width:1360px; margin:0 auto; padding:22px 28px 40px;
-             display:flex; gap:28px; flex-wrap:wrap; align-items:flex-start; }
-  .foot .call { background:var(--card); border:2px solid var(--pick);
-                border-radius:12px; padding:14px 20px; }
-  .foot .call b { display:block; font-size:1.25em; color:var(--pick); }
-  .foot .call span { font-size:0.82em; color:var(--muted); }
-  .foot .help { flex:1; min-width:240px; font-size:0.85em; color:var(--muted); line-height:1.8; }
-  .foot .help a { color:var(--pick); }
+  @media (max-width:820px) {
+    .top-in { flex-wrap:wrap; padding:0 16px; }
+    .menu { margin-left:0; width:100%; overflow-x:auto; }
+    .staff-btn { margin:0 0 10px; }
+    .wrap { padding:16px 16px 32px; }
+    .sheet { padding:20px 18px 22px; }
+    .subtop-in, .foot-in { padding-left:16px; padding-right:16px; }
+  }
+
+  .two { display:grid; grid-template-columns:1fr 1fr; gap:16px; align-items:stretch; }
+  @media (max-width:860px) { .two { grid-template-columns:1fr; } }
+  .two .sheet { display:flex; flex-direction:column; margin:0; }
+  .two .btn { margin-top:auto; }
+  .fldrow { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  @media (max-width:620px) { .fldrow { grid-template-columns:1fr; } }
+  .items { display:grid; grid-template-columns:repeat(auto-fit,minmax(340px,1fr));
+           gap:14px; margin-top:16px; }
+  .item2 { background:var(--card); border:2px solid var(--line); border-radius:14px;
+           padding:20px 22px; box-shadow:0 1px 3px rgba(0,0,0,.06); }
+  .item2 .rno { font-size:0.8em; color:var(--muted); margin:0 0 2px; }
+  .item2 .rno b { font-size:1.35em; color:var(--ink); letter-spacing:.5px; }
+  .item2 .cert { font-size:1.15em; font-weight:700; margin:8px 0 2px; }
+  .item2 .when { font-size:0.82em; color:var(--muted); margin:0 0 14px; }
+  .item2 dl { margin:0; display:grid; grid-template-columns:auto 1fr;
+              gap:5px 16px; font-size:0.86em; }
+  .item2 dt { color:var(--muted); }
+  .item2 dd { margin:0; }
+  .pill { display:inline-block; font-size:0.75em; font-weight:700;
+          padding:4px 12px; border-radius:6px; }
+  .pill.ok   { background:var(--ok-bg);   color:var(--ok); }
+  .pill.wait { background:var(--warn-bg); color:var(--warn); }
+  .pill.no   { background:var(--bad-bg);  color:var(--bad); }
+  .guide2 { margin-top:14px; padding-top:14px; border-top:1px solid var(--line);
+            font-size:0.85em; color:var(--muted); line-height:1.7; }
 </style>
 </head>
 <body>
-
-<div class="top">
-  <div class="top-in">
-    <span class="brandmark"><span class="sq">두</span>두두자격지원센터</span>
-    <nav class="menu">
-      <a href="/">접수 신청</a>
-      <a href="/check" class="here">접수 확인</a>
-      <a href="/chat">물어보기</a>
-      <a href="/admin">직원용</a>
-    </nav>
-  </div>
-</div>
+<div class="top"><div class="top-in"><a class="brandmark" href="/"><span class="sq">두두</span>두두자격지원센터</a><nav class="menu"><a href="/">접수 신청</a><a href="/check" class="here">접수 확인</a><a href="/chat">물어보기</a></nav><a class="staff-btn" href="/admin">직원용</a></div></div>
 
 <div class="wrap">
   <div class="sheet">
-  <h1>접수하신 내역 보기</h1>
-  <p class="lead">두 가지 방법 중 편하신 것으로 찾으시면 됩니다.</p>
+    <p class="eyebrow">기존 신청 조회</p>
+    <h1>접수하신 내역 보기</h1>
+    <p class="lead">두 가지 방법 중 편하신 것으로 찾으시면 됩니다.</p>
 
-  <div class="find-row">
-  <div class="box">
-    <h2>접수번호로 찾기</h2>
-    <div class="fld">
-      <label for="f-rno">접수번호</label>
-      <input id="f-rno" type="text" placeholder="DN2026123456" autocomplete="off">
-      <p class="hint">접수를 마치셨을 때 화면에 나온 번호입니다</p>
-    </div>
-    <button type="button" class="find" id="find-rno">이 번호로 찾기</button>
-  </div>
-
-  <div class="box">
-    <h2>성함과 연락처로 찾기</h2>
-    <p class="hint" style="margin:0 0 4px">번호를 잊으셨으면 이쪽으로 찾으세요</p>
-    <div class="fld-row">
-      <div class="fld">
-        <label for="f-name"><span class="num">1</span>성함</label>
-        <input id="f-name" type="text" placeholder="홍길동">
+    <div class="two">
+      <div class="sheet" style="box-shadow:none; border:2px solid var(--line)">
+        <h2 class="sec">접수번호로 찾기</h2>
+        <p class="lead">가장 빠릅니다.</p>
+        <label for="f-rno">접수번호 <span class="req">*</span></label>
+        <input id="f-rno" type="text" placeholder="DN2026123456" autocomplete="off">
+        <p class="hint">접수를 마치셨을 때 화면에 나온 번호입니다</p>
+        <button type="button" class="btn key big" id="find-rno">이 번호로 찾기</button>
       </div>
-      <div class="fld">
-        <label for="f-phone"><span class="num">2</span>연락처</label>
-        <input id="f-phone" type="text" inputmode="tel" placeholder="010-1234-5678">
-        <p class="hint">접수하실 때 넣으신 번호와 같아야 합니다</p>
+
+      <div class="sheet" style="box-shadow:none; border:2px solid var(--line)">
+        <h2 class="sec">성함과 연락처로 찾기</h2>
+        <p class="lead">번호를 잊으셨으면 이쪽으로 찾으세요.</p>
+        <div class="fldrow">
+          <div>
+            <label for="f-name">성함 <span class="req">*</span></label>
+            <input id="f-name" type="text" placeholder="홍길동">
+          </div>
+          <div>
+            <label for="f-phone">연락처 <span class="req">*</span></label>
+            <input id="f-phone" type="text" inputmode="tel" placeholder="010-1234-5678">
+          </div>
+        </div>
+        <p class="hint">접수하실 때 넣으신 것과 같아야 합니다</p>
+        <button type="button" class="btn key big" id="find">찾아보기</button>
       </div>
     </div>
-    <button type="button" class="find" id="find">찾아보기</button>
-  </div>
-  </div>
 
-  <p class="msg hide" id="msg"></p>
+    <p class="msg hide" id="msg"></p>
   </div>
 
   <div id="result"></div>
 </div>
 
-<div class="foot">
-  <div class="foot-in">
-    <div class="call">
-      고객센터
-      <b>02-000-0000</b>
-      <span>평일 09:00 ~ 18:00</span>
-    </div>
-    <div class="help">
-      화면에서 막히시면 오른쪽 아래 <b>궁금한 것 물어보기</b>를 눌러 주세요.
-      문서에 있는 것은 바로 답해 드립니다.<br>
-      접수하신 뒤에는 <a href="/check">접수 확인</a>에서 진행 상황을 보실 수 있습니다.
-    </div>
-  </div>
-</div>
+<div class="foot"><div class="foot-in"><div class="call"><span class="lb">고객센터</span><b>02-000-0000</b><span class="hr">평일 09:00 ~ 18:00</span></div><div class="help">화면에서 막히시면 <b>궁금한 것 물어보기</b>를 눌러 주세요. 접수하신 뒤에는 <a href="/check">접수 확인</a>에서 진행 상황을 보실 수 있습니다.</div></div></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 const $ = function (id) { return document.getElementById(id); };
-
-function digits(v, max) { return v.replace(/[^0-9]/g, "").slice(0, max); }
-function maskPhone(v) {
-  const d = digits(v, 11);
-  if (d.startsWith("02")) {
-    if (d.length <= 2) return d;
-    if (d.length <= 5) return d.slice(0,2) + "-" + d.slice(2);
-    if (d.length <= 9) return d.slice(0,2) + "-" + d.slice(2,5) + "-" + d.slice(5);
-    return d.slice(0,2) + "-" + d.slice(2,6) + "-" + d.slice(6);
+function digits(v,m){ return v.replace(/[^0-9]/g,"").slice(0,m); }
+function maskPhone(v){
+  const d=digits(v,11);
+  if(d.startsWith("02")){
+    if(d.length<=2) return d;
+    if(d.length<=5) return d.slice(0,2)+"-"+d.slice(2);
+    if(d.length<=9) return d.slice(0,2)+"-"+d.slice(2,5)+"-"+d.slice(5);
+    return d.slice(0,2)+"-"+d.slice(2,6)+"-"+d.slice(6);
   }
-  if (d.length <= 3) return d;
-  if (d.length <= 6) return d.slice(0,3) + "-" + d.slice(3);
-  if (d.length <= 10) return d.slice(0,3) + "-" + d.slice(3,6) + "-" + d.slice(6);
-  return d.slice(0,3) + "-" + d.slice(3,7) + "-" + d.slice(7);
+  if(d.length<=3) return d;
+  if(d.length<=6) return d.slice(0,3)+"-"+d.slice(3);
+  if(d.length<=10) return d.slice(0,3)+"-"+d.slice(3,6)+"-"+d.slice(6);
+  return d.slice(0,3)+"-"+d.slice(3,7)+"-"+d.slice(7);
 }
-$("f-phone").addEventListener("input", function () {
-  this.value = maskPhone(this.value); this.classList.remove("bad-field");
-});
-$("f-name").addEventListener("input", function () { this.classList.remove("bad-field"); });
+$("f-phone").addEventListener("input", function(){
+  this.value=maskPhone(this.value); this.classList.remove("bad-field"); });
+["f-name","f-rno"].forEach(function(id){
+  $(id).addEventListener("input", function(){ this.classList.remove("bad-field"); }); });
 
-function show(text) { $("msg").textContent = text; $("msg").className = "msg bad"; }
-function clearMsg() { $("msg").textContent = ""; $("msg").className = "msg hide"; }
-function fail(text, id) {
-  show(text); const el = $(id);
-  el.classList.add("bad-field"); el.focus(); return false;
-}
+function show(t){ $("msg").textContent=t; $("msg").className="msg bad"; }
+function clearMsg(){ $("msg").textContent=""; $("msg").className="msg hide"; }
+function fail(t,id){ show(t); const e=$(id); e.classList.add("bad-field"); e.focus(); return false; }
 
-function fmt(iso) {
-  const d = new Date(iso);
-  return d.getFullYear() + "년 " + (d.getMonth()+1) + "월 " + d.getDate() + "일";
+function fmt(iso){ const d=new Date(iso);
+  return d.getFullYear()+"년 "+(d.getMonth()+1)+"월 "+d.getDate()+"일"; }
+function pill(s){
+  if(s==="접수완료") return '<span class="pill ok">접수완료</span>';
+  if(s==="결제대기") return '<span class="pill wait">결제대기</span>';
+  if(s==="문의")     return '<span class="pill wait">문의 접수</span>';
+  return '<span class="pill no">'+(s||"-")+'</span>';
 }
-function pill(s) {
-  if (s === "접수완료") return '<span class="pill ok">접수완료</span>';
-  if (s === "결제대기") return '<span class="pill wait">결제대기</span>';
-  if (s === "문의")     return '<span class="pill wait">문의 접수</span>';
-  return '<span class="pill no">' + (s || "-") + '</span>';
-}
-function guide(s) {
-  if (s === "접수완료") return "직원이 확인한 뒤 원서접수를 대신 해 드립니다. 연락을 기다려 주십시오.";
-  if (s === "결제대기") return "결제가 아직 끝나지 않았습니다. 고객센터로 문의해 주십시오.";
-  if (s === "문의")     return "지금은 접수 기간이 아니라 문의로 남아 있습니다. 다음 일정이 정해지면 연락드립니다.";
-  if (s === "취소")     return "취소된 접수입니다.";
+function guide(s){
+  if(s==="접수완료") return "직원이 확인한 뒤 원서접수를 대신 해 드립니다. 연락을 기다려 주십시오.";
+  if(s==="결제대기") return "결제가 아직 끝나지 않았습니다. 고객센터로 문의해 주십시오.";
+  if(s==="문의")     return "지금은 접수 기간이 아니라 문의로 남아 있습니다. 다음 일정이 정해지면 연락드립니다.";
+  if(s==="취소")     return "취소된 접수입니다.";
   return "";
 }
 
 async function run(btn, apply) {
   clearMsg();
-  btn.disabled = true;
-  const old = btn.textContent; btn.textContent = "찾는 중…";
+  const old = btn.textContent;
+  btn.disabled = true; btn.textContent = "찾는 중…";
   $("result").innerHTML = "";
-
   try {
     const r = await fetch("/api/config");
     const conf = await r.json();
     if (!conf.url || !conf.key) { show("서버에 환경변수가 설정되어 있지 않습니다."); return; }
     const db = supabase.createClient(conf.url, conf.key);
-
     const res = await apply(db.from("applications").select("*"))
       .order("created_at", { ascending:false });
-
     if (res.error) { show("찾기 실패: " + res.error.message); return; }
     const rows = res.data || [];
-
     if (!rows.length) {
       $("result").innerHTML =
-        '<div class="empty"><b>접수하신 내역이 없습니다</b>' +
+        '<div class="sheet"><div class="empty"><b>접수하신 내역이 없습니다</b>' +
         '<span>접수번호나 성함·연락처가 접수하실 때와 같은지 확인해 주세요.<br>' +
-        '아직 접수를 안 하셨으면 <a href="/">접수 신청</a>에서 하실 수 있습니다.</span></div>';
+        '아직 접수를 안 하셨으면 <a href="/">접수 신청</a>에서 하실 수 있습니다.</span></div></div>';
       return;
     }
-
     $("result").innerHTML = '<div class="items">' + rows.map(function (a) {
       const x = a.extra || {};
-      const rowsHtml = [
+      const rs = [
         ["접수 상태", pill(a.status)],
         ["기관", a.agency || "-"],
-        [a.track === "보건" ? "시험 센터" : "시험 지역", a.exam_region || "-"],
-        ["희망 시험일", a.exam_date || "정하지 않음"],
-        ["결제하실 금액", (a.fee_final == null ? 0 : a.fee_final).toLocaleString() + "원"],
-        ["결제수단", a.payment_method || "-"]
+        ["결제하실 금액", (a.fee_final==null?0:a.fee_final).toLocaleString() + "원"]
       ];
-      if (x.exam_stage) rowsHtml.push(["차수", x.exam_stage]);
-      if (x.exam_round && x.exam_round !== "해당없음 (상시)") rowsHtml.push(["회차", x.exam_round]);
-      if (x.training_org) rowsHtml.push(["교육기관", x.training_org]);
-
-      return '<div class="item">' +
-        (a.receipt_no ? '<p class="rno">접수번호 <b>' + a.receipt_no + '</b></p>' : "") +
-        '<p class="cert">' + a.cert_name + '</p>' +
-        '<p class="when">' + fmt(a.created_at) + ' 접수</p>' +
-        '<dl>' + rowsHtml.map(function (p) {
-          return "<dt>" + p[0] + "</dt><dd>" + p[1] + "</dd>";
-        }).join("") + '</dl>' +
-        (guide(a.status) ? '<p class="hint" style="margin-top:12px">' + guide(a.status) + '</p>' : "") +
+      if (a.exam_region) rs.push([a.track==="보건"?"시험 센터":"시험 지역", a.exam_region]);
+      if (a.exam_date) rs.push(["희망 시험일", a.exam_date]);
+      if (x.exam_stage) rs.push(["차수", x.exam_stage]);
+      if (x.training_org) rs.push(["교육기관", x.training_org]);
+      return '<div class="item2">' +
+        (a.receipt_no ? '<p class="rno">접수번호 <b>'+a.receipt_no+'</b></p>' : "") +
+        '<p class="cert">'+a.cert_name+'</p>' +
+        '<p class="when">'+fmt(a.created_at)+' 접수</p><dl>' +
+        rs.map(function(p){ return "<dt>"+p[0]+"</dt><dd>"+p[1]+"</dd>"; }).join("") +
+        '</dl>' + (guide(a.status) ? '<p class="guide2">'+guide(a.status)+'</p>' : "") +
         '</div>';
     }).join("") + '</div>';
-
-  } catch (e) {
-    show("찾기 실패: " + e.message);
-  } finally {
-    btn.disabled = false; btn.textContent = old;
-  }
+  } catch (e) { show("찾기 실패: " + e.message); }
+  finally { btn.disabled = false; btn.textContent = old; }
 }
 
 function byName() {
-  const name = $("f-name").value.trim();
-  const phone = $("f-phone").value.trim();
-  if (!name) return fail("성함을 넣어 주세요.", "f-name");
-  if (digits(phone, 11).length < 9) return fail("연락처를 다시 확인해 주세요.", "f-phone");
-  run($("find"), function (q) { return q.eq("name", name).eq("phone", phone); });
+  const name=$("f-name").value.trim(), phone=$("f-phone").value.trim();
+  if(!name) return fail("성함을 넣어 주세요.","f-name");
+  if(digits(phone,11).length<9) return fail("연락처를 다시 확인해 주세요.","f-phone");
+  run($("find"), function(q){ return q.eq("name",name).eq("phone",phone); });
 }
 function byRno() {
-  const no = $("f-rno").value.trim().toUpperCase();
-  if (no.length < 6) return fail("접수번호를 넣어 주세요.", "f-rno");
-  run($("find-rno"), function (q) { return q.eq("receipt_no", no); });
+  const no=$("f-rno").value.trim().toUpperCase();
+  if(no.length<6) return fail("접수번호를 넣어 주세요.","f-rno");
+  run($("find-rno"), function(q){ return q.eq("receipt_no",no); });
 }
-
 $("find").addEventListener("click", byName);
 $("find-rno").addEventListener("click", byRno);
-$("f-phone").addEventListener("keydown", function (e) { if (e.key === "Enter") byName(); });
-$("f-rno").addEventListener("keydown", function (e) { if (e.key === "Enter") byRno(); });
-$("f-rno").addEventListener("input", function () { this.classList.remove("bad-field"); });
+$("f-phone").addEventListener("keydown", function(e){ if(e.key==="Enter") byName(); });
+$("f-rno").addEventListener("keydown", function(e){ if(e.key==="Enter") byRno(); });
 </script>
 </body>
 </html>
