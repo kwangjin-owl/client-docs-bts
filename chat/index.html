@@ -236,6 +236,13 @@ async function boot() {
 $("send").addEventListener("click", function () { ask($("q").value); });
 $("q").addEventListener("keydown", function (e) { if (e.key === "Enter") ask($("q").value); });
 
+// 접수 화면 안에 겹쳐 떠 있을 때는 되돌아가기 링크를 숨긴다
+if (window.self !== window.top) {
+  document.querySelector(".back").style.display = "none";
+  document.querySelector(".wrap").style.padding = "20px 16px 24px";
+  document.querySelector("h1").style.display = "none";
+}
+
 boot();
 </script>
 </body>
