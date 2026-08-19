@@ -28,11 +28,11 @@
 
   h2 { font-size:19px; font-weight:600; margin:32px 0 12px; }
 
-  .bar { display:flex; align-items:center; gap:10px; margin-bottom:6px; font-size:16px; }
+  .bar { display:flex; align-items:center; gap:12px; margin-bottom:6px; font-size:16px; }
   .bar .nm { width:150px; flex:none; }
   .bar .track { flex:1; background:#eef0f2; border-radius:6px; height:22px; overflow:hidden; }
-  .bar .fill { background:var(--pick); height:100%; }
-  .bar .ct { width:64px; flex:none; text-align:right; color:var(--muted); }
+  .bar .fill { display:block; background:var(--pick); height:22px; border-radius:6px; }
+  .bar .ct { width:110px; flex:none; text-align:right; color:var(--muted); white-space:nowrap; }
 
   .tools { display:flex; gap:10px; flex-wrap:wrap; margin:8px 0 16px; }
   input, select, button { font:inherit; color:inherit; padding:10px 12px;
@@ -41,8 +41,9 @@
   button { cursor:pointer; }
   button.go { background:var(--pick); color:#fff; border-color:var(--pick); }
 
-  table { width:100%; border-collapse:collapse; font-size:16px; }
-  th, td { text-align:left; padding:12px 10px; border-bottom:1px solid var(--line); vertical-align:top; }
+  table { width:100%; border-collapse:collapse; font-size:16px; table-layout:fixed; }
+  th, td { text-align:left; padding:12px 8px; border-bottom:1px solid var(--line);
+           vertical-align:middle; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   th { font-weight:600; color:var(--muted); font-size:15px; white-space:nowrap; }
   tr.row { cursor:pointer; }
   tr.row:hover td { background:#f7f8f9; }
@@ -59,6 +60,10 @@
   .note { margin-top:20px; padding:16px 20px; border:1px solid var(--line);
           border-radius:12px; font-size:16px; color:var(--muted); }
   .hide { display:none; }
+  .pager { display:flex; align-items:center; justify-content:center; gap:12px; margin-top:20px; }
+  .pager span { font-size:16px; color:var(--muted); }
+  .pager button { padding:10px 18px; }
+  .pager button:disabled { color:#b4b2a9; cursor:default; }
   @media (max-width:640px) {
     .cards { grid-template-columns:1fr; }
     .bar .nm { width:110px; font-size:15px; }
@@ -125,6 +130,11 @@
   </div>
 
   <table>
+    <colgroup>
+      <col style="width:96px"><col style="width:72px"><col style="width:134px">
+      <col style="width:150px"><col style="width:82px"><col style="width:96px">
+      <col style="width:88px"><col style="width:92px">
+    </colgroup>
     <thead>
       <tr>
         <th>접수일시</th><th>성함</th><th>연락처</th><th>자격증</th>
@@ -134,6 +144,7 @@
     <tbody id="rows"></tbody>
   </table>
 
+  <div class="pager" id="pager"></div>
   <p class="note" id="status">불러오는 중…</p>
 </div>
 
@@ -167,7 +178,8 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 const $ = function (id) { return document.getElementById(id); };
-let db = null, all = [];
+const PER = 50;
+let db = null, all = [], page = 1, shown = [];
 
 function isToday(iso) {
   const d = new Date(iso), n = new Date();
@@ -265,7 +277,18 @@ function render() {
     Object.keys(byCert).sort().map(function (k) { return '<option>' + k + '</option>'; }).join("");
   sel.value = keep;
 
-  $("rows").innerHTML = list.map(function (r) {
+  const pages = Math.max(1, Math.ceil(list.length / PER));
+  if (page > pages) page = pages;
+  const from = (page - 1) * PER;
+  shown = list.slice(from, from + PER);
+
+  $("pager").innerHTML = pages > 1
+    ? '<button id="prev"' + (page === 1 ? " disabled" : "") + '>← 이전</button>' +
+      '<span>' + (from + 1) + '–' + (from + shown.length) + ' / ' + list.length + '건</span>' +
+      '<button id="next"' + (page === pages ? " disabled" : "") + '>다음 →</button>'
+    : "";
+
+  $("rows").innerHTML = shown.map(function (r) {
     return '<tr class="row" data-id="' + r.id + '">' +
       '<td>' + fmtWhen(r.created_at) + '</td>' +
       '<td>' + (r.name || "") + '</td>' +
@@ -311,9 +334,10 @@ async function load() {
   }
 }
 
-$("q").addEventListener("input", render);
-$("f-cert").addEventListener("change", render);
-$("f-when").addEventListener("change", render);
+function reset() { page = 1; render(); }
+$("q").addEventListener("input", reset);
+$("f-cert").addEventListener("change", reset);
+$("f-when").addEventListener("change", reset);
 $("reload").addEventListener("click", load);
 
 load();
