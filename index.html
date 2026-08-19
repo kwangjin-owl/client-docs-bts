@@ -3,237 +3,420 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>시니어 자격증 접수 서비스</title>
+<title>시니어 자격증 통합 접수</title>
 <style>
   :root {
-    --ink: #1a1a1a;
-    --muted: #5a5f66;
-    --line: #d7dbdf;
-    --pick: #1b5e7e;
-    --pick-bg: #e7f1f6;
-    --stop: #8a5a00;
-    --stop-bg: #fdf2dc;
-    --ok: #1c6b3a;
-    --ok-bg: #e6f4ea;
-    --bad: #a32d2d;
-    --bad-bg: #fceceb;
+    --ink:#1a1a1a; --muted:#5a5f66; --line:#d7dbdf;
+    --pick:#1b5e7e; --pick-bg:#e7f1f6;
+    --stop:#8a5a00; --stop-bg:#fdf2dc;
+    --ok:#1c6b3a; --ok-bg:#e6f4ea;
+    --bad:#a32d2d; --bad-bg:#fceceb;
   }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    background: #fff;
-    color: var(--ink);
-    font-family: system-ui, "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
-    font-size: 18px;
-    line-height: 1.7;
-  }
-  .wrap { max-width: 640px; margin: 0 auto; padding: 32px 20px 80px; }
-  .brand { font-size: 16px; color: var(--muted); margin: 0 0 32px; }
-  h1 { font-size: 28px; font-weight: 600; margin: 0 0 8px; }
-  h2 { font-size: 22px; font-weight: 600; margin: 40px 0 8px; }
-  .lead { font-size: 18px; color: var(--muted); margin: 0 0 24px; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:#fff; color:var(--ink); font-size:18px; line-height:1.7;
+         font-family:system-ui,"Malgun Gothic","Apple SD Gothic Neo",sans-serif; }
+  .wrap { max-width:640px; margin:0 auto; padding:32px 20px 80px; }
+  .brand { font-size:16px; color:var(--muted); margin:0 0 32px; }
+  h1 { font-size:28px; font-weight:600; margin:0 0 8px; }
+  h2 { font-size:22px; font-weight:600; margin:40px 0 4px; }
+  .lead { font-size:18px; color:var(--muted); margin:0 0 20px; }
+  .group { font-size:16px; color:var(--muted); margin:24px 0 8px; }
 
-  .card {
-    display: flex; align-items: center; justify-content: space-between; gap: 16px;
-    width: 100%; text-align: left; background: #fff;
-    border: 1px solid var(--line); border-radius: 12px;
-    padding: 20px 24px; margin-bottom: 12px;
-    font: inherit; color: inherit; cursor: pointer;
-  }
-  .card:hover { border-color: var(--pick); }
-  .card:focus-visible { outline: 3px solid var(--pick); outline-offset: 2px; }
-  .card.picked { border: 2px solid var(--pick); }
-  .card.closed { background: #f7f8f9; cursor: not-allowed; }
-  .card.closed .name, .card.closed .sub { color: #8b9096; }
+  .card { display:flex; align-items:center; justify-content:space-between; gap:16px;
+    width:100%; text-align:left; background:#fff; border:1px solid var(--line);
+    border-radius:12px; padding:18px 22px; margin-bottom:10px;
+    font:inherit; color:inherit; cursor:pointer; }
+  .card:hover { border-color:var(--pick); }
+  .card:focus-visible { outline:3px solid var(--pick); outline-offset:2px; }
+  .card.picked { border:2px solid var(--pick); }
+  .card.closed { background:#f7f8f9; cursor:not-allowed; }
+  .card.closed .name, .card.closed .sub { color:#8b9096; }
+  .name { font-size:20px; font-weight:600; margin:0 0 2px; }
+  .sub { font-size:15px; color:var(--muted); margin:0; }
+  .tag { font-size:15px; padding:5px 12px; border-radius:8px; white-space:nowrap; }
+  .tag.on { background:var(--pick-bg); color:var(--pick); }
+  .tag.go { color:var(--muted); }
+  .tag.no { background:var(--stop-bg); color:var(--stop); }
 
-  .name { font-size: 21px; font-weight: 600; margin: 0 0 4px; }
-  .sub { font-size: 16px; color: var(--muted); margin: 0; }
+  label { display:block; font-size:17px; margin:20px 0 6px; }
+  input, select, textarea { width:100%; font:inherit; color:inherit; background:#fff;
+    padding:12px 14px; border:1px solid var(--line); border-radius:8px; }
+  input:focus, select:focus, textarea:focus { outline:3px solid var(--pick); outline-offset:1px; }
+  .hint { font-size:15px; color:var(--muted); margin:4px 0 0; }
+  .radios { display:flex; gap:10px; }
+  .radios button { flex:1; font:inherit; padding:12px; background:#fff;
+    border:1px solid var(--line); border-radius:8px; cursor:pointer; }
+  .radios button.on { border:2px solid var(--pick); background:var(--pick-bg); color:var(--pick); }
 
-  .tag { font-size: 16px; padding: 6px 14px; border-radius: 8px; white-space: nowrap; }
-  .tag.on { background: var(--pick-bg); color: var(--pick); }
-  .tag.go { color: var(--muted); }
-  .tag.no { background: var(--stop-bg); color: var(--stop); }
+  .fee { margin-top:24px; padding:16px 20px; background:#f7f8f9; border-radius:12px; font-size:17px; }
+  .fee b { font-size:22px; }
 
-  label { display: block; font-size: 17px; margin: 20px 0 6px; }
-  input, select, textarea {
-    width: 100%; font: inherit; color: inherit;
-    padding: 12px 14px; border: 1px solid var(--line); border-radius: 8px; background: #fff;
-  }
-  input:focus, select:focus, textarea:focus { outline: 3px solid var(--pick); outline-offset: 1px; }
-  .hint { font-size: 15px; color: var(--muted); margin: 4px 0 0; }
+  .send { width:100%; margin-top:24px; padding:18px; font:inherit; font-size:20px;
+    font-weight:600; background:var(--pick); color:#fff; border:0; border-radius:12px; cursor:pointer; }
+  .send:disabled { background:#9aa4ab; cursor:not-allowed; }
 
-  .send {
-    width: 100%; margin-top: 28px; padding: 18px;
-    font: inherit; font-size: 20px; font-weight: 600;
-    background: var(--pick); color: #fff; border: 0; border-radius: 12px; cursor: pointer;
-  }
-  .send:disabled { background: #9aa4ab; cursor: not-allowed; }
-
-  .msg { margin-top: 16px; padding: 16px 20px; border-radius: 12px; font-size: 17px; }
-  .msg.ok { background: var(--ok-bg); color: var(--ok); }
-  .msg.bad { background: var(--bad-bg); color: var(--bad); }
-  .msg.plain { border: 1px solid var(--line); color: var(--muted); font-size: 16px; }
-  .hide { display: none; }
+  .msg { margin-top:16px; padding:16px 20px; border-radius:12px; font-size:17px; }
+  .msg.ok { background:var(--ok-bg); color:var(--ok); }
+  .msg.bad { background:var(--bad-bg); color:var(--bad); }
+  .msg.plain { border:1px solid var(--line); color:var(--muted); font-size:16px; }
+  .hide { display:none; }
 </style>
 </head>
 <body>
 <div class="wrap">
 
   <p class="brand">두두자격지원센터</p>
-
   <h1>어떤 자격증을 신청하시나요</h1>
   <p class="lead">아래에서 하나를 눌러 주세요</p>
 
-  <button type="button" class="card" data-cert="요양보호사" data-agency="두두보건">
-    <span>
-      <span class="name">요양보호사</span>
-      <span class="sub">두두보건 · 아무 때나 접수 · 32,000원</span>
-    </span>
-    <span class="tag go">누르기 &rsaquo;</span>
-  </button>
+  <p class="group">두두넷 · 국가기술자격</p>
+  <div id="g-national"></div>
+  <p class="group">두두넷 · 전문자격</p>
+  <div id="g-professional"></div>
+  <p class="group">두두보건</p>
+  <div id="g-health"></div>
 
-  <button type="button" class="card" data-cert="전기기능사" data-agency="두두넷">
-    <span>
-      <span class="name">전기기능사</span>
-      <span class="sub">두두넷 · 8월 24일부터 접수 · 14,500원</span>
-    </span>
-    <span class="tag go">누르기 &rsaquo;</span>
-  </button>
+  <div id="form" class="hide">
+    <h2>신청서 작성</h2>
+    <p class="lead" id="picked-line"></p>
 
-  <button type="button" class="card closed" disabled data-cert="공인중개사" data-agency="두두넷">
-    <span>
-      <span class="name">공인중개사</span>
-      <span class="sub">두두넷 · 1차 접수 8월 7일 끝남</span>
-    </span>
-    <span class="tag no">올해 마감</span>
-  </button>
+    <label for="f-name">성함</label>
+    <input id="f-name" type="text" placeholder="홍길동">
 
-  <h2>신청서 작성</h2>
-  <p class="lead" id="picked-line">위에서 자격증을 먼저 골라 주세요</p>
+    <label for="f-birth">생년월일</label>
+    <input id="f-birth" type="date">
 
-  <label for="f-name">성함</label>
-  <input id="f-name" type="text" placeholder="홍길동">
+    <label>성별</label>
+    <div class="radios" id="f-gender">
+      <button type="button" data-v="M">남</button>
+      <button type="button" data-v="F">여</button>
+    </div>
 
-  <label for="f-phone">연락처</label>
-  <input id="f-phone" type="text" placeholder="010-1234-5678">
-  <p class="hint">숫자만 넣으셔도 됩니다</p>
+    <label for="f-phone">연락처</label>
+    <input id="f-phone" type="text" placeholder="010-1234-5678">
+    <p class="hint">하이픈은 넣으셔도 안 넣으셔도 됩니다</p>
 
-  <label for="f-channel">어떻게 알고 오셨나요</label>
-  <select id="f-channel">
-    <option>인터넷</option>
-    <option>전화</option>
-    <option>방문</option>
-    <option>지인 소개</option>
-  </select>
+    <label for="f-edu">최종학력</label>
+    <select id="f-edu"></select>
 
-  <label for="f-memo">남기실 말씀 (안 쓰셔도 됩니다)</label>
-  <textarea id="f-memo" rows="3" placeholder="예: 딸이 대신 문의합니다"></textarea>
+    <div id="track-fields"></div>
 
-  <button type="button" class="send" id="send">신청서 내기</button>
+    <label for="f-region">시험 지역</label>
+    <select id="f-region"></select>
 
-  <p class="msg hide" id="msg"></p>
+    <label for="f-examdate">희망 시험일</label>
+    <input id="f-examdate" type="date">
+
+    <label for="f-session" id="l-session">교시</label>
+    <select id="f-session"></select>
+
+    <label for="f-context">누가 접수하시나요</label>
+    <select id="f-context">
+      <option value="본인단독">본인이 직접</option>
+      <option value="가족보조">가족이 도와서</option>
+      <option value="복지관">복지관에서 도와서</option>
+      <option value="대리접수">대리 접수</option>
+    </select>
+
+    <label for="f-discount">감면 대상이신가요</label>
+    <select id="f-discount"></select>
+
+    <label for="f-pay">결제수단</label>
+    <select id="f-pay">
+      <option>신용카드</option>
+      <option>계좌이체</option>
+      <option>가상계좌</option>
+    </select>
+
+    <p class="fee" id="fee-box"></p>
+
+    <button type="button" class="send" id="send">신청서 내기</button>
+    <p class="msg hide" id="msg"></p>
+  </div>
+
   <p class="msg plain" id="status">Supabase 연결 확인 중…</p>
-
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-  const statusBox = document.getElementById("status");
-  const msgBox = document.getElementById("msg");
-  const pickedLine = document.getElementById("picked-line");
-  const sendBtn = document.getElementById("send");
+// ---------- 01_form_정책.md 의 값 ----------
+const CERTS = [
+  { code:"7910", name:"한식조리기능사",     track:"국가기술", agency:"두두넷",   examType:"상시CBT", fee:14500, note:"아무 때나 접수" },
+  { code:"7520", name:"지게차운전기능사",   track:"국가기술", agency:"두두넷",   examType:"상시CBT", fee:14500, note:"아무 때나 접수" },
+  { code:"7530", name:"굴착기운전기능사",   track:"국가기술", agency:"두두넷",   examType:"상시CBT", fee:14500, note:"아무 때나 접수 · 포크레인" },
+  { code:"2300", name:"전기기능사",         track:"국가기술", agency:"두두넷",   examType:"정기",    fee:14500, note:"8월 24일부터 접수" },
+  { code:"P001", name:"손해평가사",         track:"전문",     agency:"두두넷",   fee:{ "1차":30000, "2차":30000 }, note:"1차 접수 4월에 끝남", closed:true },
+  { code:"P002", name:"공인중개사",         track:"전문",     agency:"두두넷",   fee:{ "1차":13400, "2차":15200 }, note:"1차 접수 8월 7일 끝남", closed:true },
+  { code:"H001", name:"요양보호사",         track:"보건",     agency:"두두보건", fee:32000, hours:240, note:"아무 때나 접수 · 요양사" },
+  { code:"H002", name:"위생사",             track:"보건",     agency:"두두보건", fee:30000, hours:null, note:"별도 일정" }
+];
 
-  let db = null;
-  let picked = null;
+const REGIONS = ["서울","부산","대구","인천","광주","대전","울산","세종","경기","강원","충북","충남","전북","전남","경북","경남","제주"];
+const CENTERS = ["서울","부산","대구","광주","대전","수원","청주","전주","제주"];
+const EDU = ["무학","초등학교졸업","중학교졸업","고등학교졸업","전문대졸","대학교졸","대학원졸"];
 
-  // 자격증 고르기
-  const cards = document.querySelectorAll(".card:not(.closed)");
-  cards.forEach(function (card) {
-    card.addEventListener("click", function () {
-      cards.forEach(function (c) {
-        c.classList.remove("picked");
-        var t = c.querySelector(".tag");
-        t.className = "tag go";
-        t.innerHTML = "누르기 &rsaquo;";
-      });
-      card.classList.add("picked");
-      var t = card.querySelector(".tag");
-      t.className = "tag on";
-      t.textContent = "선택됨";
+const SUBJECTS = {
+  "손해평가사|1차": ["상법 보험편","농어업재해보험법령"],
+  "손해평가사|2차": ["농작물재해보험 및 가축재해보험의 이론과 실무","농작물재해보험 및 가축재해보험 손해평가의 이론과 실무"],
+  "공인중개사|1차": ["부동산학개론","민법 및 민사특별법"],
+  "공인중개사|2차": ["공인중개사법령 및 중개실무","부동산공법","부동산공시법 및 부동산세법"]
+};
 
-      picked = { cert: card.dataset.cert, agency: card.dataset.agency };
-      pickedLine.textContent = picked.cert + " (" + picked.agency + ") 로 접수합니다";
-    });
+// 감면율 — 두두보건만 기초생활수급자가 면제(100%)
+function discountRate(type, track) {
+  if (type === "없음") return 0;
+  if (type === "기초생활수급자" && track === "보건") return 100;
+  return 50;
+}
+const DISCOUNTS = ["없음","장애인","기초생활수급자","국가유공자","차상위계층"];
+
+// ---------- 상태 ----------
+let db = null, picked = null, gender = null;
+
+const $ = function (id) { return document.getElementById(id); };
+const statusBox = $("status"), msgBox = $("msg"), formBox = $("form");
+
+// ---------- 카드 그리기 ----------
+function drawCards() {
+  const box = { "국가기술":$("g-national"), "전문":$("g-professional"), "보건":$("g-health") };
+  CERTS.forEach(function (c) {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "card" + (c.closed ? " closed" : "");
+    if (c.closed) b.disabled = true;
+    b.innerHTML =
+      '<span><span class="name">' + c.name + '</span>' +
+      '<span class="sub">' + c.note + '</span></span>' +
+      '<span class="tag ' + (c.closed ? "no" : "go") + '">' +
+      (c.closed ? "올해 마감" : "누르기 &rsaquo;") + '</span>';
+    b.addEventListener("click", function () { pick(c, b); });
+    box[c.track].appendChild(b);
   });
+}
 
-  function show(text, kind) {
-    msgBox.textContent = text;
-    msgBox.className = "msg " + kind;
+function fill(sel, items) {
+  sel.innerHTML = "";
+  items.forEach(function (v) {
+    const o = document.createElement("option");
+    o.value = v; o.textContent = v; sel.appendChild(o);
+  });
+}
+
+// ---------- 자격증 고르기 ----------
+function pick(cert, btn) {
+  document.querySelectorAll(".card:not(.closed)").forEach(function (c) {
+    c.classList.remove("picked");
+    const t = c.querySelector(".tag");
+    t.className = "tag go"; t.innerHTML = "누르기 &rsaquo;";
+  });
+  btn.classList.add("picked");
+  const t = btn.querySelector(".tag");
+  t.className = "tag on"; t.textContent = "선택됨";
+
+  picked = cert;
+  $("picked-line").textContent = cert.name + " (" + cert.agency + ") 로 접수합니다";
+  formBox.classList.remove("hide");
+
+  fill($("f-edu"), EDU);
+  fill($("f-discount"), DISCOUNTS);
+  fill($("f-region"), cert.track === "보건" ? CENTERS : REGIONS);
+  $("f-region").previousElementSibling.textContent =
+    cert.track === "보건" ? "시험 센터" : "시험 지역";
+
+  drawTrackFields(cert);
+  drawSession(cert);
+  calcFee();
+  formBox.scrollIntoView({ behavior:"smooth", block:"start" });
+}
+
+// ---------- 트랙별로만 있는 칸 ----------
+function drawTrackFields(cert) {
+  const box = $("track-fields");
+  box.innerHTML = "";
+
+  if (cert.track === "국가기술") {
+    box.innerHTML =
+      '<label for="f-round">회차</label>' +
+      '<select id="f-round"></select>' +
+      '<label for="f-elig">응시자격</label>' +
+      '<select id="f-elig">' +
+      '<option>제한없음</option><option>관련학과졸업</option><option>경력</option><option>기타</option></select>';
+    const r = $("f-round");
+    if (cert.examType === "정기") { fill(r, ["1회","2회","3회","4회"]); r.value = "4회"; }
+    else { fill(r, ["해당없음 (상시)"]); r.disabled = true; }
   }
 
-  // Supabase 연결 — 키는 Vercel 환경변수에 있고 /api/config 가 꺼내 준다
-  async function connect() {
-    try {
-      const r = await fetch("/api/config");
-      if (!r.ok) {
-        statusBox.textContent = "서버 함수 응답 " + r.status + " — api/config.js 위치 확인";
-        return;
-      }
-      const conf = await r.json();
-      if (!conf.url || !conf.key) {
-        statusBox.textContent = "서버에 환경변수가 설정되어 있지 않습니다";
-        return;
-      }
-      db = supabase.createClient(conf.url, conf.key);
-      const res = await db.from("applications").select("*", { count: "exact", head: true });
-      if (res.error) {
-        statusBox.textContent = "연결 실패: " + res.error.message;
-        return;
-      }
-      statusBox.textContent = "Supabase 연결됨 · applications 테이블 " + res.count + "건";
-    } catch (e) {
-      statusBox.textContent = "연결 실패: " + e.message;
-    }
+  if (cert.track === "전문") {
+    box.innerHTML =
+      '<label for="f-stage">차수</label>' +
+      '<select id="f-stage"><option>1차</option><option>2차</option></select>' +
+      '<div id="pass-box"></div>' +
+      '<label>응시 과목</label>' +
+      '<p class="hint" id="subj-line"></p>';
+    $("f-stage").addEventListener("change", function () { drawStage(cert); calcFee(); });
+    drawStage(cert);
   }
 
-  // 신청서 보내기
-  sendBtn.addEventListener("click", async function () {
-    const name = document.getElementById("f-name").value.trim();
-    const phone = document.getElementById("f-phone").value.trim();
+  if (cert.track === "보건") {
+    box.innerHTML =
+      '<label for="f-org">교육기관</label>' +
+      '<input id="f-org" type="text" placeholder="수료증에 적힌 기관명">' +
+      '<label for="f-certno">교육수료번호</label>' +
+      '<input id="f-certno" type="text" placeholder="TR20261080">' +
+      '<label for="f-done">교육수료일</label>' +
+      '<input id="f-done" type="date">' +
+      '<label for="f-hours">교육이수시간</label>' +
+      '<input id="f-hours" type="number" value="' + (cert.hours || "") + '">';
+  }
+}
 
-    if (!picked) { show("자격증을 먼저 골라 주세요.", "bad"); return; }
-    if (!name) { show("성함을 넣어 주세요.", "bad"); return; }
-    if (!phone) { show("연락처를 넣어 주세요.", "bad"); return; }
-    if (!db) { show("아직 데이터베이스에 연결되지 않았습니다.", "bad"); return; }
+function drawStage(cert) {
+  const stage = $("f-stage").value;
+  $("pass-box").innerHTML = stage === "2차"
+    ? '<label for="f-passno">1차 합격번호</label><input id="f-passno" type="text" placeholder="1차 합격자만">'
+    : "";
+  const list = SUBJECTS[cert.name + "|" + stage] || [];
+  $("subj-line").textContent = list.join(" · ");
+}
 
-    sendBtn.disabled = true;
-    sendBtn.textContent = "보내는 중…";
+function drawSession(cert) {
+  const s = $("f-session");
+  if (cert.track === "보건") {
+    $("l-session").textContent = "시간대";
+    fill(s, ["오전 (09:00)","오후 (14:00)"]);
+  } else if (cert.track === "전문") {
+    $("l-session").textContent = "교시";
+    fill(s, ["1교시 (09:30)","2교시 (11:00)"]);
+  } else if (cert.examType === "상시CBT") {
+    $("l-session").textContent = "시간대";
+    fill(s, ["09:00","10:30","13:00","14:30","16:00"]);
+  } else {
+    $("l-session").textContent = "교시";
+    fill(s, ["1교시 (09:30)","2교시 (11:00)","3교시 (13:30)","4교시 (15:00)","5교시 (16:30)"]);
+  }
+}
 
-    const res = await db.from("applications").insert({
-      name: name,
-      phone: phone,
-      cert: picked.cert,
-      agency: picked.agency,
-      channel: document.getElementById("f-channel").value,
-      memo: document.getElementById("f-memo").value.trim()
-    });
+// ---------- 수수료 ----------
+function baseFee() {
+  if (!picked) return 0;
+  if (typeof picked.fee === "number") return picked.fee;
+  const stage = $("f-stage") ? $("f-stage").value : "1차";
+  return picked.fee[stage];
+}
+function calcFee() {
+  if (!picked) return;
+  const base = baseFee();
+  const rate = discountRate($("f-discount").value, picked.track);
+  const cut = Math.floor(base * rate / 100 / 10) * 10;
+  const final = base - cut;
+  $("fee-box").innerHTML =
+    "응시료 " + base.toLocaleString() + "원" +
+    (rate ? " · 감면 " + cut.toLocaleString() + "원" : "") +
+    "<br>결제하실 금액 <b>" + final.toLocaleString() + "원</b>";
+  return { base: base, cut: cut, final: final };
+}
+$("f-discount").addEventListener("change", calcFee);
 
-    sendBtn.disabled = false;
-    sendBtn.textContent = "신청서 내기";
+// ---------- 표기 통일 ----------
+function normPhone(v) {
+  const d = v.replace(/[^0-9]/g, "");
+  if (d.length === 11) return d.slice(0,3) + "-" + d.slice(3,7) + "-" + d.slice(7);
+  if (d.length === 10) return d.slice(0,3) + "-" + d.slice(3,6) + "-" + d.slice(6);
+  return v;
+}
 
-    if (res.error) {
-      show("저장 실패: " + res.error.message, "bad");
-      return;
-    }
+// ---------- 연결 ----------
+async function connect() {
+  try {
+    const r = await fetch("/api/config");
+    if (!r.ok) { statusBox.textContent = "서버 함수 응답 " + r.status + " — api/config.js 위치 확인"; return; }
+    const conf = await r.json();
+    if (!conf.url || !conf.key) { statusBox.textContent = "서버에 환경변수가 설정되어 있지 않습니다"; return; }
+    db = supabase.createClient(conf.url, conf.key);
+    const res = await db.from("applications").select("*", { count:"exact", head:true });
+    if (res.error) { statusBox.textContent = "연결 실패: " + res.error.message; return; }
+    statusBox.textContent = "Supabase 연결됨 · applications 테이블 " + res.count + "건";
+  } catch (e) { statusBox.textContent = "연결 실패: " + e.message; }
+}
 
-    show("접수되었습니다. 담당자가 확인 후 연락드립니다.", "ok");
-    document.getElementById("f-name").value = "";
-    document.getElementById("f-phone").value = "";
-    document.getElementById("f-memo").value = "";
-    connect();
+// ---------- 성별 ----------
+$("f-gender").querySelectorAll("button").forEach(function (b) {
+  b.addEventListener("click", function () {
+    $("f-gender").querySelectorAll("button").forEach(function (x) { x.classList.remove("on"); });
+    b.classList.add("on");
+    gender = b.dataset.v;
+  });
+});
+
+function show(text, kind) { msgBox.textContent = text; msgBox.className = "msg " + kind; }
+
+// ---------- 제출 ----------
+$("send").addEventListener("click", async function () {
+  const name = $("f-name").value.trim();
+  const phone = $("f-phone").value.trim();
+  const birth = $("f-birth").value;
+
+  if (!picked) { show("자격증을 먼저 골라 주세요.", "bad"); return; }
+  if (!name) { show("성함을 넣어 주세요.", "bad"); return; }
+  if (!birth) { show("생년월일을 넣어 주세요.", "bad"); return; }
+  if (!gender) { show("성별을 골라 주세요.", "bad"); return; }
+  if (phone.replace(/[^0-9]/g,"").length < 10) { show("연락처를 다시 확인해 주세요.", "bad"); return; }
+  if (!db) { show("아직 데이터베이스에 연결되지 않았습니다.", "bad"); return; }
+
+  const fee = calcFee();
+  const extra = { education: $("f-edu").value };
+
+  if (picked.track === "국가기술") {
+    extra.exam_type = picked.examType;
+    extra.exam_round = $("f-round").value;
+    extra.eligibility = $("f-elig").value;
+  }
+  if (picked.track === "전문") {
+    extra.exam_stage = $("f-stage").value;
+    extra.subjects = SUBJECTS[picked.name + "|" + extra.exam_stage] || [];
+    if ($("f-passno")) extra.first_pass_number = $("f-passno").value.trim();
+  }
+  if (picked.track === "보건") {
+    extra.training_org = $("f-org").value.trim();
+    extra.training_cert_no = $("f-certno").value.trim();
+    extra.training_done = $("f-done").value;
+    extra.training_hours = Number($("f-hours").value) || null;
+  }
+
+  $("send").disabled = true; $("send").textContent = "보내는 중…";
+
+  const res = await db.from("applications").insert({
+    track: picked.track,
+    agency: picked.agency,
+    cert_code: picked.code,
+    cert_name: picked.name,
+    name: name,
+    phone: normPhone(phone),
+    gender: gender,
+    birth_date: birth,
+    exam_region: $("f-region").value,
+    exam_date: $("f-examdate").value || null,
+    exam_session: $("f-session").value,
+    fee_amount: fee.base,
+    fee_discount_type: $("f-discount").value,
+    fee_final: fee.final,
+    payment_method: $("f-pay").value,
+    status: "접수완료",
+    usage_context: $("f-context").value,
+    extra: extra
   });
 
+  $("send").disabled = false; $("send").textContent = "신청서 내기";
+
+  if (res.error) { show("저장 실패: " + res.error.message, "bad"); return; }
+
+  show(name + " 님, 접수되었습니다. 담당자가 확인 후 연락드립니다.", "ok");
+  $("f-name").value = ""; $("f-phone").value = ""; $("f-birth").value = "";
   connect();
+});
+
+drawCards();
+connect();
 </script>
 </body>
 </html>
