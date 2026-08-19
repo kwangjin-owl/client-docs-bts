@@ -208,3 +208,20 @@ create table questions (
 alter table questions enable row level security;
 create policy "anon insert q" on questions for insert to anon with check (true);
 create policy "anon read q"   on questions for select to anon using (true);
+
+
+-- ============================================================
+-- CSV 로 넣은 옛 데이터에 접수번호 채우기
+-- 접수번호가 비어 있는 행에만 붙습니다. 두 번 돌려도 안전합니다.
+-- ============================================================
+update applications
+set receipt_no =
+      case track
+        when '국가기술' then '1'
+        when '전문'     then '2'
+        else '3'
+      end
+   || to_char(created_at, 'MMDD')
+   || '-' || lpad((id % 10000)::text, 4, '0')
+   || '-' || lpad(((id / 10000) % 1000)::text, 3, '0')
+where receipt_no is null;

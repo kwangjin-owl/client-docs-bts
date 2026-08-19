@@ -576,14 +576,15 @@ const TAG = { now:"지금 접수 가능", soon:"접수 예정", late:"접수 기
 
 let db = null, picked = null, sent = false;
 
-// 어르신이 종이에 옮겨 적으실 번호. 숫자만 쓰고 네 자리씩 끊는다.
+// 어르신이 종이에 옮겨 적으실 번호. 숫자만 쓰고 끊어서 보여 준다.
+// 모양 : 1MMDD-NNNN-NNN   (앞 1자리 = 1 국가기술 / 2 전문 / 3 두두보건)
 function makeReceiptNo(track) {
   const kind = track === "국가기술" ? "1" : track === "전문" ? "2" : "3";
   const d = new Date();
-  const day = String(d.getMonth()+1).padStart(2,"0") + String(d.getDate()).padStart(2,"0");
-  const rand = String(Math.floor(Math.random()*10000)).padStart(4,"0");
-  return kind + day.slice(0,3) + "-" + day.slice(3) + rand.slice(0,3) + "-" + rand.slice(3) +
-         String(Math.floor(Math.random()*1000)).padStart(3,"0");
+  const mmdd = String(d.getMonth()+1).padStart(2,"0") + String(d.getDate()).padStart(2,"0");
+  const a = String(Math.floor(Math.random()*10000)).padStart(4,"0");
+  const b = String(Math.floor(Math.random()*1000)).padStart(3,"0");
+  return kind + mmdd + "-" + a + "-" + b;
 }
 
 // ---------- 입력 형태 ----------
