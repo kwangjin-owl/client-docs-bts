@@ -189,15 +189,22 @@
   .ibody { padding:22px 26px 26px; }
   .item.folded .ibody { display:none; }
 
-  /* 고른 자격증 한 줄 요약 */
+  /* 고른 자격증 — 성함을 넣는 동안에도 계속 보이게 2번 항목 안에 둔다 */
   .picked-row { display:flex; align-items:center; gap:14px;
-                padding:16px 26px; background:var(--ok-bg); }
-  .picked-row .pn { flex:1; min-width:0; font-weight:700; color:var(--ok); }
-  .picked-row .pn span { display:block; font-size:0.8em; font-weight:400; color:var(--muted); }
-  .picked-row button { font:inherit; font-size:0.85em; font-weight:700; padding:10px 18px;
+                padding:16px 26px; background:var(--ok-bg);
+                border-bottom:1px solid rgba(28,107,58,.18); }
+  .picked-row.hide { display:none; }
+  .picked-row .pmark { flex:none; width:30px; height:30px; border-radius:50%;
+                       background:var(--ok); color:#fff; font-size:0.85em;
+                       display:flex; align-items:center; justify-content:center; }
+  .picked-row .pn { flex:1; min-width:0; font-size:1.05em; font-weight:700; color:var(--ok); }
+  .picked-row .pn span { display:block; font-size:0.76em; font-weight:400; color:var(--muted);
+                         margin-top:2px; }
+  .picked-row button { font:inherit; font-size:0.84em; font-weight:700; padding:10px 18px;
                        border:2px solid var(--ok); border-radius:9px;
                        background:#fff; color:var(--ok); cursor:pointer; white-space:nowrap; }
   .picked-row button:hover { background:var(--ok); color:#fff; }
+  .item.wait .picked-row { filter:grayscale(1); }
 
   /* ===== 자격증 카드 ===== */
   /* 묶음마다 배경을 달리해서 구역이 보이게 */
@@ -403,10 +410,6 @@
         <span>여덟 가지 중에서 하나만 눌러 주세요</span></span>
       <span class="st" id="st1">여기부터 하세요</span>
     </div>
-    <div class="picked-row hide" id="picked-row">
-      <span class="pn" id="pn-name"></span>
-      <button type="button" id="pn-change">다른 것 고르기</button>
-    </div>
     <div class="ibody">
     <p class="lead">복잡한 원서접수는 저희가 대신 해 드립니다.
        자격증 하나를 고르고 성함과 연락처만 남겨 주세요.</p>
@@ -436,6 +439,11 @@
       <span class="t"><b>성함과 연락처를 넣어 주세요</b>
         <span>이 두 가지만 있으면 접수됩니다</span></span>
       <span class="st" id="st2">아직</span>
+    </div>
+    <div class="picked-row hide" id="picked-row">
+      <span class="pmark">&#10003;</span>
+      <span class="pn" id="pn-name"></span>
+      <button type="button" id="pn-change">자격증 다시 고르기</button>
     </div>
     <div class="ibody">
 
@@ -673,11 +681,19 @@ function markDone() {
   }
 }
 
-// 자격증 다시 고르기
-$("pn-change").addEventListener("click", function () {
+// 자격증 다시 고르기 — 1번을 펼치고 그리로 올라간다
+function reopenPick() {
   $("it1").classList.remove("folded");
+  $("it1").classList.remove("done");
+  $("it1").classList.add("now");
+  $("st1").textContent = "다시 골라 주세요";
   $("it1").scrollIntoView({ behavior:"smooth", block:"start" });
+}
+$("pn-change").addEventListener("click", reopenPick);
+$("it1").querySelector(".ihead").addEventListener("click", function () {
+  if ($("it1").classList.contains("folded")) reopenPick();
 });
+$("it1").querySelector(".ihead").style.cursor = "pointer";
 // 칸에서 손을 떼면 바로 맞는지 알려 준다. 제출할 때까지 기다리지 않는다.
 function tellField(id, hintId, check, base) {
   const el = $(id), hint = $(hintId);
@@ -767,7 +783,6 @@ function pick(cert, btn) {
 
   markDone();
   $("it2").scrollIntoView({ behavior:"smooth", block:"start" });
-  setTimeout(function () { $("f-name").focus(); }, 400);
 }
 
 $("pb-go").addEventListener("click", function () {

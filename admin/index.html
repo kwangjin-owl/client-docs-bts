@@ -186,14 +186,6 @@
   .fseg button:hover { background:var(--soft); color:var(--key-d); }
   .fseg button.on { background:var(--key); color:#fff; font-weight:700; }
 
-  /* 켜고 끄는 것 — 따로 떨어진 버튼 */
-  .toggle { font:inherit; font-size:0.85em; padding:9px 18px; cursor:pointer;
-            border:2px dashed var(--line); border-radius:10px;
-            background:var(--card); color:var(--muted); white-space:nowrap; }
-  .toggle:hover { border-color:var(--key); color:var(--key-d); }
-  .toggle.on { border-style:solid; border-color:var(--key);
-               background:var(--key-bg); color:var(--key-d); font-weight:700; }
-
   @media (max-width:760px) {
     .filters { gap:12px; }
     .fgrp.right { margin-left:0; width:100%; }
@@ -478,16 +470,13 @@
       </div>
     </div>
 
-    <div class="fgrp right">
-      <button type="button" id="pagemode" class="toggle">한 쪽에 다 보기</button>
+    <div class="fgrp">
+      <span class="flb">보기</span>
+      <div class="fseg">
+        <button type="button" data-p="50" class="on">50건씩</button>
+        <button type="button" data-p="all">한 쪽에 다</button>
+      </div>
     </div>
-  </div>
-
-  <div class="bulk" id="bulk">
-    <span class="bt" id="bulk-t">왼쪽 네모를 눌러 여러 건을 한 번에 확인 처리할 수 있습니다</span>
-    <button type="button" class="btn key" id="bulk-go" disabled>확인 처리</button>
-    <button type="button" class="btn ghost hide" id="bulk-none">고르기 해제</button>
-    <span class="bhint" id="bulk-hint"></span>
   </div>
 
   <div class="tools">
@@ -501,15 +490,19 @@
     <button class="btn key" id="reload">새로고침</button>
   </div>
 
+  <p class="bulkline">
+    <span id="bulk-hint"></span>
+    <button type="button" class="btn ghost" id="bulk-go">지금 보이는 것 전부 확인 처리</button>
+  </p>
+
   <table>
     <colgroup>
-      <col style="width:40px"><col style="width:92px"><col style="width:124px">
-      <col style="width:72px"><col style="width:130px"><col style="width:140px">
-      <col style="width:88px"><col style="width:88px"><col style="width:92px">
+      <col style="width:92px"><col style="width:124px"><col style="width:72px">
+      <col style="width:132px"><col style="width:144px"><col style="width:92px">
+      <col style="width:88px"><col style="width:104px">
     </colgroup>
     <thead>
       <tr>
-        <th class="pickh"><input type="checkbox" id="pick-all" title="보이는 것 전부 고르기"><em>고르기</em></th>
         <th>접수일시</th><th>접수번호</th><th>성함</th><th>연락처</th><th>자격증</th>
         <th class="num">결제금액</th><th>상태</th><th>처리</th>
       </tr>
@@ -531,10 +524,10 @@
       <dd>표에서 줄을 누르면 접수번호, 교육기관, 과목 같은 것이 펼쳐집니다.</dd>
       <dt>전화나 방문으로 받은 신청을 넣으려면</dt>
       <dd>맨 위 <b>빠른 접수</b>를 펼쳐서 한 화면에 넣고 저장하십시오.</dd>
-      <dt>왼쪽 네모(체크칸)는 무엇인가요</dt>
-      <dd>여러 건을 한 번에 확인 처리하려고 고르는 칸입니다.
-          아직 처리 안 한 줄에만 나옵니다. 표 머리의 네모를 누르면 보이는 것 전부 골라집니다.
-          많이 쌓였으면 위 <b>한 쪽에 다 보기</b>를 먼저 누르고 고르십시오.</dd>
+      <dt>여러 건을 한 번에 처리하려면</dt>
+      <dd>위에서 기간과 상태를 고르면, 아래 <b>지금 보이는 ○건 전부 확인 처리</b> 버튼이
+          그 조건에 맞는 것만 한 번에 바꿉니다.
+          예를 들어 기간 <b>전체</b> · 상태 <b>처리할 것만</b>으로 두면 쌓인 것이 한 번에 정리됩니다.</dd>
 
       <dt>확인 · 완료 처리는 무엇인가요</dt>
       <dd>발주 문서(01_사업현황_발주서.md 3절)상 3 확인 · 4 완료는 직원이 손으로 하는 단계입니다.
@@ -672,8 +665,8 @@ function detailRow(r) {
 }
 
 let onlyStatus = "";
-let picked = new Set();      // 일괄 처리로 고른 접수
-let perPage = 50;            // 한 쪽에 다 보기를 누르면 전체
+let perPage = 50;            // 50건씩 / 한 쪽에 다
+let shownList = [];          // 지금 화면에 걸러진 목록 (일괄 처리 대상)
 
 function render() {
   const q = $("q").value.trim();
@@ -724,6 +717,7 @@ function render() {
     Object.keys(byCert).sort().map(function (k) { return '<option>' + k + '</option>'; }).join("");
   sel.value = keep;
 
+  shownList = list;
   const pages = Math.max(1, Math.ceil(list.length / perPage));
   if (page > pages) page = pages;
   const from = (page - 1) * perPage;
@@ -751,9 +745,6 @@ function render() {
 
   $("rows").innerHTML = shown.map(function (r) {
     return '<tr class="row" data-id="' + r.id + '">' +
-      '<td>' + (NEXT[r.status]
-        ? '<input type="checkbox" class="pick" data-id="' + r.id + '"' +
-          (picked.has(r.id) ? " checked" : "") + '>' : "") + '</td>' +
       '<td>' + fmtWhen(r.created_at) + '</td>' +
       '<td class="rno">' + esc(r.receipt_no || "-") + '</td>' +
       '<td>' + esc(r.name) + '</td>' +
@@ -1113,33 +1104,26 @@ document.querySelectorAll("#tabs button").forEach(function (b) {
   });
 });
 
-// 한 쪽에 다 보기
-$("pagemode").addEventListener("click", function () {
-  perPage = perPage === 50 ? 1e9 : 50;
-  this.textContent = perPage === 50 ? "한 쪽에 다 보기" : "50건씩 보기";
-  this.classList.toggle("on", perPage !== 50);
-  reset();
-});
-
-// 일괄 처리
+// 지금 화면에 보이는 것 전부를 한 번에 확인 처리한다.
+// 따로 고를 필요 없이 위 필터가 그대로 대상이 된다.
 function drawBulk() {
-  const n = picked.size;
-  $("bulk").classList.toggle("on", n > 0);
-  $("bulk-go").disabled = n === 0;
-  $("bulk-none").classList.toggle("hide", n === 0);
-  $("bulk-go").textContent = n ? n + "건 확인 처리" : "확인 처리";
-  $("bulk-t").innerHTML = n
-    ? '<b>' + n + '</b>건 골랐습니다'
-    : "왼쪽 네모를 눌러 여러 건을 한 번에 확인 처리할 수 있습니다";
+  const todo = shownList.filter(function (r) { return NEXT[r.status]; });
+  $("bulk-go").disabled = todo.length === 0;
+  $("bulk-go").textContent = todo.length
+    ? "지금 보이는 " + todo.length + "건 전부 확인 처리"
+    : "확인 처리할 것이 없습니다";
 }
-$("bulk-none").addEventListener("click", function () { picked.clear(); render(); });
 
 $("bulk-go").addEventListener("click", async function () {
-  const ids = Array.from(picked);
-  if (!ids.length) return;
-  if (!confirm(ids.length + "건을 확인 처리로 바꾸시겠습니까?\n\n" +
+  const todo = shownList.filter(function (r) { return NEXT[r.status]; });
+  if (!todo.length) return;
+
+  const when = $("f-when").value === "today" ? "오늘 " :
+               $("f-when").value === "week" ? "최근 7일 " : "전체 ";
+  if (!confirm(when + todo.length + "건을 확인 처리로 바꾸시겠습니까?\n\n" +
       "상태만 바뀝니다. 두두넷 원서접수는 따로 하셔야 합니다.")) return;
-  const btn = this;
+
+  const btn = this, ids = todo.map(function (r) { return r.id; });
   btn.disabled = true; btn.textContent = "처리 중…";
   $("bulk-hint").textContent = "";
 
@@ -1148,15 +1132,14 @@ $("bulk-go").addEventListener("click", async function () {
     const part = ids.slice(i, i + 200);
     const res = await db.from("applications").update({ status:"확인" }).in("id", part);
     if (res.error) {
-      btn.disabled = false; btn.textContent = "고른 것 확인 처리";
+      btn.disabled = false; drawBulk();
       $("bulk-hint").textContent = "실패: " + res.error.message; return;
     }
     done += part.length;
-    $("bulk-hint").textContent = done + " / " + ids.length + "건";
+    $("bulk-hint").textContent = done + " / " + ids.length + "건 처리 중…";
   }
-  all.forEach(function (r) { if (picked.has(r.id)) r.status = "확인"; });
-  picked.clear();
-  btn.disabled = false; btn.textContent = "고른 것 확인 처리";
+  const set = new Set(ids);
+  all.forEach(function (r) { if (set.has(r.id)) r.status = "확인"; });
   $("bulk-hint").textContent = done + "건 처리했습니다";
   render();
 });
@@ -1164,7 +1147,11 @@ $("bulk-go").addEventListener("click", async function () {
 // 빠른 필터
 document.querySelectorAll("#quicks button").forEach(function (b) {
   b.addEventListener("click", function () {
-    if (b.dataset.w !== undefined) {
+    if (b.dataset.p !== undefined) {
+      perPage = b.dataset.p === "all" ? 1e9 : 50;
+      document.querySelectorAll("#quicks button[data-p]").forEach(function (x) {
+        x.classList.toggle("on", x === b); });
+    } else if (b.dataset.w !== undefined) {
       $("f-when").value = b.dataset.w;
       document.querySelectorAll("#quicks button[data-w]").forEach(function (x) {
         x.classList.toggle("on", x === b); });
