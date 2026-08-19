@@ -131,29 +131,40 @@
 
   .back { font-size:16px; color:var(--key); text-decoration:none; }
 
-  .cards { display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:12px; margin:24px 0 8px; }
-  .stat { background:#f7f8f9; border-radius:12px; padding:18px 20px; }
-  .stat .k { font-size:15px; color:var(--muted); margin:0; }
-  .stat .v { font-size:32px; font-weight:600; margin:2px 0 0; }
-  .stat .u { font-size:17px; font-weight:400; color:var(--muted); }
+  .cards { display:grid; grid-template-columns:repeat(3, minmax(0,1fr));
+           gap:12px; margin:20px 0 10px; }
+  @media (max-width:700px) { .cards { grid-template-columns:1fr; } }
+  .stat { background:var(--soft); border-radius:12px; padding:18px 22px; }
+  .stat .k { font-size:0.8em; color:var(--muted); margin:0; }
+  .stat .v { font-size:1.9em; font-weight:700; margin:2px 0 0; line-height:1.2; }
+  .stat .u { font-size:0.55em; font-weight:400; color:var(--muted); margin-left:2px; }
 
-  h2 { font-size:19px; font-weight:600; margin:32px 0 12px; }
+  h2 { font-size:1.1em; font-weight:700; margin:30px 0 12px; }
 
-  .bar { display:flex; align-items:center; gap:12px; margin-bottom:6px; font-size:16px; }
-  .bar .nm { width:150px; flex:none; }
+  .bar { display:flex; align-items:center; gap:14px; margin-bottom:7px; font-size:0.88em; }
+  .bar .nm { width:160px; flex:none; }
   .bar .track { flex:1; background:#eef0f2; border-radius:6px; height:22px; overflow:hidden; }
   .bar .fill { display:block; background:var(--key); height:22px; border-radius:6px; }
-  .bar .ct { width:110px; flex:none; text-align:right; color:var(--muted); white-space:nowrap; }
+  .bar .ct { width:120px; flex:none; text-align:right; color:var(--muted); white-space:nowrap; }
 
-  .tools { display:flex; gap:10px; flex-wrap:wrap; margin:8px 0 16px; }
-  input { flex:1; min-width:180px; }
+  .tools { display:grid; grid-template-columns:1fr 210px 170px auto;
+           gap:10px; align-items:center; margin:10px 0 16px; }
+  @media (max-width:900px) { .tools { grid-template-columns:1fr 1fr; } }
+  @media (max-width:560px) { .tools { grid-template-columns:1fr; } }
+  .tools input, .tools select { margin:0; }
+  .tools .btn { white-space:nowrap; padding:13px 20px; }
+
   button { cursor:pointer; }
   button.go { background:var(--key); color:#fff; border-color:var(--key); }
 
   table { width:100%; border-collapse:collapse; font-size:16px; table-layout:fixed; }
-  th, td { text-align:left; padding:12px 8px; border-bottom:1px solid var(--line);
-           vertical-align:middle; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  th { font-weight:600; color:var(--muted); font-size:15px; white-space:nowrap; }
+  th, td { text-align:left; padding:13px 10px; border-bottom:1px solid var(--line);
+           vertical-align:middle; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+           font-size:0.88em; }
+  th { font-weight:700; color:var(--muted); font-size:0.8em;
+       background:var(--soft); border-bottom:2px solid var(--line); }
+  thead tr th:first-child { border-radius:8px 0 0 0; }
+  thead tr th:last-child { border-radius:0 8px 0 0; }
   tr.row { cursor:pointer; }
   tr.row:hover td { background:#f7f8f9; }
   td.num { text-align:right; white-space:nowrap; }
@@ -199,7 +210,7 @@
   button:disabled { color:#b4b2a9; border-color:var(--line); cursor:default; }
   button.btn.key:disabled { background:#b4b2a9; border-color:#b4b2a9; color:#fff; }
   .pager { display:flex; align-items:center; justify-content:center; gap:8px;
-           margin-top:20px; flex-wrap:wrap; }
+           margin-top:22px; flex-wrap:wrap; }
   .pager span { font-size:0.9em; color:var(--muted); margin:0 8px; }
   .pager input { width:64px; padding:6px 8px; text-align:center;
                  border:2px solid var(--line); border-radius:6px; font:inherit;
@@ -311,7 +322,8 @@
   <p class="note" id="q-note" style="margin-top:0">불러오는 중…</p>
   <div id="by-question"></div>
 
-  <h2>목록</h2>
+  <h2 class="sec" style="margin-top:28px">접수 목록</h2>
+  <p class="lead">성함이나 연락처로 찾으실 수 있습니다.</p>
   <div class="tools">
     <input id="q" type="text" placeholder="성함이나 연락처로 찾기">
     <select id="f-cert"><option value="">자격증 전체</option></select>
