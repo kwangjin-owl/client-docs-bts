@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>안내 문서 관리 - 두두자격지원센터</title>
+<style>
+  :root {
+    --ink:#1a1a1a; --muted:#5a5f66; --line:#d7dbdf;
+    --pick:#1b5e7e; --pick-bg:#e7f1f6;
+    --ok:#1c6b3a; --ok-bg:#e6f4ea;
+    --bad:#a32d2d; --bad-bg:#fceceb;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:#fff; color:var(--ink); font-size:17px; line-height:1.6;
+         font-family:system-ui,"Malgun Gothic","Apple SD Gothic Neo",sans-serif; }
+  .wrap { max-width:860px; margin:0 auto; padding:32px 20px 80px; }
+
+  .top { display:flex; align-items:baseline; justify-content:space-between; gap:16px; flex-wrap:wrap; }
+  h1 { font-size:26px; font-weight:600; margin:0; }
+  .links a { font-size:16px; color:var(--pick); text-decoration:none; margin-left:16px; }
+  .lead { font-size:16px; color:var(--muted); margin:8px 0 24px; }
+
+  .tools { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:20px; }
+  input, select, textarea, button { font:inherit; color:inherit; padding:10px 12px;
+    border:1px solid var(--line); border-radius:8px; background:#fff; }
+  input.search { flex:1; min-width:200px; }
+  button { cursor:pointer; }
+  button.go { background:var(--pick); color:#fff; border-color:var(--pick); }
+  button.danger { color:var(--bad); border-color:var(--bad); }
+
+  .item { border:1px solid var(--line); border-radius:12px; margin-bottom:10px; overflow:hidden; }
+  .head { display:flex; align-items:center; justify-content:space-between; gap:12px;
+          padding:16px 20px; cursor:pointer; }
+  .head:hover { background:#f7f8f9; }
+  .item.open .head { background:#f7f8f9; border-bottom:1px solid var(--line); }
+  .t { font-size:18px; font-weight:600; margin:0 0 2px; }
+  .s { font-size:15px; color:var(--muted); margin:0; }
+  .chev { color:var(--muted); font-size:15px; white-space:nowrap; }
+
+  .body { display:none; padding:20px; }
+  .item.open .body { display:block; }
+  label { display:block; font-size:15px; color:var(--muted); margin:14px 0 6px; }
+  label:first-child { margin-top:0; }
+  .body input, .body textarea { width:100%; }
+  textarea { min-height:160px; resize:vertical; line-height:1.7; }
+  .row { display:flex; gap:12px; flex-wrap:wrap; }
+  .row > div { flex:1; min-width:180px; }
+  .acts { display:flex; gap:10px; margin-top:18px; align-items:center; }
+  .said { font-size:15px; margin-left:4px; }
+  .said.ok { color:var(--ok); }
+  .said.bad { color:var(--bad); }
+
+  .note { margin-top:20px; padding:16px 20px; border:1px solid var(--line);
+          border-radius:12px; font-size:16px; color:var(--muted); }
+  .tip { background:var(--pick-bg); color:var(--pick); border:0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="top">
+    <h1>안내 문서 관리</h1>
+    <span class="links">
+      <a href="/chat">챗봇 열기 →</a>
+      <a href="/">접수 화면 →</a>
+    </span>
+  </div>
+  <p class="lead">여기서 고치면 챗봇 답이 바로 바뀝니다. 다시 배포하지 않아도 됩니다.</p>
+
+  <div class="tools">
+    <input class="search" id="q" type="text" placeholder="제목이나 내용으로 찾기">
+    <button class="go" id="add">문서 추가</button>
+    <button id="reload">새로고침</button>
+  </div>
+
+  <div id="list"></div>
+
+  <p class="note" id="status">불러오는 중…</p>
+  <p class="note tip">고친 뒤에는 챗봇을 열어 실제로 답이 바뀌었는지 확인하세요. 저장했다는 표시만 보고 넘어가면 안 됩니다.</p>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const $ = function (id) { return document.getElementById(id); };
+let db = null, docs = [];
+
+function esc(s) {
+  return String(s == null ? "" : s)
+    .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;");
+}
+function fmtWhen(iso) {
+  if (!iso) return "";
+  const d = new Date(iso), p = function (n) { return String(n).padStart(2,"0"); };
+  return (d.getMonth()+1) + "/" + d.getDate() + " " + p(d.getHours()) + ":" + p(d.getMinutes());
+}
+
+function render() {
+  const q = $("q").value.trim();
+  const list = docs.filter(function (d) {
+    if (!q) return true;
+    return (d.title + " " + d.body).indexOf(q) >= 0;
+  });
+
+  $("list").innerHTML = list.map(function (d) {
+    return '' +
+    '<div class="item" data-id="' + d.id + '">' +
+      '<div class="head">' +
+        '<div>' +
+          '<p class="t">' + esc(d.title) + '</p>' +
+          '<p class="s">' + (d.cert ? esc(d.cert) + " · " : "") +
+            (d.source ? esc(d.source) : "출처 없음") +
+            (d.updated_at ? " · " + fmtWhen(d.updated_at) + " 수정" : "") + '</p>' +
+        '</div>' +
+        '<span class="chev">펼치기</span>' +
+      '</div>' +
+      '<div class="body">' +
+        '<div class="row">' +
+          '<div><label>제목</label><input class="f-title" type="text" value="' + esc(d.title) + '"></div>' +
+          '<div><label>자격증 (비워두면 공통)</label><input class="f-cert" type="text" value="' + esc(d.cert) + '"></div>' +
+        '</div>' +
+        '<label>내용</label>' +
+        '<textarea class="f-body">' + esc(d.body) + '</textarea>' +
+        '<label>출처</label>' +
+        '<input class="f-source" type="text" value="' + esc(d.source) + '">' +
+        '<div class="acts">' +
+          '<button class="go save">저장</button>' +
+          '<button class="danger del">삭제</button>' +
+          '<span class="said"></span>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }).join("");
+
+  $("status").textContent = "문서 " + docs.length + "건" +
+    (q ? " 중 " + list.length + "건 표시" : "") + " · 제목을 누르면 펼쳐집니다";
+
+  bind();
+}
+
+function bind() {
+  document.querySelectorAll(".item").forEach(function (item) {
+    const id = Number(item.dataset.id);
+    const said = item.querySelector(".said");
+
+    item.querySelector(".head").addEventListener("click", function () {
+      item.classList.toggle("open");
+      item.querySelector(".chev").textContent = item.classList.contains("open") ? "접기" : "펼치기";
+    });
+
+    item.querySelector(".save").addEventListener("click", async function () {
+      const title = item.querySelector(".f-title").value.trim();
+      const body  = item.querySelector(".f-body").value.trim();
+      if (!title) { said.textContent = "제목을 넣어 주세요"; said.className = "said bad"; return; }
+      if (!body)  { said.textContent = "내용을 넣어 주세요"; said.className = "said bad"; return; }
+
+      said.textContent = "저장하는 중…"; said.className = "said";
+      const res = await db.from("docs").update({
+        title: title,
+        body: body,
+        cert: item.querySelector(".f-cert").value.trim() || null,
+        source: item.querySelector(".f-source").value.trim() || null,
+        updated_at: new Date().toISOString()
+      }).eq("id", id);
+
+      if (res.error) { said.textContent = "저장 실패: " + res.error.message; said.className = "said bad"; return; }
+      said.textContent = "저장했습니다. 챗봇에서 확인해 보세요";
+      said.className = "said ok";
+      await load(true);
+    });
+
+    item.querySelector(".del").addEventListener("click", async function () {
+      const t = item.querySelector(".f-title").value.trim();
+      if (!confirm('"' + t + '" 문서를 지웁니다. 되돌릴 수 없습니다.')) return;
+      const res = await db.from("docs").delete().eq("id", id);
+      if (res.error) { said.textContent = "삭제 실패: " + res.error.message; said.className = "said bad"; return; }
+      await load();
+    });
+  });
+}
+
+async function load(keepOpen) {
+  const opened = keepOpen
+    ? Array.from(document.querySelectorAll(".item.open")).map(function (e) { return e.dataset.id; })
+    : [];
+  try {
+    if (!db) {
+      const r = await fetch("/api/config");
+      if (!r.ok) { $("status").textContent = "서버 함수 응답 " + r.status + " — api/config.js 위치 확인"; return; }
+      const conf = await r.json();
+      if (!conf.url || !conf.key) { $("status").textContent = "서버에 환경변수가 설정되어 있지 않습니다"; return; }
+      db = supabase.createClient(conf.url, conf.key);
+    }
+    const res = await db.from("docs").select("*").order("id");
+    if (res.error) { $("status").textContent = "불러오기 실패: " + res.error.message; return; }
+    docs = res.data || [];
+    render();
+    opened.forEach(function (id) {
+      const el = document.querySelector('.item[data-id="' + id + '"]');
+      if (el) { el.classList.add("open"); el.querySelector(".chev").textContent = "접기"; }
+    });
+  } catch (e) {
+    $("status").textContent = "불러오기 실패: " + e.message;
+  }
+}
+
+$("add").addEventListener("click", async function () {
+  if (!db) return;
+  const res = await db.from("docs").insert({
+    title: "새 문서",
+    body: "여기에 내용을 적으세요.",
+    source: "직접 작성"
+  }).select();
+  if (res.error) { $("status").textContent = "추가 실패: " + res.error.message; return; }
+  await load();
+  const created = res.data && res.data[0];
+  if (created) {
+    const el = document.querySelector('.item[data-id="' + created.id + '"]');
+    if (el) {
+      el.classList.add("open");
+      el.querySelector(".chev").textContent = "접기";
+      el.scrollIntoView({ behavior:"smooth", block:"center" });
+      el.querySelector(".f-title").focus();
+      el.querySelector(".f-title").select();
+    }
+  }
+});
+
+$("q").addEventListener("input", render);
+$("reload").addEventListener("click", function () { load(); });
+
+load();
+</script>
+</body>
+</html>
