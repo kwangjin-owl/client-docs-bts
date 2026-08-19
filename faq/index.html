@@ -54,9 +54,36 @@
   .note { margin-top:20px; padding:16px 20px; border:1px solid var(--line);
           border-radius:12px; font-size:16px; color:var(--muted); }
   .tip { background:var(--pick-bg); color:var(--pick); border:0; }
+
+  .gate { position:fixed; inset:0; z-index:100; background:#fff;
+          display:flex; align-items:center; justify-content:center; padding:20px; }
+  .gate.off { display:none; }
+  .gate-box { width:100%; max-width:360px; text-align:center; }
+  .gate-box h2 { font-size:22px; font-weight:600; margin:0 0 6px; }
+  .gate-box p { font-size:16px; color:var(--muted); margin:0 0 20px; }
+  .gate-box input { width:100%; font:inherit; font-size:20px; text-align:center;
+    padding:14px; border:1px solid var(--line); border-radius:10px; letter-spacing:4px; }
+  .gate-box input:focus { outline:3px solid var(--pick); outline-offset:1px; }
+  .gate-box button { width:100%; margin-top:12px; font:inherit; font-size:18px;
+    font-weight:600; padding:14px; background:var(--pick); color:#fff;
+    border:0; border-radius:10px; cursor:pointer; }
+  .gate-box .no { color:var(--bad); font-size:16px; margin-top:12px; min-height:24px; }
+  .gate-box a { display:inline-block; margin-top:20px; font-size:16px;
+    color:var(--pick); text-decoration:none; }
 </style>
 </head>
 <body>
+<div class="gate" id="gate">
+  <div class="gate-box">
+    <h2>직원용 화면</h2>
+    <p>비밀번호를 넣어 주세요</p>
+    <input id="gate-pw" type="password" inputmode="numeric" autocomplete="off">
+    <button type="button" id="gate-go">들어가기</button>
+    <p class="no" id="gate-no"></p>
+    <a href="/">← 접수 화면으로</a>
+  </div>
+</div>
+
 <div class="wrap">
 
   <div class="top">
@@ -80,6 +107,33 @@
   <p class="note tip">고친 뒤에는 챗봇을 열어 실제로 답이 바뀌었는지 확인하세요. 저장했다는 표시만 보고 넘어가면 안 됩니다.</p>
 </div>
 
+<script>
+// ---------- 직원용 잠금 ----------
+// 브라우저 코드라 F12로 보면 비밀번호가 보입니다. 실제 보안이 아니라
+// 손님이 실수로 들어오는 것을 막는 용도입니다.
+(function () {
+  const PW = "1234";
+  const gate = document.getElementById("gate");
+  const pw = document.getElementById("gate-pw");
+  const no = document.getElementById("gate-no");
+
+  if (sessionStorage.getItem("staff") === "ok") { gate.classList.add("off"); return; }
+
+  function tryIn() {
+    if (pw.value === PW) {
+      sessionStorage.setItem("staff", "ok");
+      gate.classList.add("off");
+    } else {
+      no.textContent = "비밀번호가 맞지 않습니다";
+      pw.value = "";
+      pw.focus();
+    }
+  }
+  document.getElementById("gate-go").addEventListener("click", tryIn);
+  pw.addEventListener("keydown", function (e) { if (e.key === "Enter") tryIn(); });
+  pw.focus();
+})();
+</script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 const $ = function (id) { return document.getElementById(id); };

@@ -63,6 +63,10 @@
   .req { color:var(--bad); }
   .bad-field { border:2px solid var(--bad) !important; background:var(--bad-bg); }
   .echo-ok { color:var(--ok); }
+  .staff { margin-top:40px; padding-top:20px; border-top:1px solid var(--line);
+           text-align:center; }
+  .staff a { font-size:16px; color:var(--muted); text-decoration:none; }
+  .staff a:hover { color:var(--pick); }
 
   .ask-btn {
     position:fixed; right:20px; bottom:20px; z-index:50;
@@ -174,6 +178,8 @@
   </div>
 
   <p class="msg plain" id="status">Supabase 연결 확인 중…</p>
+
+  <p class="staff"><a href="/admin">직원용 관리 화면 →</a></p>
 </div>
 
 <button type="button" class="ask-btn" id="ask-btn" aria-expanded="false">궁금한 것 물어보기</button>
