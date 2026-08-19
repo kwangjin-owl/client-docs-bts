@@ -156,6 +156,21 @@
   .stats > summary:hover { color:var(--key-d); }
   .stats[open] > summary { margin-bottom:6px; }
 
+  /* 성격이 다른 화면을 탭으로 가른다 */
+  .tabs { display:flex; gap:6px; flex-wrap:wrap; margin:18px 0 20px;
+          border-bottom:2px solid var(--line); }
+  .tabs button { font:inherit; font-size:0.92em; font-weight:600; padding:13px 20px;
+                 border:0; background:none; color:var(--muted); cursor:pointer;
+                 border-bottom:3px solid transparent; margin-bottom:-2px; }
+  .tabs button:hover { color:var(--key-d); }
+  .tabs button.on { color:var(--key-d); font-weight:700; border-bottom-color:var(--key); }
+  .tabs button span { font-size:0.85em; color:var(--bad); font-weight:700; }
+  .tabs .add { margin-left:auto; color:var(--key-d); border:2px solid var(--key);
+               border-radius:9px 9px 0 0; }
+  .tabs .add.on { background:var(--key); color:#fff; border-bottom-color:var(--key); }
+  .tab { display:none; }
+  .tab.on { display:block; }
+
   .quicks { display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin:10px 0 0; }
   .quicks button { font:inherit; font-size:0.85em; padding:9px 16px; cursor:pointer;
                    border:2px solid var(--line); border-radius:999px;
@@ -163,6 +178,15 @@
   .quicks button:hover { border-color:var(--key); color:var(--key-d); }
   .quicks button.on { background:var(--key); border-color:var(--key); color:#fff; font-weight:700; }
   .quicks .sep { width:1px; height:22px; background:var(--line); margin:0 6px; }
+  .bulk { display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+          background:var(--key-bg); border-radius:12px; padding:12px 18px; margin-top:12px; }
+  .bulk.hide { display:none; }
+  .bulk .bt { font-size:0.9em; color:var(--key-d); }
+  .bulk .bt b { font-size:1.3em; }
+  .bulk .btn { padding:10px 18px; font-size:0.86em; }
+  .bulk .bhint { font-size:0.82em; color:var(--muted); }
+  td input.pick, th input#pick-all { width:20px; height:20px; cursor:pointer;
+                                      accent-color:var(--key); }
 
   .tools { display:grid; grid-template-columns:1fr 210px 170px auto;
            gap:10px; align-items:center; margin:10px 0 16px; }
@@ -327,11 +351,18 @@
 
 <div class="wrap">
   <div class="sheet">
-  <h1>접수 내역</h1>
-  <p class="lead">오늘 들어온 접수와 자격증별 현황을 봅니다.</p>
+  <h1>접수 관리</h1>
+  <p class="lead">접수 처리, 현황 보기, 챗봇 질문을 나눠 두었습니다.</p>
 
-  <details class="quick">
-    <summary>직원 접수 — 전화·방문으로 받은 신청, 자격증별 상세 칸까지 한 화면에서</summary>
+  <div class="tabs" id="tabs">
+    <button type="button" data-t="work" class="on">접수 목록 <span id="tab-n"></span></button>
+    <button type="button" data-t="stat">현황 보기</button>
+    <button type="button" data-t="ask">챗봇 질문</button>
+    <button type="button" data-t="new" class="add">+ 직원이 접수 넣기</button>
+  </div>
+
+  <div class="tab" id="tab-new">
+  <div class="quick open">
     <div class="qin">
       <div class="qrow">
         <div class="qf"><label for="q-cert">자격증</label><select id="q-cert"></select></div>
@@ -371,8 +402,10 @@
       <button type="button" class="btn key big" id="q-save">접수 넣기</button>
       <p class="said2" id="q-said"></p>
     </div>
-  </details>
+  </div>
+  </div>
 
+  <div class="tab" id="tab-stat">
   <div class="cards">
     <div class="stat"><p class="k">오늘 접수</p><p class="v" id="s-today">-<span class="u">건</span></p></div>
     <div class="stat"><p class="k">전체 접수</p><p class="v" id="s-all">-<span class="u">건</span></p></div>
@@ -380,8 +413,6 @@
     <div class="stat todo"><p class="k">처리 기다리는 건</p><p class="v" id="s-todo">-</p></div>
   </div>
 
-  <details class="stats" open>
-    <summary>현황 자세히 보기</summary>
   <h2>자격증별</h2>
   <div id="by-cert"></div>
 
@@ -391,13 +422,16 @@
   <h2>어떻게 접수했나</h2>
   <div id="by-channel"></div>
 
-  </details>
+  </div>
 
-  <h2>챗봇이 받은 질문</h2>
+  <div class="tab" id="tab-ask">
+  <h2 style="margin-top:0">챗봇이 받은 질문</h2>
   <p class="note" id="q-note" style="margin-top:0">불러오는 중…</p>
   <div id="by-question"></div>
+  </div>
 
-  <h2 class="sec" style="margin-top:28px">접수 목록</h2>
+  <div class="tab on" id="tab-work">
+  <h2 class="sec" style="margin-top:0">접수 목록</h2>
   <p class="lead">성함, 연락처, 접수번호로 찾으실 수 있습니다.</p>
 
   <div class="quicks" id="quicks">
@@ -407,6 +441,15 @@
     <span class="sep"></span>
     <button type="button" data-s="접수완료" class="st">처리할 것만</button>
     <button type="button" data-s="">상태 전체</button>
+    <span class="sep"></span>
+    <button type="button" id="pagemode">한 쪽에 다 보기</button>
+  </div>
+
+  <div class="bulk hide" id="bulk">
+    <span class="bt"><b id="bulk-n">0</b>건 골랐습니다</span>
+    <button type="button" class="btn key" id="bulk-go">고른 것 확인 처리</button>
+    <button type="button" class="btn ghost" id="bulk-none">고르기 해제</button>
+    <span class="bhint" id="bulk-hint"></span>
   </div>
 
   <div class="tools">
@@ -422,12 +465,13 @@
 
   <table>
     <colgroup>
-      <col style="width:92px"><col style="width:124px"><col style="width:72px">
-      <col style="width:130px"><col style="width:144px"><col style="width:92px">
-      <col style="width:88px"><col style="width:92px">
+      <col style="width:40px"><col style="width:92px"><col style="width:124px">
+      <col style="width:72px"><col style="width:130px"><col style="width:140px">
+      <col style="width:88px"><col style="width:88px"><col style="width:92px">
     </colgroup>
     <thead>
       <tr>
+        <th><input type="checkbox" id="pick-all" title="이 쪽 전부 고르기"></th>
         <th>접수일시</th><th>접수번호</th><th>성함</th><th>연락처</th><th>자격증</th>
         <th class="num">결제금액</th><th>상태</th><th>처리</th>
       </tr>
@@ -458,6 +502,7 @@
       <dd><a href="/faq">안내 문서</a> 화면에서 고치시면 챗봇 답이 바로 바뀝니다.</dd>
     </dl>
   </details>
+  </div>
   </div>
 </div>
 
@@ -498,7 +543,6 @@ document.getElementById("lock").addEventListener("click", function () {
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 const $ = function (id) { return document.getElementById(id); };
-const PER = 50;
 let db = null, all = [], page = 1, shown = [];
 
 function isToday(iso) {
@@ -578,6 +622,8 @@ function detailRow(r) {
 }
 
 let onlyStatus = "";
+let picked = new Set();      // 일괄 처리로 고른 접수
+let perPage = 50;            // 한 쪽에 다 보기를 누르면 전체
 
 function render() {
   const q = $("q").value.trim();
@@ -628,10 +674,10 @@ function render() {
     Object.keys(byCert).sort().map(function (k) { return '<option>' + k + '</option>'; }).join("");
   sel.value = keep;
 
-  const pages = Math.max(1, Math.ceil(list.length / PER));
+  const pages = Math.max(1, Math.ceil(list.length / perPage));
   if (page > pages) page = pages;
-  const from = (page - 1) * PER;
-  shown = list.slice(from, from + PER);
+  const from = (page - 1) * perPage;
+  shown = list.slice(from, from + perPage);
 
   const first = page === 1, last = page === pages;
   $("pager").innerHTML = pages > 1
@@ -655,6 +701,9 @@ function render() {
 
   $("rows").innerHTML = shown.map(function (r) {
     return '<tr class="row" data-id="' + r.id + '">' +
+      '<td>' + (NEXT[r.status]
+        ? '<input type="checkbox" class="pick" data-id="' + r.id + '"' +
+          (picked.has(r.id) ? " checked" : "") + '>' : "") + '</td>' +
       '<td>' + fmtWhen(r.created_at) + '</td>' +
       '<td class="rno">' + (r.receipt_no || "-") + '</td>' +
       '<td>' + (r.name || "") + '</td>' +
@@ -1001,6 +1050,58 @@ $("q-save").addEventListener("click", async function () {
   ["q-name","q-birth","q-phone","q-memo"].forEach(function (id) { $(id).value = ""; });
   $("q-gender").value = "";
   load(true);
+});
+
+// 탭 전환
+document.querySelectorAll("#tabs button").forEach(function (b) {
+  b.addEventListener("click", function () {
+    document.querySelectorAll("#tabs button").forEach(function (x) {
+      x.classList.toggle("on", x === b); });
+    document.querySelectorAll(".tab").forEach(function (t) {
+      t.classList.toggle("on", t.id === "tab-" + b.dataset.t); });
+    window.scrollTo({ top:0, behavior:"smooth" });
+  });
+});
+
+// 한 쪽에 다 보기
+$("pagemode").addEventListener("click", function () {
+  perPage = perPage === 50 ? 1e9 : 50;
+  this.textContent = perPage === 50 ? "한 쪽에 다 보기" : "50건씩 보기";
+  this.classList.toggle("on", perPage !== 50);
+  reset();
+});
+
+// 일괄 처리
+function drawBulk() {
+  $("bulk").classList.toggle("hide", picked.size === 0);
+  $("bulk-n").textContent = picked.size;
+}
+$("bulk-none").addEventListener("click", function () { picked.clear(); render(); });
+
+$("bulk-go").addEventListener("click", async function () {
+  const ids = Array.from(picked);
+  if (!ids.length) return;
+  if (!confirm(ids.length + "건을 확인 처리하시겠습니까?")) return;
+  const btn = this;
+  btn.disabled = true; btn.textContent = "처리 중…";
+  $("bulk-hint").textContent = "";
+
+  let done = 0;
+  for (let i = 0; i < ids.length; i += 200) {
+    const part = ids.slice(i, i + 200);
+    const res = await db.from("applications").update({ status:"확인" }).in("id", part);
+    if (res.error) {
+      btn.disabled = false; btn.textContent = "고른 것 확인 처리";
+      $("bulk-hint").textContent = "실패: " + res.error.message; return;
+    }
+    done += part.length;
+    $("bulk-hint").textContent = done + " / " + ids.length + "건";
+  }
+  all.forEach(function (r) { if (picked.has(r.id)) r.status = "확인"; });
+  picked.clear();
+  btn.disabled = false; btn.textContent = "고른 것 확인 처리";
+  $("bulk-hint").textContent = done + "건 처리했습니다";
+  render();
 });
 
 // 빠른 필터
