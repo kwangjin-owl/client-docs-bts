@@ -165,9 +165,7 @@ function bind() {
       }).eq("id", id);
 
       if (res.error) { said.textContent = "저장 실패: " + res.error.message; said.className = "said bad"; return; }
-      said.textContent = "저장했습니다. 챗봇에서 확인해 보세요";
-      said.className = "said ok";
-      await load(true);
+      await load(true, id, "저장했습니다 (" + fmtWhen(new Date().toISOString()) + ") · 챗봇에서 확인해 보세요");
     });
 
     item.querySelector(".del").addEventListener("click", async function () {
@@ -180,7 +178,7 @@ function bind() {
   });
 }
 
-async function load(keepOpen) {
+async function load(keepOpen, savedId, savedMsg) {
   const opened = keepOpen
     ? Array.from(document.querySelectorAll(".item.open")).map(function (e) { return e.dataset.id; })
     : [];
@@ -200,6 +198,14 @@ async function load(keepOpen) {
       const el = document.querySelector('.item[data-id="' + id + '"]');
       if (el) { el.classList.add("open"); el.querySelector(".chev").textContent = "접기"; }
     });
+    if (savedId) {
+      const el = document.querySelector('.item[data-id="' + savedId + '"]');
+      if (el) {
+        const said = el.querySelector(".said");
+        said.textContent = savedMsg;
+        said.className = "said ok";
+      }
+    }
   } catch (e) {
     $("status").textContent = "불러오기 실패: " + e.message;
   }
