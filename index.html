@@ -74,15 +74,31 @@
   .btn.key:disabled { background:#a9b4bb; border-color:#a9b4bb; cursor:not-allowed; }
   .btn.ghost { background:var(--card); color:var(--ink); border-color:var(--line); }
   .btn.ghost:hover { border-color:var(--key); color:var(--key-d); }
-  .btn.big { width:100%; font-size:1.1em; padding:18px; }
+  .btn.big { width:100%; font-size:1.15em; padding:20px; }
+  #send { margin-top:20px; box-shadow:0 4px 14px rgba(15,123,108,.3); }
+  #send:disabled { box-shadow:none; }
 
   /* ===== 입력 ===== */
   label { display:flex; align-items:center; gap:6px; font-size:0.9em;
           font-weight:700; margin:0 0 7px; }
   input, select, textarea { width:100%; font:inherit; color:var(--ink); background:#fff;
-    padding:13px 15px; border:2px solid var(--line); border-radius:9px; font-weight:600; }
+    padding:14px 16px; border:2px solid var(--line); border-radius:9px; font-weight:600; }
   input::placeholder, textarea::placeholder { color:#a7b1b9; font-weight:400; }
-  input:not(:placeholder-shown) { border-color:#9fb6ae; background:#fbfdfc; }
+  /* 맞으면 초록, 틀리면 빨강. 아무것도 안 넣었으면 회색 */
+  input.ok  { border-color:var(--ok);  background:#f4fbf6; }
+  input.bad { border-color:var(--bad); background:var(--bad-bg); }
+  .fldmsg { display:flex; align-items:center; gap:6px;
+            font-size:0.82em; font-weight:700; margin:7px 0 0; }
+  .fldmsg.ok  { color:var(--ok); }
+  .fldmsg.bad { color:var(--bad); }
+  .fldmsg::before { font-size:1.05em; }
+  .fldmsg.ok::before  { content:"\2713"; }
+  .fldmsg.bad::before { content:"\26A0"; }
+  .opt { font-size:0.78em; font-weight:400; color:var(--muted);
+         background:var(--soft); padding:3px 9px; border-radius:5px; }
+  .badge-must { display:inline-block; font-size:0.66em; font-weight:800;
+                background:var(--bad); color:#fff; padding:3px 8px;
+                border-radius:5px; vertical-align:2px; margin-left:2px; }
   input:focus, select:focus, textarea:focus { outline:3px solid var(--key); outline-offset:1px; }
   input[readonly] { background:var(--soft); color:var(--muted); }
   textarea { resize:vertical; line-height:1.6; }
@@ -134,27 +150,41 @@
 
 
   /* ===== 항목 ===== */
-  .item { position:relative; padding-left:52px; }
-  .item + .item { margin-top:14px; }
-  .inum { position:absolute; left:0; top:26px; width:36px; height:36px; border-radius:50%;
-          background:#fff; border:2px solid var(--line); color:var(--muted);
-          font-size:0.85em; font-weight:800;
+  /* 항목 = 색 띠 머리 + 흰 몸통 */
+  .item { background:var(--card); border-radius:16px; overflow:hidden;
+          box-shadow:0 1px 3px rgba(0,0,0,.07); margin-bottom:16px; padding:0; }
+  .ihead { display:flex; align-items:center; gap:14px;
+           padding:18px 26px; background:var(--navy); color:#fff; }
+  .item.done .ihead { background:var(--key); }
+  .inum { flex:none; width:38px; height:38px; border-radius:50%;
+          background:rgba(255,255,255,.2); color:#fff;
+          font-size:0.88em; font-weight:800;
           display:flex; align-items:center; justify-content:center; }
-  .item.done .inum { background:var(--ok); border-color:var(--ok); color:#fff; }
+  .item.done .inum { background:#fff; color:var(--key-d); }
   .item.done .inum span { display:none; }
-  .item.done .inum::after { content:"\2713"; font-size:1.1em; }
-  .item.done .sec-state { color:var(--ok); }
-  .sec-state { font-size:0.78em; font-weight:700; color:var(--muted); margin-left:6px; }
-  @media (max-width:620px) { .item { padding-left:0; } .inum { position:static; margin-bottom:10px; } }
+  .item.done .inum::after { content:"\2713"; font-size:1.15em; }
+  .ihead .t { flex:1; min-width:0; }
+  .ihead .t b { display:block; font-size:1.12em; font-weight:700; line-height:1.4; }
+  .ihead .t span { font-size:0.8em; color:#bcd3dd; }
+  .item.done .ihead .t span { color:rgba(255,255,255,.85); }
+  .ihead .st { flex:none; font-size:0.78em; font-weight:700;
+               padding:6px 14px; border-radius:999px;
+               background:rgba(255,255,255,.18); color:#fff; }
+  .ibody { padding:22px 26px 26px; }
 
   /* ===== 자격증 카드 ===== */
-  .group { display:flex; align-items:center; gap:8px; font-size:0.92em;
-           font-weight:700; color:var(--ink); margin:22px 0 4px; }
-  .group::before { content:""; width:5px; height:18px; border-radius:3px; background:var(--key); }
-  .group.wait { color:var(--muted); margin-top:32px; }
-  .group.wait::before { background:#c9ced3; }
-  .group-sub { font-size:0.8em; color:var(--muted); margin:0 0 10px 13px; }
-  .group.ok + .grid { margin-top:8px; }
+  /* 묶음마다 배경을 달리해서 구역이 보이게 */
+  .bloc { border-radius:14px; padding:16px 18px 18px; margin-top:16px; }
+  .bloc.open { background:var(--ok-bg); }
+  .bloc.shut { background:#eef1f3; }
+  .group { display:flex; align-items:center; gap:9px; font-size:0.95em;
+           font-weight:700; margin:0 0 4px; }
+  .group .dot { width:10px; height:10px; border-radius:50%; flex:none; }
+  .bloc.open .group { color:var(--ok); }
+  .bloc.open .dot { background:var(--ok); }
+  .bloc.shut .group { color:var(--muted); }
+  .bloc.shut .dot { background:#a7b1b9; }
+  .group-sub { font-size:0.82em; color:var(--muted); margin:0 0 12px 19px; }
 
   .grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
   .grid.small { grid-template-columns:repeat(3,1fr); }
@@ -186,9 +216,9 @@
   .card.picked .bot { border-top-color:rgba(15,123,108,.25); }
 
   /* 접수 기간 아닌 것 — 작게, 흐리게 */
-  .grid.small .card { padding:15px 16px; gap:5px; background:var(--soft);
+  .grid.small .card { padding:15px 16px; gap:5px; background:var(--card);
                       border-color:transparent; }
-  .grid.small .card:hover { background:var(--card); border-color:#c9ced3; box-shadow:none; }
+  .grid.small .card:hover { border-color:#9aa4ac; box-shadow:0 2px 8px rgba(0,0,0,.08); }
   .grid.small .card.picked { background:var(--warn-bg); border-color:var(--warn); box-shadow:none; }
   .grid.small .nm { font-size:1em; color:var(--muted); }
   .grid.small .card:hover .nm, .grid.small .card.picked .nm { color:var(--ink); }
@@ -206,9 +236,11 @@
 
   .agree { display:flex; align-items:flex-start; gap:14px; padding:17px 20px;
            border:2px solid var(--line); border-radius:10px; margin:0 0 12px;
-           cursor:pointer; font-size:0.95em; background:var(--card); }
-  .agree input:checked ~ span { color:var(--ink); }
-  .agree:hover { border-color:var(--key); }
+           cursor:pointer; font-size:0.95em; background:var(--soft); }
+  .agree:hover { border-color:var(--key); background:var(--card); }
+  .agree:has(input:checked) { border-color:var(--ok); background:var(--ok-bg); }
+  .agree b { color:var(--bad); }
+  .agree:has(input:checked) b { color:var(--ok); }
   .agree input { width:26px; height:26px; flex:none; margin-top:1px; cursor:pointer;
                  accent-color:var(--key); }
   .agree dl { margin:9px 0 0; display:grid; grid-template-columns:auto 1fr;
@@ -296,6 +328,12 @@
              max-width:none; border-radius:0; }
     .ask-btn { right:16px; bottom:92px; }
   }
+
+  /* 내용이 짧아도 꼬리가 화면 맨 아래에 붙게 */
+  html, body { height:100%; }
+  body { display:flex; flex-direction:column; min-height:100%; }
+  .wrap { flex:1 0 auto; }
+  .foot { flex:none; }
 </style>
 </head>
 <body>
@@ -304,54 +342,71 @@
 <div class="wrap">
 
   <!-- 1 -->
-  <div class="sheet item" id="it1">
-    <span class="inum"><span>1</span></span>
-    <p class="eyebrow">취급 자격증 8종</p>
-    <h2 class="sec">어떤 자격증을 신청하시나요 <span class="badge-must">필수</span></h2>
+  <div class="item" id="it1">
+    <div class="ihead">
+      <span class="inum"><span>1</span></span>
+      <span class="t"><b>어떤 자격증을 신청하시나요</b>
+        <span>취급 자격증 8종 · 하나만 고르시면 됩니다</span></span>
+      <span class="st" id="st1">고르는 중</span>
+    </div>
+    <div class="ibody">
     <p class="lead">복잡한 원서접수는 저희가 대신 해 드립니다.
        자격증 하나를 고르고 성함과 연락처만 남겨 주세요.</p>
 
-    <p class="group ok">지금 접수하실 수 있습니다</p>
-    <div class="grid" id="g-open"></div>
+    <div class="bloc open">
+      <p class="group"><span class="dot"></span>지금 접수하실 수 있습니다</p>
+      <p class="group-sub">고르시면 바로 아래에서 성함과 연락처를 넣으시면 됩니다.</p>
+      <div class="grid" id="g-open"></div>
+    </div>
 
-    <p class="group wait">지금은 접수 기간이 아닙니다</p>
-    <p class="group-sub">눌러서 문의를 남기시면 접수가 시작될 때 저희가 연락드립니다.</p>
-    <div class="grid small" id="g-closed"></div>
+    <div class="bloc shut">
+      <p class="group"><span class="dot"></span>지금은 접수 기간이 아닙니다</p>
+      <p class="group-sub">눌러서 문의를 남기시면 접수가 시작될 때 저희가 연락드립니다.</p>
+      <div class="grid small" id="g-closed"></div>
+    </div>
+    </div>
 
   </div>
 
   <!-- 2 -->
-  <div class="sheet item" id="it2">
-    <span class="inum"><span>2</span></span>
-    <p class="eyebrow">신청하시는 분</p>
-    <h2 class="sec">성함과 연락처를 넣어 주세요 <span class="badge-must">필수</span></h2>
-    <p class="lead">이 두 가지만 있으면 접수됩니다. <span class="req">*</span> 표시가 꼭 넣으실 칸입니다.</p>
+  <div class="item" id="it2">
+    <div class="ihead">
+      <span class="inum"><span>2</span></span>
+      <span class="t"><b>성함과 연락처를 넣어 주세요</b>
+        <span>이 두 가지만 있으면 접수됩니다</span></span>
+      <span class="st" id="st2">넣는 중</span>
+    </div>
+    <div class="ibody">
 
     <div class="flds">
       <div>
-        <label for="f-name">성함 <span class="req">*</span></label>
+        <label for="f-name">성함 <span class="badge-must">필수</span></label>
         <input id="f-name" type="text" placeholder="홍길동" maxlength="20" autocomplete="name">
-        <p class="hint">주민등록증에 있는 이름</p>
+        <p class="hint" id="name-hint">주민등록증에 있는 이름</p>
       </div>
       <div>
-        <label for="f-phone">연락처 <span class="req">*</span></label>
+        <label for="f-phone">연락처 <span class="badge-must">필수</span></label>
         <input id="f-phone" type="text" inputmode="tel" placeholder="010-1234-5678" autocomplete="tel">
-        <p class="hint">휴대폰이나 집 전화 (하이픈은 자동)</p>
+        <p class="hint" id="phone-hint">휴대폰이나 집 전화 (하이픈은 자동)</p>
       </div>
       <div class="wide">
-        <label for="f-memo">남기실 말씀 <span class="hint" style="margin:0">안 쓰셔도 됩니다</span></label>
+        <label for="f-memo">남기실 말씀 <span class="opt">안 쓰셔도 됩니다</span></label>
         <textarea id="f-memo" rows="2" maxlength="200"
           placeholder="예: 통화하기 편한 시간이나 궁금한 점을 적어 주세요"></textarea>
       </div>
     </div>
+    </div>
   </div>
 
   <!-- 3 -->
-  <div class="sheet item" id="it3">
-    <span class="inum"><span>3</span></span>
-    <p class="eyebrow">동의하고 접수</p>
-    <h2 class="sec">두 가지에 동의해 주세요 <span class="badge-must">필수</span></h2>
-    <p class="lead">동의하셔야 접수됩니다.</p>
+  <div class="item" id="it3">
+    <div class="ihead">
+      <span class="inum"><span>3</span></span>
+      <span class="t"><b>동의하고 접수</b>
+        <span>두 가지에 동의하셔야 접수됩니다</span></span>
+      <span class="st" id="st3">확인 중</span>
+    </div>
+    <div class="ibody">
 
     <label class="agree" id="ag1-box" for="f-ag1">
       <input type="checkbox" id="f-ag1">
@@ -375,8 +430,7 @@
 
     <p class="msg hide" id="msg"></p>
     <button type="button" class="btn key big" id="send">접수 신청하기</button>
-
-
+    </div>
   </div>
 
 </div>
@@ -520,14 +574,61 @@ function fail(t, id) {
   return false;
 }
 function markDone() {
-  $("it1").classList.toggle("done", !!picked);
-  $("it2").classList.toggle("done",
-    checkName($("f-name").value).ok && checkPhone($("f-phone").value).ok);
-  $("it3").classList.toggle("done", $("f-ag1").checked && $("f-ag2").checked);
+  const d1 = !!picked;
+  const d2 = checkName($("f-name").value).ok && checkPhone($("f-phone").value).ok;
+  const d3 = $("f-ag1").checked && $("f-ag2").checked;
+  $("it1").classList.toggle("done", d1);
+  $("it2").classList.toggle("done", d2);
+  $("it3").classList.toggle("done", d3);
+  $("st1").textContent = d1 ? "다 됐습니다" : "고르는 중";
+  $("st2").textContent = d2 ? "다 됐습니다" : "넣는 중";
+  $("st3").textContent = d3 ? "다 됐습니다" : "확인 중";
 }
-$("f-name").addEventListener("input", function(){ this.classList.remove("bad-field"); markDone(); });
-$("f-phone").addEventListener("input", function(){
-  this.value = maskPhone(this.value); this.classList.remove("bad-field"); markDone(); });
+// 칸에서 손을 떼면 바로 맞는지 알려 준다. 제출할 때까지 기다리지 않는다.
+function tellField(id, hintId, check, base) {
+  const el = $(id), hint = $(hintId);
+  const v = el.value.trim();
+  el.classList.remove("ok", "bad", "bad-field");
+  if (!v) { hint.textContent = base; hint.className = "hint"; return; }
+  const r = check(el.value);
+  if (r.ok) {
+    el.classList.add("ok");
+    hint.textContent = id === "f-name" ? "확인했습니다" : "확인했습니다";
+    hint.className = "fldmsg ok";
+  } else {
+    el.classList.add("bad");
+    hint.textContent = r.why;
+    hint.className = "fldmsg bad";
+  }
+}
+const NAME_BASE = "주민등록증에 있는 이름";
+const PHONE_BASE = "휴대폰이나 집 전화 (하이픈은 자동)";
+
+$("f-name").addEventListener("input", function () {
+  this.classList.remove("bad", "bad-field");
+  if ($("name-hint").className !== "hint") {
+    $("name-hint").textContent = NAME_BASE; $("name-hint").className = "hint";
+  }
+  markDone();
+});
+$("f-name").addEventListener("blur", function () {
+  tellField("f-name", "name-hint", checkName, NAME_BASE); markDone();
+});
+
+$("f-phone").addEventListener("input", function () {
+  this.value = maskPhone(this.value);
+  this.classList.remove("bad", "bad-field");
+  if ($("phone-hint").className !== "hint") {
+    $("phone-hint").textContent = PHONE_BASE; $("phone-hint").className = "hint";
+  }
+  // 다 넣으면 기다리지 않고 바로 알려 준다
+  if (digits(this.value, 11).length >= 10)
+    tellField("f-phone", "phone-hint", checkPhone, PHONE_BASE);
+  markDone();
+});
+$("f-phone").addEventListener("blur", function () {
+  tellField("f-phone", "phone-hint", checkPhone, PHONE_BASE); markDone();
+});
 [$("f-ag1"),$("f-ag2")].forEach(function(c){
   c.addEventListener("change", function(){
     $(c.id==="f-ag1"?"ag1-box":"ag2-box").classList.remove("bad-field"); markDone(); });
@@ -596,9 +697,9 @@ $("send").addEventListener("click", async function () {
   if (!picked) { show("자격증을 골라 주세요.", "bad");
     $("it1").scrollIntoView({behavior:"smooth",block:"start"}); return; }
   const nm = checkName($("f-name").value);
-  if (!nm.ok) return fail(nm.why, "f-name");
+  if (!nm.ok) { tellField("f-name","name-hint",checkName,NAME_BASE); return fail(nm.why,"f-name"); }
   const ph = checkPhone($("f-phone").value);
-  if (!ph.ok) return fail(ph.why, "f-phone");
+  if (!ph.ok) { tellField("f-phone","phone-hint",checkPhone,PHONE_BASE); return fail(ph.why,"f-phone"); }
   if (!$("f-ag1").checked) { $("ag1-box").classList.add("bad-field");
     show("개인정보 수집에 동의해 주셔야 접수할 수 있습니다.", "bad");
     $("ag1-box").scrollIntoView({behavior:"smooth",block:"center"}); return; }

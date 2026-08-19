@@ -181,7 +181,13 @@
     color:var(--key); text-decoration:none; }
 
 
-  /* ===== 공통 머리·꼬리 ===== */</style>
+  /* ===== 공통 머리·꼬리 ===== */
+  /* 내용이 짧아도 꼬리가 화면 맨 아래에 붙게 */
+  html, body { height:100%; }
+  body { display:flex; flex-direction:column; min-height:100%; }
+  .wrap { flex:1 0 auto; }
+  .foot { flex:none; }
+</style>
 </head>
 <body>
 <div class="top"><div class="top-in"><a class="brandmark" href="/"><span class="sq">두두</span>두두자격지원센터</a><nav class="menu"><a href="/">접수 신청</a><a href="/check">접수 확인</a><a href="/chat">물어보기</a></nav><a class="staff-btn here" href="/admin">직원용</a></div></div>

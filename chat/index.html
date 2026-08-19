@@ -130,8 +130,8 @@
     .subtop-in, .foot-in { padding-left:16px; padding-right:16px; }
   }
 
-  .cols { display:grid; grid-template-columns:1fr 320px; gap:16px; align-items:start; }
-  @media (max-width:940px) { .cols { grid-template-columns:1fr; } }
+  .cols { display:grid; grid-template-columns:minmax(0,1fr) 380px; gap:16px; align-items:start; }
+  @media (max-width:1040px) { .cols { grid-template-columns:1fr; } }
 
   .talk { background:var(--card); border-radius:16px; overflow:hidden;
           box-shadow:0 1px 3px rgba(0,0,0,.06); display:flex; flex-direction:column; }
@@ -148,7 +148,8 @@
        border-radius:14px 14px 4px 14px; margin-left:auto; width:fit-content; max-width:85%; }
   .a { background:var(--card); border:1px solid var(--line); padding:16px 18px;
        border-radius:14px 14px 14px 4px; white-space:pre-wrap; line-height:1.85;
-       font-size:0.92em; margin-top:8px; }
+       font-size:0.92em; margin-top:8px;
+       word-break:keep-all; overflow-wrap:break-word; }
   .a.err { background:var(--bad-bg); border-color:var(--bad); color:var(--bad); }
   .meta { font-size:0.72em; color:var(--muted); margin:6px 0 0 4px; }
   .ask { display:flex; gap:10px; padding:16px 20px; border-top:1px solid var(--line);
@@ -159,12 +160,20 @@
   .side .sheet { margin-bottom:12px; }
   .chips { display:flex; flex-direction:column; gap:8px; }
   .chip { font:inherit; font-size:0.85em; font-weight:700; text-align:left;
-          padding:13px 16px; background:var(--card); border:2px solid var(--line);
-          border-radius:10px; cursor:pointer; }
-  .chip:hover { border-color:var(--key); color:var(--key-d); }
+          padding:14px 16px; background:var(--card); border:2px solid var(--line);
+          border-radius:10px; cursor:pointer; line-height:1.5;
+          word-break:keep-all; overflow-wrap:break-word; }
+  .chip:hover { border-color:var(--key); color:var(--key-d); background:var(--key-bg); }
   .warnbox { background:var(--warn-bg); color:var(--warn); border-radius:10px;
-             padding:14px 16px; font-size:0.82em; line-height:1.7; }
+             padding:15px 17px; font-size:0.84em; line-height:1.75;
+             word-break:keep-all; overflow-wrap:break-word; }
   .warnbox b { display:block; margin-bottom:4px; }
+
+  /* 내용이 짧아도 꼬리가 화면 맨 아래에 붙게 */
+  html, body { height:100%; }
+  body { display:flex; flex-direction:column; min-height:100%; }
+  .wrap { flex:1 0 auto; }
+  .foot { flex:none; }
 </style>
 </head>
 <body>
@@ -219,9 +228,9 @@
 const $ = function (id) { return document.getElementById(id); };
 let CFG = null, DOCS = [], busy = false, db = null;
 
-const SAMPLES = ["한식조리기능사 접수비가 얼마예요","전기기능사 언제 접수해요",
-                 "요양보호사는 어디서 신청해요","시험 볼 때 뭘 가져가야 하나요",
-                 "취소하면 돈 돌려받을 수 있나요"];
+const SAMPLES = ["한식조리 접수비가 얼마예요", "전기기능사 언제 접수해요",
+                 "요양보호사는 어디서 신청해요", "시험 볼 때 뭘 가져가나요",
+                 "취소하면 돈 돌려받나요"];
 
 async function logQ(question, answered, score, doc, route) {
   if (!db) return;
