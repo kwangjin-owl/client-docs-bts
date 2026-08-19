@@ -82,6 +82,11 @@
   .quick .said2 { margin:10px 0 0; font-size:0.9em; }
   .quick .said2.ok { color:var(--ok); font-weight:600; }
   .quick .said2.bad { color:var(--bad); font-weight:600; }
+  .quick .qsec { font-size:0.85em; font-weight:600; color:var(--muted);
+                 margin:18px 0 8px; padding-top:14px; border-top:1px solid var(--line); }
+  .quick .qfee { margin:12px 0 0; padding:10px 16px; background:var(--pick-bg);
+                 border-radius:8px; font-size:0.9em; color:var(--pick); }
+  .quick .qfee b { font-size:1.25em; }
   .guide { margin-top:16px; border:2px solid var(--line); border-radius:12px;
            background:var(--card); }
   .guide summary { padding:14px 20px; cursor:pointer; font-weight:600; font-size:0.95em; }
@@ -94,10 +99,14 @@
   .empty span { font-size:16px; line-height:1.7; }
   button:disabled { color:#b4b2a9; border-color:var(--line); cursor:default; }
   button.go:disabled { background:#b4b2a9; border-color:#b4b2a9; color:#fff; }
-  .pager { display:flex; align-items:center; justify-content:center; gap:12px; margin-top:20px; }
-  .pager span { font-size:16px; color:var(--muted); }
-  .pager button { padding:10px 18px; }
-  .pager button:disabled { color:#b4b2a9; cursor:default; }
+  .pager { display:flex; align-items:center; justify-content:center; gap:8px;
+           margin-top:20px; flex-wrap:wrap; }
+  .pager span { font-size:0.9em; color:var(--muted); margin:0 8px; }
+  .pager input { width:64px; padding:6px 8px; text-align:center;
+                 border:2px solid var(--line); border-radius:6px; font:inherit;
+                 font-size:0.95em; }
+  .pager button { padding:10px 16px; font-size:0.95em; }
+  .pager button:disabled { color:#b4b9bd; border-color:var(--line); cursor:default; }
   @media (max-width:640px) {
     .cards { grid-template-columns:1fr; }
     .bar .nm { width:110px; font-size:15px; }
@@ -119,25 +128,64 @@
   .gate-box a { display:inline-block; margin-top:20px; font-size:16px;
     color:var(--pick); text-decoration:none; }
 
+
+  /* ===== 공통 머리·꼬리 ===== */
   .top { background:var(--head); }
   .top-in { max-width:1360px; margin:0 auto; padding:0 28px;
-            display:flex; align-items:center; gap:24px; flex-wrap:wrap; }
+            display:flex; align-items:center; gap:20px; }
   .brandmark { display:flex; align-items:center; gap:10px; padding:14px 0;
-               color:#fff; font-weight:600; font-size:1.05em; white-space:nowrap; }
+               color:#fff; font-weight:600; font-size:1.02em;
+               white-space:nowrap; text-decoration:none; }
   .brandmark .sq { width:32px; height:32px; border-radius:8px; background:#fff;
                    color:var(--head); display:flex; align-items:center;
                    justify-content:center; font-weight:700; font-size:0.9em; }
-  .menu { display:flex; gap:2px; flex-wrap:wrap; margin-left:auto; }
-  .menu a { font-size:0.92em; padding:14px 16px; color:#c9dbe4; text-decoration:none;
-            border-bottom:4px solid transparent; }
+  .menu { display:flex; gap:2px; margin-left:auto; }
+  .menu a { font-size:0.92em; padding:16px 18px; color:#bcd3dd; text-decoration:none;
+            border-bottom:4px solid transparent; white-space:nowrap; }
   .menu a:hover { color:#fff; }
   .menu a.here { color:#fff; font-weight:600; border-bottom-color:#fff; }
+  .staff-btn { font-size:0.85em; padding:8px 16px; margin-left:14px;
+               color:#bcd3dd; text-decoration:none; white-space:nowrap;
+               border:1px solid rgba(255,255,255,.35); border-radius:8px; }
+  .staff-btn:hover { color:#fff; border-color:#fff; }
+  .staff-btn.here { background:#fff; color:var(--head); border-color:#fff; font-weight:600; }
+
+  .subtop { background:var(--card); border-bottom:1px solid var(--line); }
+  .subtop-in { max-width:1360px; margin:0 auto; padding:0 28px;
+               display:flex; align-items:center; gap:6px; }
+  .subtop .stitle { font-size:0.85em; color:var(--muted); margin-right:10px; }
+  .subtop a { font-size:0.92em; padding:12px 16px; color:var(--muted);
+              text-decoration:none; border-bottom:3px solid transparent; }
+  .subtop a:hover { color:var(--pick); }
+  .subtop a.here { color:var(--pick); font-weight:600; border-bottom-color:var(--pick); }
+  .subtop .lock { margin-left:auto; font:inherit; font-size:0.85em; padding:7px 14px;
+                  border:2px solid var(--line); border-radius:8px;
+                  background:var(--card); color:var(--muted); cursor:pointer; }
+  .subtop .lock:hover { border-color:var(--pick); color:var(--pick); }
+
+  .foot { border-top:1px solid var(--line); margin-top:32px; background:var(--card); }
+  .foot-in { max-width:1360px; margin:0 auto; padding:24px 28px 32px;
+             display:flex; gap:32px; flex-wrap:wrap; align-items:center; }
+  .foot .call { display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; }
+  .foot .call .lb { font-size:0.85em; color:var(--muted); }
+  .foot .call b { font-size:1.3em; color:var(--pick); letter-spacing:.5px; }
+  .foot .call .hr { font-size:0.85em; color:var(--muted); }
+  .foot .help { flex:1; min-width:260px; font-size:0.85em; color:var(--muted); line-height:1.8; }
+  .foot .help a { color:var(--pick); }
+  @media (max-width:820px) {
+    .top-in { flex-wrap:wrap; padding:0 16px; }
+    .menu { margin-left:0; width:100%; overflow-x:auto; }
+    .staff-btn { margin:0 0 10px; }
+    .subtop-in, .foot-in { padding-left:16px; padding-right:16px; }
+  }
+
   .sheet { background:var(--card); border-radius:16px; padding:24px 26px;
            box-shadow:0 1px 3px rgba(0,0,0,.06); }
 </style>
 </head>
 <body>
-<div class="top"><div class="top-in"><span class="brandmark"><span class="sq">두</span>두두자격지원센터</span><nav class="menu"><a href="/">접수 신청</a><a href="/check">접수 확인</a><a href="/chat">물어보기</a><a href="/admin" class="here">접수 내역</a><a href="/faq">안내 문서</a></nav></div></div>
+<div class="top"><div class="top-in"><a class="brandmark" href="/"><span class="sq">두</span>두두자격지원센터</a><nav class="menu"><a href="/">접수 신청</a><a href="/check">접수 확인</a><a href="/chat">물어보기</a></nav><a class="staff-btn here" href="/admin">직원용</a></div></div>
+<div class="subtop"><div class="subtop-in"><span class="stitle">직원용</span><a href="/admin" class="here">접수 내역</a><a href="/faq">안내 문서</a><button type="button" class="lock" id="lock">잠그기</button></div></div>
 <div class="gate" id="gate">
   <div class="gate-box">
     <h2>직원용 화면</h2>
@@ -155,7 +203,7 @@
   <p class="lead">오늘 들어온 접수와 자격증별 현황을 봅니다.</p>
 
   <details class="quick">
-    <summary>빠른 접수 — 전화나 방문으로 받은 신청을 여기서 바로 넣습니다</summary>
+    <summary>직원 접수 — 전화·방문으로 받은 신청, 자격증별 상세 칸까지 한 화면에서</summary>
     <div class="qin">
       <div class="qrow">
         <div class="qf"><label for="q-cert">자격증</label><select id="q-cert"></select></div>
@@ -174,6 +222,20 @@
           <select id="q-context"><option>본인단독</option><option>가족보조</option>
             <option>복지관</option><option>대리접수</option></select></div>
       </div>
+      <p class="qsec">자격증에 따라 달라지는 칸</p>
+      <div class="qrow" id="q-track"></div>
+
+      <p class="qsec">결제</p>
+      <div class="qrow">
+        <div class="qf"><label for="q-disc">감면</label><select id="q-disc"></select></div>
+        <div class="qf"><label for="q-pay">결제수단</label>
+          <select id="q-pay"><option>신용카드</option><option>계좌이체</option>
+            <option>가상계좌</option></select></div>
+        <div class="qf"><label for="q-date">희망 시험일</label><input id="q-date" type="date"></div>
+        <div class="qf"><label for="q-session">교시 · 시간대</label><select id="q-session"></select></div>
+      </div>
+      <p class="qfee" id="q-fee"></p>
+
       <div class="qf" style="margin-top:12px">
         <label for="q-memo">비고</label>
         <input id="q-memo" placeholder="예: 딸이 대신 문의">
@@ -254,6 +316,12 @@
 // ---------- 직원용 잠금 ----------
 // 브라우저 코드라 F12로 보면 비밀번호가 보입니다. 실제 보안이 아니라
 // 손님이 실수로 들어오는 것을 막는 용도입니다.
+
+document.getElementById("lock").addEventListener("click", function () {
+  sessionStorage.removeItem("staff");
+  location.reload();
+});
+
 (function () {
   const PW = "1234";
   const gate = document.getElementById("gate");
@@ -277,6 +345,18 @@
   pw.focus();
 })();
 </script>
+<div class="foot">
+  <div class="foot-in">
+    <div class="call">
+      <span class="lb">고객센터</span><b>02-000-0000</b>
+      <span class="hr">평일 09:00 ~ 18:00</span>
+    </div>
+    <div class="help">
+      화면에서 막히시면 <b>궁금한 것 물어보기</b>를 눌러 주세요.
+      접수하신 뒤에는 <a href="/check">접수 확인</a>에서 진행 상황을 보실 수 있습니다.
+    </div>
+  </div>
+</div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 const $ = function (id) { return document.getElementById(id); };
@@ -402,10 +482,15 @@ function render() {
   const from = (page - 1) * PER;
   shown = list.slice(from, from + PER);
 
+  const first = page === 1, last = page === pages;
   $("pager").innerHTML = pages > 1
-    ? '<button id="prev"' + (page === 1 ? " disabled" : "") + '>← 이전</button>' +
-      '<span>' + (from + 1) + '–' + (from + shown.length) + ' / ' + list.length + '건</span>' +
-      '<button id="next"' + (page === pages ? " disabled" : "") + '>다음 →</button>'
+    ? '<button id="p-first"' + (first ? " disabled" : "") + '>« 처음</button>' +
+      '<button id="prev"'    + (first ? " disabled" : "") + '>← 이전</button>' +
+      '<span>' + (from + 1) + '–' + (from + shown.length) + ' / ' + list.length + '건 · ' +
+      '<input id="p-go" type="number" min="1" max="' + pages + '" value="' + page + '"> / ' +
+      pages + '쪽</span>' +
+      '<button id="next"'    + (last ? " disabled" : "") + '>다음 →</button>' +
+      '<button id="p-last"'  + (last ? " disabled" : "") + '>끝 »</button>'
     : "";
 
   if (!list.length) {
@@ -507,15 +592,35 @@ async function loadQuestions() {
 
 // ---------- 빠른 접수 (직원용) ----------
 const QCERTS = [
-  { code:"7910", name:"한식조리기능사",   track:"국가기술", agency:"두두넷",   fee:14500, state:"now" },
-  { code:"7520", name:"지게차운전기능사", track:"국가기술", agency:"두두넷",   fee:14500, state:"now" },
-  { code:"7530", name:"굴착기운전기능사", track:"국가기술", agency:"두두넷",   fee:14500, state:"now" },
-  { code:"2300", name:"전기기능사",       track:"국가기술", agency:"두두넷",   fee:14500, state:"soon" },
-  { code:"P001", name:"손해평가사",       track:"전문",     agency:"두두넷",   fee:30000, state:"late" },
-  { code:"P002", name:"공인중개사",       track:"전문",     agency:"두두넷",   fee:13400, state:"late" },
-  { code:"H001", name:"요양보호사",       track:"보건",     agency:"두두보건", fee:32000, state:"now" },
-  { code:"H002", name:"위생사",           track:"보건",     agency:"두두보건", fee:30000, state:"late" }
+  { code:"7910", name:"한식조리기능사",   track:"국가기술", agency:"두두넷", examType:"상시CBT", fee:14500, state:"now" },
+  { code:"7520", name:"지게차운전기능사", track:"국가기술", agency:"두두넷", examType:"상시CBT", fee:14500, state:"now" },
+  { code:"7530", name:"굴착기운전기능사", track:"국가기술", agency:"두두넷", examType:"상시CBT", fee:14500, state:"now" },
+  { code:"2300", name:"전기기능사",       track:"국가기술", agency:"두두넷", examType:"정기",    fee:14500, state:"soon" },
+  { code:"P001", name:"손해평가사",       track:"전문",   agency:"두두넷", fee:{ "1차":30000, "2차":30000 }, state:"late" },
+  { code:"P002", name:"공인중개사",       track:"전문",   agency:"두두넷", fee:{ "1차":13400, "2차":15200 }, state:"late" },
+  { code:"H001", name:"요양보호사",       track:"보건", agency:"두두보건", hours:240,  fee:32000, state:"now" },
+  { code:"H002", name:"위생사",           track:"보건", agency:"두두보건", hours:null, fee:30000, state:"late" }
 ];
+const QCENTERS = ["서울","부산","대구","광주","대전","수원","청주","전주","제주"];
+const QEDU = ["무학","초등학교졸업","중학교졸업","고등학교졸업","전문대졸","대학교졸","대학원졸"];
+const QDISC = ["없음","장애인","기초생활수급자","국가유공자","차상위계층"];
+const QSUBJ = {
+  "손해평가사|1차": ["상법 보험편","농어업재해보험법령"],
+  "손해평가사|2차": ["농작물재해보험 및 가축재해보험의 이론과 실무",
+                    "농작물재해보험 및 가축재해보험 손해평가의 이론과 실무"],
+  "공인중개사|1차": ["부동산학개론","민법 및 민사특별법"],
+  "공인중개사|2차": ["공인중개사법령 및 중개실무","부동산공법","부동산공시법 및 부동산세법"]
+};
+const QORGS = {
+  "요양보호사": ["서울시립요양보호사교육원","부산광역시요양보호사교육원",
+                "대한적십자사 서울지사","한국요양보호협회 교육센터","사회복지법인 위드 교육원"],
+  "위생사":     ["보건환경연구원","한국보건복지인력개발원","대학교 보건학과"]
+};
+function qDiscRate(t, track) {
+  if (t === "없음") return 0;
+  if (t === "기초생활수급자" && track === "보건") return 100;
+  return 50;
+}
 const QREGIONS = ["서울","부산","대구","인천","광주","대전","울산","세종","경기","강원",
                   "충북","충남","전북","전남","경북","경남","제주"];
 
@@ -523,8 +628,92 @@ const QREGIONS = ["서울","부산","대구","인천","광주","대전","울산"
   $("q-cert").innerHTML = QCERTS.map(function (c, i) {
     return '<option value="' + i + '">' + c.name + '</option>';
   }).join("");
-  $("q-region").innerHTML = QREGIONS.map(function (r) { return "<option>" + r + "</option>"; }).join("");
+  qfill($("q-disc"), QDISC);
+  $("q-cert").addEventListener("change", qDrawTrack);
+  $("q-disc").addEventListener("change", qFee);
+  qDrawTrack();
 })();
+
+function qfill(sel, items) {
+  sel.innerHTML = items.map(function (v) { return "<option>" + v + "</option>"; }).join("");
+}
+
+function qDrawTrack() {
+  const c = QCERTS[Number($("q-cert").value)];
+  const box = $("q-track"), ses = $("q-session");
+  box.innerHTML = "";
+
+  if (c.track === "국가기술") {
+    box.innerHTML =
+      '<div class="qf"><label for="q-round">회차</label><select id="q-round"></select></div>' +
+      '<div class="qf"><label for="q-elig">응시자격</label><select id="q-elig">' +
+      '<option>제한없음</option><option>관련학과졸업</option><option>경력</option>' +
+      '<option>기타</option></select></div>' +
+      '<div class="qf"><label for="q-edu">최종학력</label><select id="q-edu"></select></div>';
+    const r = $("q-round");
+    if (c.examType === "정기") { qfill(r, ["1회","2회","3회","4회"]); r.value = "4회"; }
+    else { qfill(r, ["해당없음 (상시)"]); r.disabled = true; }
+    qfill($("q-edu"), QEDU);
+    if (c.examType === "정기") qfill(ses, ["1교시 (09:30)","2교시 (11:00)","3교시 (13:30)",
+                                           "4교시 (15:00)","5교시 (16:30)"]);
+    else qfill(ses, ["09:00","10:30","13:00","14:30","16:00"]);
+  }
+
+  if (c.track === "전문") {
+    box.innerHTML =
+      '<div class="qf"><label for="q-stage">차수</label>' +
+      '<select id="q-stage"><option>1차</option><option>2차</option></select></div>' +
+      '<div class="qf"><label for="q-passno">1차 합격번호</label>' +
+      '<input id="q-passno" placeholder="2차만"></div>' +
+      '<div class="qf" style="grid-column:1/-1"><label>응시 과목</label>' +
+      '<p class="said2" id="q-subj"></p></div>';
+    $("q-stage").addEventListener("change", function () { qSubj(); qFee(); });
+    qSubj();
+    qfill(ses, ["1교시 (09:30)","2교시 (11:00)"]);
+  }
+
+  if (c.track === "보건") {
+    const orgs = QORGS[c.name] || [];
+    box.innerHTML =
+      '<div class="qf"><label for="q-org">교육기관</label>' +
+      '<select id="q-org"><option value="">고르기</option>' +
+      orgs.map(function (o) { return "<option>" + o + "</option>"; }).join("") + '</select></div>' +
+      '<div class="qf"><label for="q-certno">수료번호</label>' +
+      '<input id="q-certno" placeholder="TR20261080"></div>' +
+      '<div class="qf"><label for="q-cdone">수료일</label><input id="q-cdone" type="date"></div>' +
+      '<div class="qf"><label for="q-disab">편의제공</label>' +
+      '<select id="q-disab"><option>없음</option><option>지체장애</option>' +
+      '<option>시각장애</option><option>청각장애</option><option>뇌병변장애</option>' +
+      '<option>기타</option></select></div>';
+    qfill(ses, ["오전 9시","오후 2시"]);
+  }
+
+  $("q-region").innerHTML = (c.track === "보건" ? QCENTERS : QREGIONS)
+    .map(function (r) { return "<option>" + r + "</option>"; }).join("");
+  qFee();
+}
+
+function qSubj() {
+  const c = QCERTS[Number($("q-cert").value)];
+  if (!$("q-subj")) return;
+  $("q-subj").textContent = (QSUBJ[c.name + "|" + $("q-stage").value] || []).join(" · ");
+}
+
+function qBase() {
+  const c = QCERTS[Number($("q-cert").value)];
+  if (typeof c.fee === "number") return c.fee;
+  return c.fee[$("q-stage") ? $("q-stage").value : "1차"];
+}
+function qFee() {
+  const c = QCERTS[Number($("q-cert").value)];
+  const base = qBase();
+  const rate = qDiscRate($("q-disc").value, c.track);
+  const cut = Math.floor(base * rate / 100 / 10) * 10;
+  $("q-fee").innerHTML = "응시료 " + base.toLocaleString() + "원" +
+    (rate ? " · 감면 " + cut.toLocaleString() + "원" : "") +
+    " · 결제 <b>" + (base - cut).toLocaleString() + "원</b>";
+  return { base:base, cut:cut, final:base - cut };
+}
 
 function qdig(v, m) { return v.replace(/[^0-9]/g, "").slice(0, m); }
 $("q-phone").addEventListener("input", function () {
@@ -562,18 +751,45 @@ $("q-save").addEventListener("click", async function () {
   const btn = $("q-save");
   btn.disabled = true; btn.textContent = "넣는 중…";
 
+  const fee = qFee();
+  const extra = { entered_by:"직원", exam_category:"필기" };
+  if (c.track === "국가기술") {
+    extra.grade = "기능사"; extra.exam_type = c.examType;
+    extra.exam_round = $("q-round").value; extra.eligibility = $("q-elig").value;
+    extra.education = $("q-edu").value;
+  }
+  if (c.track === "전문") {
+    extra.exam_stage = $("q-stage").value;
+    extra.exam_year = new Date().getFullYear();
+    extra.subjects = QSUBJ[c.name + "|" + extra.exam_stage] || [];
+    if ($("q-passno").value.trim()) {
+      extra.is_first_pass_holder = true;
+      extra.first_pass_number = $("q-passno").value.trim();
+    }
+  }
+  if (c.track === "보건") {
+    extra.training_org = $("q-org").value;
+    extra.training_cert_no = $("q-certno").value.trim();
+    extra.training_done = $("q-cdone").value;
+    extra.training_hours = c.hours || null;
+  }
+
   const res = await db.from("applications").insert({
     track: c.track, agency: c.agency, cert_code: c.code, cert_name: c.name,
     name: name, phone: phone, gender: $("q-gender").value,
     birth_date: birth.slice(0,4) + "-" + birth.slice(4,6) + "-" + birth.slice(6),
     exam_region: $("q-region").value,
-    fee_amount: c.fee, fee_discount_type: "없음", fee_discount_amount: 0, fee_final: c.fee,
-    payment_method: "신용카드",
+    exam_date: $("q-date").value || null,
+    exam_session: $("q-session").value,
+    fee_amount: fee.base, fee_discount_type: $("q-disc").value,
+    fee_discount_amount: fee.cut, fee_final: fee.final,
+    payment_method: $("q-pay").value,
     status: c.state === "late" ? "문의" : "접수완료",
     usage_context: $("q-context").value, channel: $("q-channel").value,
     memo: $("q-memo").value.trim() || null,
+    disability_type: $("q-disab") ? $("q-disab").value : null,
     receipt_no: rno, agreed_privacy: true, agreed_terms: true,
-    extra: { entered_by: "직원" }
+    extra: extra
   });
 
   btn.disabled = false; btn.textContent = "접수 넣기";
