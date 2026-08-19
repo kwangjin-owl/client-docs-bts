@@ -294,8 +294,6 @@
     </div>
   </div>
 
-  <p class="msg plain" id="status">Supabase 연결 확인 중…</p>
-
   <p class="staff"><a href="/admin">직원용 관리 화면 →</a></p>
 </div>
 
@@ -416,7 +414,9 @@ function bindMasks() {
 let db = null, picked = null, gender = null;
 
 const $ = function (id) { return document.getElementById(id); };
-const statusBox = $("status"), msgBox = $("msg");
+const msgBox = $("msg");
+// 연결 상태는 손님에게 보일 이유가 없어 콘솔에만 남긴다. F12 로 확인.
+const statusBox = { set textContent(v) { console.log("[DB]", v); } };
 
 // ---------- 카드 그리기 ----------
 function drawCards() {
@@ -449,7 +449,16 @@ function fill(sel, items) {
 }
 
 // ---------- 자격증 고르기 ----------
+function anyTyped() {
+  return $("f-name").value.trim() || $("f-phone").value.trim() ||
+         $("f-birth").value.trim() || $("f-memo").value.trim() || gender;
+}
+
 function pick(cert, btn) {
+  if (picked && picked.code !== cert.code && anyTyped()) {
+    if (!confirm("다른 자격증을 고르시면 지금까지 넣으신 내용이 그대로 남습니다.\n" +
+                 cert.name + "로 바꾸시겠습니까?")) return;
+  }
   document.querySelectorAll(".card").forEach(function (c) { c.classList.remove("picked"); });
   btn.classList.add("picked");
 

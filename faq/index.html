@@ -54,6 +54,16 @@
   .note { margin-top:20px; padding:16px 20px; border:1px solid var(--line);
           border-radius:12px; font-size:16px; color:var(--muted); }
   .tip { background:var(--pick-bg); color:var(--pick); border:0; }
+  .empty { padding:40px 20px; text-align:center; color:var(--muted); }
+  .empty b { display:block; font-size:19px; font-weight:600; color:var(--ink); margin-bottom:8px; }
+  .empty span { font-size:16px; line-height:1.7; }
+  button:disabled { color:#b4b2a9; border-color:var(--line); cursor:default; }
+  button.go:disabled { background:#b4b2a9; border-color:#b4b2a9; color:#fff; }
+  .undo { display:flex; align-items:center; justify-content:space-between; gap:16px;
+          background:var(--stop-bg); color:var(--stop); border-radius:12px;
+          padding:16px 20px; margin-bottom:12px; font-size:17px; }
+  .undo button { background:#fff; border:1px solid var(--stop); color:var(--stop); }
+  .undo.hide { display:none; }
 
   .gate { position:fixed; inset:0; z-index:100; background:#fff;
           display:flex; align-items:center; justify-content:center; padding:20px; }
@@ -99,6 +109,11 @@
     <input class="search" id="q" type="text" placeholder="제목이나 내용으로 찾기">
     <button class="go" id="add">문서 추가</button>
     <button id="reload">새로고침</button>
+  </div>
+
+  <div class="undo hide" id="undo">
+    <span id="undo-text"></span>
+    <button type="button" id="undo-btn">되돌리기</button>
   </div>
 
   <div id="list"></div>
@@ -187,6 +202,15 @@ function render() {
     '</div>';
   }).join("");
 
+  if (!list.length) {
+    $("list").innerHTML = '<div class="empty">' + (q
+      ? '<b>찾으시는 문서가 없습니다</b><span>검색어를 지우고 다시 보세요.</span>'
+      : '<b>안내 문서가 없습니다</b><span>문서 추가를 눌러 첫 문서를 만드세요.<br>여기에 적은 내용만 챗봇이 답합니다.</span>')
+      + '</div>';
+    $("status").textContent = "문서 " + docs.length + "건";
+    return;
+  }
+
   $("status").textContent = "문서 " + docs.length + "건" +
     (q ? " 중 " + list.length + "건 표시" : "") + " · 제목을 누르면 펼쳐집니다";
 
@@ -209,7 +233,9 @@ function bind() {
       if (!title) { said.textContent = "제목을 넣어 주세요"; said.className = "said bad"; return; }
       if (!body)  { said.textContent = "내용을 넣어 주세요"; said.className = "said bad"; return; }
 
-      said.textContent = "저장하는 중…"; said.className = "said";
+      const sbtn = item.querySelector(".save");
+      sbtn.disabled = true; sbtn.textContent = "저장 중…";
+      said.textContent = ""; said.className = "said";
       const res = await db.from("docs").update({
         title: title,
         body: body,
@@ -218,21 +244,56 @@ function bind() {
         updated_at: new Date().toISOString()
       }).eq("id", id);
 
+      sbtn.disabled = false; sbtn.textContent = "저장";
       if (res.error) { said.textContent = "저장 실패: " + res.error.message; said.className = "said bad"; return; }
       await load(true, id, "저장했습니다 (" + fmtWhen(new Date().toISOString()) + ") · 챗봇에서 확인해 보세요");
     });
 
     item.querySelector(".del").addEventListener("click", async function () {
       const t = item.querySelector(".f-title").value.trim();
-      if (!confirm('"' + t + '" 문서를 지웁니다. 되돌릴 수 없습니다.')) return;
+      if (!confirm('"' + t + '" 문서를 지웁니다.')) return;
+
+      const gone = docs.find(function (d) { return d.id === id; });
+      const btn = item.querySelector(".del");
+      btn.disabled = true; btn.textContent = "지우는 중…";
+
       const res = await db.from("docs").delete().eq("id", id);
+      btn.disabled = false; btn.textContent = "삭제";
       if (res.error) { said.textContent = "삭제 실패: " + res.error.message; said.className = "said bad"; return; }
+
+      lastDeleted = gone;
+      $("undo-text").textContent = '"' + gone.title + '" 문서를 지웠습니다.';
+      $("undo").classList.remove("hide");
       await load();
     });
   });
 }
 
+let lastDeleted = null;
+
+$("undo-btn").addEventListener("click", async function () {
+  if (!lastDeleted) return;
+  const b = $("undo-btn");
+  b.disabled = true; b.textContent = "되돌리는 중…";
+  const res = await db.from("docs").insert({
+    title: lastDeleted.title, body: lastDeleted.body,
+    cert: lastDeleted.cert, source: lastDeleted.source
+  });
+  b.disabled = false; b.textContent = "되돌리기";
+  if (res.error) { $("undo-text").textContent = "되돌리기 실패: " + res.error.message; return; }
+  lastDeleted = null;
+  $("undo").classList.add("hide");
+  await load();
+});
+
 async function load(keepOpen, savedId, savedMsg) {
+  const rb = $("reload");
+  rb.disabled = true; rb.textContent = "불러오는 중…";
+  try { await loadInner(keepOpen, savedId, savedMsg); }
+  finally { rb.disabled = false; rb.textContent = "새로고침"; }
+}
+
+async function loadInner(keepOpen, savedId, savedMsg) {
   const opened = keepOpen
     ? Array.from(document.querySelectorAll(".item.open")).map(function (e) { return e.dataset.id; })
     : [];
@@ -267,11 +328,14 @@ async function load(keepOpen, savedId, savedMsg) {
 
 $("add").addEventListener("click", async function () {
   if (!db) return;
+  const ab = $("add");
+  ab.disabled = true; ab.textContent = "만드는 중…";
   const res = await db.from("docs").insert({
     title: "새 문서",
     body: "여기에 내용을 적으세요.",
     source: "직접 작성"
   }).select();
+  ab.disabled = false; ab.textContent = "문서 추가";
   if (res.error) { $("status").textContent = "추가 실패: " + res.error.message; return; }
   await load();
   const created = res.data && res.data[0];

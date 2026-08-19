@@ -60,6 +60,11 @@
   .note { margin-top:20px; padding:16px 20px; border:1px solid var(--line);
           border-radius:12px; font-size:16px; color:var(--muted); }
   .hide { display:none; }
+  .empty { padding:40px 20px; text-align:center; color:var(--muted); }
+  .empty b { display:block; font-size:19px; font-weight:600; color:var(--ink); margin-bottom:8px; }
+  .empty span { font-size:16px; line-height:1.7; }
+  button:disabled { color:#b4b2a9; border-color:var(--line); cursor:default; }
+  button.go:disabled { background:#b4b2a9; border-color:#b4b2a9; color:#fff; }
   .pager { display:flex; align-items:center; justify-content:center; gap:12px; margin-top:20px; }
   .pager span { font-size:16px; color:var(--muted); }
   .pager button { padding:10px 18px; }
@@ -305,6 +310,15 @@ function render() {
       '<button id="next"' + (page === pages ? " disabled" : "") + '>다음 →</button>'
     : "";
 
+  if (!list.length) {
+    const why = (q || cert || when)
+      ? '<b>찾으시는 접수가 없습니다</b><span>검색어를 지우거나 자격증·기간을 전체로 바꿔 보세요.</span>'
+      : '<b>아직 접수가 없습니다</b><span>접수 화면에서 신청서가 들어오면 여기에 쌓입니다.</span>';
+    $("rows").innerHTML = '<tr><td colspan="8"><div class="empty">' + why + '</div></td></tr>';
+    $("status").textContent = "전체 " + all.length + "건";
+    return;
+  }
+
   $("rows").innerHTML = shown.map(function (r) {
     return '<tr class="row" data-id="' + r.id + '">' +
       '<td>' + fmtWhen(r.created_at) + '</td>' +
@@ -359,7 +373,14 @@ async function loadQuestions() {
     const res = await db.from("questions").select("*").order("created_at", { ascending:false });
     if (res.error) { $("q-note").textContent = "질문 기록을 못 읽었습니다: " + res.error.message; return; }
     const qs = res.data || [];
-    if (!qs.length) { $("q-note").textContent = "아직 들어온 질문이 없습니다."; return; }
+    if (!qs.length) {
+      $("q-note").innerHTML = '';
+      $("by-question").innerHTML =
+        '<div class="empty"><b>아직 들어온 질문이 없습니다</b>' +
+        '<span>챗봇에 질문이 들어오면 여기에 쌓입니다.<br>' +
+        '어떤 질문이 많은지, 무엇을 못 답했는지 볼 수 있습니다.</span></div>';
+      return;
+    }
 
     const cnt = {}, miss = {};
     qs.forEach(function (q) {
