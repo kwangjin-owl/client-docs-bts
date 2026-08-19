@@ -132,7 +132,8 @@
 
   .two { display:grid; grid-template-columns:1fr 1fr; gap:16px; align-items:stretch; }
   @media (max-width:860px) { .two { grid-template-columns:1fr; } }
-  .two .sheet { display:flex; flex-direction:column; margin:0; }
+  .pane { background:var(--soft); border-radius:14px; padding:22px 24px 24px;
+          display:flex; flex-direction:column; }
   .two .btn { margin-top:auto; }
   .fldrow { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
   @media (max-width:620px) { .fldrow { grid-template-columns:1fr; } }
@@ -173,7 +174,7 @@
     <p class="lead">두 가지 방법 중 편하신 것으로 찾으시면 됩니다.</p>
 
     <div class="two">
-      <div class="sheet" style="box-shadow:none; border:2px solid var(--line)">
+      <div class="pane">
         <h2 class="sec">접수번호로 찾기</h2>
         <p class="lead">가장 빠릅니다.</p>
         <label for="f-rno">접수번호 <span class="req">*</span></label>
@@ -182,7 +183,7 @@
         <button type="button" class="btn key big" id="find-rno">이 번호로 찾기</button>
       </div>
 
-      <div class="sheet" style="box-shadow:none; border:2px solid var(--line)">
+      <div class="pane">
         <h2 class="sec">성함과 연락처로 찾기</h2>
         <p class="lead">번호를 잊으셨으면 이쪽으로 찾으세요.</p>
         <div class="fldrow">
