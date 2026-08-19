@@ -150,27 +150,54 @@
 
 
   /* ===== 항목 ===== */
-  /* 항목 = 색 띠 머리 + 흰 몸통 */
+  /* 지금 할 곳만 또렷하게. 아직 안 할 곳은 가라앉힌다. */
   .item { background:var(--card); border-radius:16px; overflow:hidden;
-          box-shadow:0 1px 3px rgba(0,0,0,.07); margin-bottom:16px; padding:0; }
-  .ihead { display:flex; align-items:center; gap:14px;
-           padding:18px 26px; background:var(--navy); color:#fff; }
-  .item.done .ihead { background:var(--key); }
-  .inum { flex:none; width:38px; height:38px; border-radius:50%;
-          background:rgba(255,255,255,.2); color:#fff;
-          font-size:0.88em; font-weight:800;
-          display:flex; align-items:center; justify-content:center; }
+          margin-bottom:14px; padding:0; transition:opacity .2s, box-shadow .2s; }
+
+  /* 지금 할 차례 */
+  .item.now { box-shadow:0 4px 18px rgba(18,58,82,.16); }
+  .item.now .ihead { background:var(--navy); color:#fff; }
+  .item.now .inum { background:var(--key); color:#fff; }
+  .item.now .ihead .t span { color:#bcd3dd; }
+  .item.now .st { background:var(--key); color:#fff; }
+
+  /* 아직 차례가 아님 */
+  .item.wait { opacity:.5; }
+  .item.wait .ihead { background:#e3e8eb; color:var(--muted); }
+  .item.wait .inum { background:#fff; color:var(--muted); }
+  .item.wait .ihead .t span { color:var(--muted); }
+  .item.wait .st { background:#fff; color:var(--muted); }
+  .item.wait .ibody { pointer-events:none; }
+
+  /* 끝난 곳 */
+  .item.done .ihead { background:var(--key); color:#fff; }
   .item.done .inum { background:#fff; color:var(--key-d); }
   .item.done .inum span { display:none; }
   .item.done .inum::after { content:"\2713"; font-size:1.15em; }
+  .item.done .ihead .t span { color:rgba(255,255,255,.9); }
+  .item.done .st { background:rgba(255,255,255,.22); color:#fff; }
+
+  .ihead { display:flex; align-items:center; gap:14px; padding:18px 26px; }
+  .inum { flex:none; width:38px; height:38px; border-radius:50%;
+          font-size:0.88em; font-weight:800;
+          display:flex; align-items:center; justify-content:center; }
   .ihead .t { flex:1; min-width:0; }
   .ihead .t b { display:block; font-size:1.12em; font-weight:700; line-height:1.4; }
-  .ihead .t span { font-size:0.8em; color:#bcd3dd; }
-  .item.done .ihead .t span { color:rgba(255,255,255,.85); }
+  .ihead .t span { font-size:0.8em; }
   .ihead .st { flex:none; font-size:0.78em; font-weight:700;
-               padding:6px 14px; border-radius:999px;
-               background:rgba(255,255,255,.18); color:#fff; }
+               padding:6px 14px; border-radius:999px; white-space:nowrap; }
   .ibody { padding:22px 26px 26px; }
+  .item.folded .ibody { display:none; }
+
+  /* 고른 자격증 한 줄 요약 */
+  .picked-row { display:flex; align-items:center; gap:14px;
+                padding:16px 26px; background:var(--ok-bg); }
+  .picked-row .pn { flex:1; min-width:0; font-weight:700; color:var(--ok); }
+  .picked-row .pn span { display:block; font-size:0.8em; font-weight:400; color:var(--muted); }
+  .picked-row button { font:inherit; font-size:0.85em; font-weight:700; padding:10px 18px;
+                       border:2px solid var(--ok); border-radius:9px;
+                       background:#fff; color:var(--ok); cursor:pointer; white-space:nowrap; }
+  .picked-row button:hover { background:var(--ok); color:#fff; }
 
   /* ===== 자격증 카드 ===== */
   /* 묶음마다 배경을 달리해서 구역이 보이게 */
@@ -373,15 +400,18 @@
     <div class="ihead">
       <span class="inum"><span>1</span></span>
       <span class="t"><b>어떤 자격증을 신청하시나요</b>
-        <span>취급 자격증 8종 · 하나만 고르시면 됩니다</span></span>
-      <span class="st" id="st1">고르는 중</span>
+        <span>여덟 가지 중에서 하나만 눌러 주세요</span></span>
+      <span class="st" id="st1">여기부터 하세요</span>
+    </div>
+    <div class="picked-row hide" id="picked-row">
+      <span class="pn" id="pn-name"></span>
+      <button type="button" id="pn-change">다른 것 고르기</button>
     </div>
     <div class="ibody">
     <p class="lead">복잡한 원서접수는 저희가 대신 해 드립니다.
        자격증 하나를 고르고 성함과 연락처만 남겨 주세요.</p>
-    <p class="scope"><b>필기 접수만 도와드립니다.</b>
-       실기 접수는 저희가 안내하지 않습니다.
-       전문자격은 필기를 <b>1차</b>라고 부릅니다.</p>
+    <p class="scope"><b>시험을 처음 보실 때 내는 원서</b>만 대신 넣어 드립니다.
+       필기(전문자격은 1차)까지이고, 그다음에 보시는 실기는 안내하지 않습니다.</p>
 
     <div class="bloc open">
       <p class="group"><span class="dot"></span>지금 접수하실 수 있습니다</p>
@@ -391,7 +421,8 @@
 
     <div class="bloc shut">
       <p class="group"><span class="dot"></span>지금은 접수 기간이 아닙니다</p>
-      <p class="group-sub">눌러서 문의를 남기시면 접수가 시작될 때 저희가 연락드립니다.</p>
+      <p class="group-sub">지금은 접수를 못 하지만, 눌러서 성함과 연락처를 남기시면
+        접수가 시작될 때 저희가 먼저 연락드립니다.</p>
       <div class="grid small" id="g-closed"></div>
     </div>
     </div>
@@ -404,7 +435,7 @@
       <span class="inum"><span>2</span></span>
       <span class="t"><b>성함과 연락처를 넣어 주세요</b>
         <span>이 두 가지만 있으면 접수됩니다</span></span>
-      <span class="st" id="st2">넣는 중</span>
+      <span class="st" id="st2">아직</span>
     </div>
     <div class="ibody">
 
@@ -434,7 +465,7 @@
       <span class="inum"><span>3</span></span>
       <span class="t"><b>동의하고 접수</b>
         <span>두 가지에 동의하셔야 접수됩니다</span></span>
-      <span class="st" id="st3">확인 중</span>
+      <span class="st" id="st3">아직</span>
     </div>
     <div class="ibody">
 
@@ -604,17 +635,49 @@ function fail(t, id) {
             if (el.focus) el.focus(); }
   return false;
 }
+// 세 항목의 상태를 한 곳에서 정한다.
+// 끝난 곳 = 초록 + 접힘, 지금 할 곳 = 또렷, 아직 = 흐림
 function markDone() {
   const d1 = !!picked;
   const d2 = checkName($("f-name").value).ok && checkPhone($("f-phone").value).ok;
   const d3 = $("f-ag1").checked && $("f-ag2").checked;
-  $("it1").classList.toggle("done", d1);
-  $("it2").classList.toggle("done", d2);
-  $("it3").classList.toggle("done", d3);
-  $("st1").textContent = d1 ? "다 됐습니다" : "고르는 중";
-  $("st2").textContent = d2 ? "다 됐습니다" : "넣는 중";
-  $("st3").textContent = d3 ? "다 됐습니다" : "확인 중";
+  const done = [d1, d2, d3];
+  const label = ["여기부터 하세요", "여기를 넣어 주세요", "마지막입니다"];
+
+  // 아직 안 끝난 것 중 첫 번째가 지금 할 곳
+  let cur = done.findIndex(function (x) { return !x; });
+  if (cur < 0) cur = 2;
+
+  for (let i = 0; i < 3; i++) {
+    const box = $("it" + (i+1)), st = $("st" + (i+1));
+    box.classList.remove("now", "wait", "done", "folded");
+    if (done[i]) {
+      box.classList.add("done");
+      st.textContent = "다 됐습니다";
+      if (i === 0) box.classList.add("folded");     // 자격증은 골랐으면 접는다
+    } else if (i === cur) {
+      box.classList.add("now");
+      st.textContent = label[i];
+    } else {
+      box.classList.add("wait");
+      st.textContent = "아직";
+    }
+  }
+
+  // 고른 자격증 한 줄 요약
+  const row = $("picked-row");
+  row.classList.toggle("hide", !picked);
+  if (picked) {
+    $("pn-name").innerHTML = picked.name +
+      '<span>' + picked.when + ' · 응시료 ' + picked.fee.toLocaleString() + '원</span>';
+  }
 }
+
+// 자격증 다시 고르기
+$("pn-change").addEventListener("click", function () {
+  $("it1").classList.remove("folded");
+  $("it1").scrollIntoView({ behavior:"smooth", block:"start" });
+});
 // 칸에서 손을 떼면 바로 맞는지 알려 준다. 제출할 때까지 기다리지 않는다.
 function tellField(id, hintId, check, base) {
   const el = $(id), hint = $(hintId);
@@ -693,18 +756,18 @@ function pick(cert, btn) {
   $("send").textContent = cert.state === "late" ? "문의 남기기" : "접수 신청하기";
   clearMsg(); clearMarks();
 
-  // 고른 것을 화면 아래 띠로 계속 보여 준다. 스크롤해도 안 사라진다.
   const late = cert.state === "late";
   const bar = $("pickbar");
-  bar.classList.remove("hide");
+  bar.classList.toggle("hide", !late);
   bar.classList.toggle("late", late);
-  $("pb-name").textContent = cert.name + " · 응시료 " + cert.fee.toLocaleString() + "원";
-  $("pb-sub").textContent = late
-    ? "지금은 접수 기간이 아닙니다 (" + cert.when + "). 문의로 남겨 드립니다"
-    : "골랐습니다. 아래에 성함과 연락처를 넣어 주세요";
+  if (late) {
+    $("pb-name").textContent = cert.name + " · 지금은 접수 기간이 아닙니다";
+    $("pb-sub").textContent = cert.when + ". 성함과 연락처를 남기시면 저희가 연락드립니다";
+  }
 
   markDone();
   $("it2").scrollIntoView({ behavior:"smooth", block:"start" });
+  setTimeout(function () { $("f-name").focus(); }, 400);
 }
 
 $("pb-go").addEventListener("click", function () {
@@ -824,6 +887,7 @@ document.addEventListener("keydown", function (e) {
 })();
 
 drawCards();
+markDone();
 connect();
 </script>
 

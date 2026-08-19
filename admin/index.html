@@ -171,18 +171,44 @@
   .tab { display:none; }
   .tab.on { display:block; }
 
-  .quicks { display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin:10px 0 0; }
-  .quicks button { font:inherit; font-size:0.85em; padding:9px 16px; cursor:pointer;
-                   border:2px solid var(--line); border-radius:999px;
-                   background:var(--card); color:var(--muted); }
-  .quicks button:hover { border-color:var(--key); color:var(--key-d); }
-  .quicks button.on { background:var(--key); border-color:var(--key); color:#fff; font-weight:700; }
-  .quicks .sep { width:1px; height:22px; background:var(--line); margin:0 6px; }
+  /* 기간·상태는 '고르는 것', 보기 방식은 '켜고 끄는 것' — 모양을 다르게 */
+  .filters { display:flex; align-items:center; gap:22px; flex-wrap:wrap; margin:12px 0 0; }
+  .fgrp { display:flex; align-items:center; gap:9px; }
+  .fgrp.right { margin-left:auto; }
+  .flb { font-size:0.78em; font-weight:700; color:var(--muted); white-space:nowrap; }
+
+  /* 고르는 것 — 이어 붙인 칸 */
+  .fseg { display:flex; border:2px solid var(--line); border-radius:10px; overflow:hidden; }
+  .fseg button { font:inherit; font-size:0.85em; padding:9px 16px; cursor:pointer;
+                 border:0; border-left:1px solid var(--line);
+                 background:var(--card); color:var(--muted); white-space:nowrap; }
+  .fseg button:first-child { border-left:0; }
+  .fseg button:hover { background:var(--soft); color:var(--key-d); }
+  .fseg button.on { background:var(--key); color:#fff; font-weight:700; }
+
+  /* 켜고 끄는 것 — 따로 떨어진 버튼 */
+  .toggle { font:inherit; font-size:0.85em; padding:9px 18px; cursor:pointer;
+            border:2px dashed var(--line); border-radius:10px;
+            background:var(--card); color:var(--muted); white-space:nowrap; }
+  .toggle:hover { border-color:var(--key); color:var(--key-d); }
+  .toggle.on { border-style:solid; border-color:var(--key);
+               background:var(--key-bg); color:var(--key-d); font-weight:700; }
+
+  @media (max-width:760px) {
+    .filters { gap:12px; }
+    .fgrp.right { margin-left:0; width:100%; }
+    .toggle { width:100%; }
+  }
   .bulk { display:flex; align-items:center; gap:10px; flex-wrap:wrap;
-          background:var(--key-bg); border-radius:12px; padding:12px 18px; margin-top:12px; }
-  .bulk.hide { display:none; }
-  .bulk .bt { font-size:0.9em; color:var(--key-d); }
+          background:var(--soft); border:2px solid var(--line); border-radius:12px;
+          padding:12px 18px; margin-top:12px; }
+  .bulk.on { background:var(--key-bg); border-color:var(--key); }
+  .bulk .bt { flex:1; min-width:200px; font-size:0.88em; color:var(--muted); }
+  .bulk.on .bt { color:var(--key-d); font-weight:700; }
   .bulk .bt b { font-size:1.3em; }
+  .pickh { text-align:center !important; }
+  .pickh em { display:block; font-style:normal; font-size:0.72em;
+              font-weight:400; color:var(--muted); margin-top:2px; }
   .bulk .btn { padding:10px 18px; font-size:0.86em; }
   .bulk .bhint { font-size:0.82em; color:var(--muted); }
   td input.pick, th input#pick-all { width:20px; height:20px; cursor:pointer;
@@ -434,21 +460,33 @@
   <h2 class="sec" style="margin-top:0">접수 목록</h2>
   <p class="lead">성함, 연락처, 접수번호로 찾으실 수 있습니다.</p>
 
-  <div class="quicks" id="quicks">
-    <button type="button" data-w="today" class="on">오늘</button>
-    <button type="button" data-w="week">최근 7일</button>
-    <button type="button" data-w="">전체</button>
-    <span class="sep"></span>
-    <button type="button" data-s="접수완료" class="st">처리할 것만</button>
-    <button type="button" data-s="">상태 전체</button>
-    <span class="sep"></span>
-    <button type="button" id="pagemode">한 쪽에 다 보기</button>
+  <div class="filters" id="quicks">
+    <div class="fgrp">
+      <span class="flb">기간</span>
+      <div class="fseg">
+        <button type="button" data-w="today" class="on">오늘</button>
+        <button type="button" data-w="week">최근 7일</button>
+        <button type="button" data-w="">전체</button>
+      </div>
+    </div>
+
+    <div class="fgrp">
+      <span class="flb">상태</span>
+      <div class="fseg">
+        <button type="button" data-s="접수완료" class="st">처리할 것만</button>
+        <button type="button" data-s="" class="on">전체</button>
+      </div>
+    </div>
+
+    <div class="fgrp right">
+      <button type="button" id="pagemode" class="toggle">한 쪽에 다 보기</button>
+    </div>
   </div>
 
-  <div class="bulk hide" id="bulk">
-    <span class="bt"><b id="bulk-n">0</b>건 골랐습니다</span>
-    <button type="button" class="btn key" id="bulk-go">고른 것 확인 처리</button>
-    <button type="button" class="btn ghost" id="bulk-none">고르기 해제</button>
+  <div class="bulk" id="bulk">
+    <span class="bt" id="bulk-t">왼쪽 네모를 눌러 여러 건을 한 번에 확인 처리할 수 있습니다</span>
+    <button type="button" class="btn key" id="bulk-go" disabled>확인 처리</button>
+    <button type="button" class="btn ghost hide" id="bulk-none">고르기 해제</button>
     <span class="bhint" id="bulk-hint"></span>
   </div>
 
@@ -471,7 +509,7 @@
     </colgroup>
     <thead>
       <tr>
-        <th><input type="checkbox" id="pick-all" title="이 쪽 전부 고르기"></th>
+        <th class="pickh"><input type="checkbox" id="pick-all" title="보이는 것 전부 고르기"><em>고르기</em></th>
         <th>접수일시</th><th>접수번호</th><th>성함</th><th>연락처</th><th>자격증</th>
         <th class="num">결제금액</th><th>상태</th><th>처리</th>
       </tr>
@@ -493,6 +531,11 @@
       <dd>표에서 줄을 누르면 접수번호, 교육기관, 과목 같은 것이 펼쳐집니다.</dd>
       <dt>전화나 방문으로 받은 신청을 넣으려면</dt>
       <dd>맨 위 <b>빠른 접수</b>를 펼쳐서 한 화면에 넣고 저장하십시오.</dd>
+      <dt>왼쪽 네모(체크칸)는 무엇인가요</dt>
+      <dd>여러 건을 한 번에 확인 처리하려고 고르는 칸입니다.
+          아직 처리 안 한 줄에만 나옵니다. 표 머리의 네모를 누르면 보이는 것 전부 골라집니다.
+          많이 쌓였으면 위 <b>한 쪽에 다 보기</b>를 먼저 누르고 고르십시오.</dd>
+
       <dt>확인 · 완료 처리는 무엇인가요</dt>
       <dd>발주 문서(01_사업현황_발주서.md 3절)상 3 확인 · 4 완료는 직원이 손으로 하는 단계입니다.
           이 화면은 그 단계를 <b>기록만</b> 합니다. 실제 원서접수는 두두넷·두두보건에서 하십시오.
@@ -558,6 +601,13 @@ function fmtWhen(iso) {
   return (d.getMonth()+1) + "/" + d.getDate() + " " + p(d.getHours()) + ":" + p(d.getMinutes());
 }
 function won(n) { return (n == null ? 0 : n).toLocaleString(); }
+
+// 손님이 넣은 글자를 그대로 화면에 그리면 위험하므로 기호를 바꿔 준다
+function esc(v) {
+  return String(v == null ? "" : v)
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
 
 function pill(status) {
   if (status === "접수완료") return '<span class="pill ok">접수완료</span>';
@@ -705,10 +755,10 @@ function render() {
         ? '<input type="checkbox" class="pick" data-id="' + r.id + '"' +
           (picked.has(r.id) ? " checked" : "") + '>' : "") + '</td>' +
       '<td>' + fmtWhen(r.created_at) + '</td>' +
-      '<td class="rno">' + (r.receipt_no || "-") + '</td>' +
-      '<td>' + (r.name || "") + '</td>' +
-      '<td>' + (r.phone || "") + '</td>' +
-      '<td>' + (r.cert_name || "") + '</td>' +
+      '<td class="rno">' + esc(r.receipt_no || "-") + '</td>' +
+      '<td>' + esc(r.name) + '</td>' +
+      '<td>' + esc(r.phone) + '</td>' +
+      '<td>' + esc(r.cert_name) + '</td>' +
       '<td class="num">' + won(r.fee_final) + '원</td>' +
       '<td>' + pill(r.status) + '</td>' +
       '<td>' + nextBtn(r) + '</td></tr>';
@@ -1073,15 +1123,22 @@ $("pagemode").addEventListener("click", function () {
 
 // 일괄 처리
 function drawBulk() {
-  $("bulk").classList.toggle("hide", picked.size === 0);
-  $("bulk-n").textContent = picked.size;
+  const n = picked.size;
+  $("bulk").classList.toggle("on", n > 0);
+  $("bulk-go").disabled = n === 0;
+  $("bulk-none").classList.toggle("hide", n === 0);
+  $("bulk-go").textContent = n ? n + "건 확인 처리" : "확인 처리";
+  $("bulk-t").innerHTML = n
+    ? '<b>' + n + '</b>건 골랐습니다'
+    : "왼쪽 네모를 눌러 여러 건을 한 번에 확인 처리할 수 있습니다";
 }
 $("bulk-none").addEventListener("click", function () { picked.clear(); render(); });
 
 $("bulk-go").addEventListener("click", async function () {
   const ids = Array.from(picked);
   if (!ids.length) return;
-  if (!confirm(ids.length + "건을 확인 처리하시겠습니까?")) return;
+  if (!confirm(ids.length + "건을 확인 처리로 바꾸시겠습니까?\n\n" +
+      "상태만 바뀝니다. 두두넷 원서접수는 따로 하셔야 합니다.")) return;
   const btn = this;
   btn.disabled = true; btn.textContent = "처리 중…";
   $("bulk-hint").textContent = "";
