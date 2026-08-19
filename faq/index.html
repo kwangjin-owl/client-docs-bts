@@ -6,15 +6,17 @@
 <title>안내 문서 관리 - 두두자격지원센터</title>
 <style>
   :root {
-    --ink:#1a1a1a; --muted:#5a5f66; --line:#d7dbdf;
+    --fs:19px;
+    --ink:#1a1a1a; --muted:#5a5f66; --line:#dde1e4;
+    --bg:#eef1f3; --card:#fff; --soft:#f5f7f8; --head:#12455c;
     --pick:#1b5e7e; --pick-bg:#e7f1f6;
     --ok:#1c6b3a; --ok-bg:#e6f4ea;
     --bad:#a32d2d; --bad-bg:#fceceb;
   }
   * { box-sizing:border-box; }
-  body { margin:0; background:#fff; color:var(--ink); font-size:17px; line-height:1.6;
+  body { margin:0; background:var(--bg); color:var(--ink); font-size:var(--fs); line-height:1.6;
          font-family:system-ui,"Malgun Gothic","Apple SD Gothic Neo",sans-serif; }
-  .wrap { max-width:860px; margin:0 auto; padding:32px 20px 80px; }
+  .wrap { max-width:1360px; margin:0 auto; padding:20px 28px 60px; }
 
   .top { display:flex; align-items:baseline; justify-content:space-between; gap:16px; flex-wrap:wrap; }
   h1 { font-size:26px; font-weight:600; margin:0; }
@@ -23,7 +25,7 @@
 
   .tools { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:20px; }
   input, select, textarea, button { font:inherit; color:inherit; padding:10px 12px;
-    border:1px solid var(--line); border-radius:8px; background:#fff; }
+    border:2px solid var(--line); border-radius:8px; background:#fff; }
   input.search { flex:1; min-width:200px; }
   button { cursor:pointer; }
   button.go { background:var(--pick); color:#fff; border-color:var(--pick); }
@@ -80,9 +82,26 @@
   .gate-box .no { color:var(--bad); font-size:16px; margin-top:12px; min-height:24px; }
   .gate-box a { display:inline-block; margin-top:20px; font-size:16px;
     color:var(--pick); text-decoration:none; }
+
+  .top { background:var(--head); }
+  .top-in { max-width:1360px; margin:0 auto; padding:0 28px;
+            display:flex; align-items:center; gap:24px; flex-wrap:wrap; }
+  .brandmark { display:flex; align-items:center; gap:10px; padding:14px 0;
+               color:#fff; font-weight:600; font-size:1.05em; white-space:nowrap; }
+  .brandmark .sq { width:32px; height:32px; border-radius:8px; background:#fff;
+                   color:var(--head); display:flex; align-items:center;
+                   justify-content:center; font-weight:700; font-size:0.9em; }
+  .menu { display:flex; gap:2px; flex-wrap:wrap; margin-left:auto; }
+  .menu a { font-size:0.92em; padding:14px 16px; color:#c9dbe4; text-decoration:none;
+            border-bottom:4px solid transparent; }
+  .menu a:hover { color:#fff; }
+  .menu a.here { color:#fff; font-weight:600; border-bottom-color:#fff; }
+  .sheet { background:var(--card); border-radius:16px; padding:24px 26px;
+           box-shadow:0 1px 3px rgba(0,0,0,.06); }
 </style>
 </head>
 <body>
+<div class="top"><div class="top-in"><span class="brandmark"><span class="sq">두</span>두두자격지원센터</span><nav class="menu"><a href="/">접수 신청</a><a href="/check">접수 확인</a><a href="/chat">물어보기</a><a href="/admin">접수 내역</a><a href="/faq" class="here">안내 문서</a></nav></div></div>
 <div class="gate" id="gate">
   <div class="gate-box">
     <h2>직원용 화면</h2>
@@ -95,14 +114,8 @@
 </div>
 
 <div class="wrap">
-
-  <div class="top">
-    <h1>안내 문서 관리</h1>
-    <span class="links">
-      <a href="/chat">챗봇 열기 →</a>
-      <a href="/">접수 화면 →</a>
-    </span>
-  </div>
+  <div class="sheet">
+  <h1>안내 문서 관리</h1>
   <p class="lead">여기서 고치면 챗봇 답이 바로 바뀝니다. 다시 배포하지 않아도 됩니다.</p>
 
   <div class="tools">
@@ -120,6 +133,33 @@
 
   <p class="note" id="status">불러오는 중…</p>
   <p class="note tip">고친 뒤에는 챗봇을 열어 실제로 답이 바뀌었는지 확인하세요. 저장했다는 표시만 보고 넘어가면 안 됩니다.</p>
+
+  <details class="guide">
+    <summary>이 화면 쓰는 법</summary>
+    <dl>
+      <dt>접수 기간이 바뀌었을 때</dt>
+      <dd>해당 자격증 문서를 펼쳐 내용을 고치고 저장하면 됩니다.
+          배포는 하지 않아도 되고, 저장하는 순간 챗봇 답이 바뀝니다.</dd>
+
+      <dt>없는 안내를 새로 넣을 때</dt>
+      <dd>위 <b>문서 추가</b>를 누르면 빈 문서가 하나 생깁니다.
+          제목과 내용을 넣고 저장하십시오.</dd>
+
+      <dt>챗봇이 엉뚱한 답을 할 때</dt>
+      <dd>어르신이 쓰신 말이 문서에 없어서입니다.
+          그 말을 문서 안에 같이 적어 주십시오.
+          예를 들어 "접수비"로 물으시면, 응시료 문서에 "접수비"라는 말을 넣습니다.</dd>
+
+      <dt>어떤 질문이 답을 못 받았는지 보려면</dt>
+      <dd><a href="/admin">접수 내역</a> 화면 아래쪽
+          <b>챗봇이 받은 질문</b>에서 보실 수 있습니다.</dd>
+
+      <dt>실수로 지웠을 때</dt>
+      <dd>지운 직후 위에 뜨는 <b>되돌리기</b>를 누르면 살아납니다.
+          화면을 새로 고치면 되돌릴 수 없습니다.</dd>
+    </dl>
+  </details>
+  </div>
 </div>
 
 <script>

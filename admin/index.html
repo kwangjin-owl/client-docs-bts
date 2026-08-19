@@ -6,15 +6,18 @@
 <title>접수 내역 - 두두자격지원센터</title>
 <style>
   :root {
-    --ink:#1a1a1a; --muted:#5a5f66; --line:#d7dbdf;
+    --fs:19px;
+    --ink:#1a1a1a; --muted:#5a5f66; --line:#dde1e4;
+    --bg:#eef1f3; --card:#fff; --soft:#f5f7f8; --head:#12455c;
     --pick:#1b5e7e; --pick-bg:#e7f1f6;
     --bad:#a32d2d; --bad-bg:#fceceb;
     --warn:#8a5a00; --warn-bg:#fdf2dc;
   }
   * { box-sizing:border-box; }
-  body { margin:0; background:#fff; color:var(--ink); font-size:17px; line-height:1.6;
+  body { margin:0; background:var(--bg); color:var(--ink); font-size:var(--fs); line-height:1.6;
          font-family:system-ui,"Malgun Gothic","Apple SD Gothic Neo",sans-serif; }
-  .wrap { max-width:960px; margin:0 auto; padding:32px 20px 80px; }
+  .wrap { max-width:1360px; margin:0 auto; padding:20px 28px 60px; }
+  .lead { font-size:0.95em; color:var(--muted); margin:0 0 20px; }
 
   .top { display:flex; align-items:baseline; justify-content:space-between; gap:16px; flex-wrap:wrap; }
   h1 { font-size:26px; font-weight:600; margin:0; }
@@ -36,7 +39,7 @@
 
   .tools { display:flex; gap:10px; flex-wrap:wrap; margin:8px 0 16px; }
   input, select, button { font:inherit; color:inherit; padding:10px 12px;
-    border:1px solid var(--line); border-radius:8px; background:#fff; }
+    border:2px solid var(--line); border-radius:8px; background:#fff; }
   input { flex:1; min-width:180px; }
   button { cursor:pointer; }
   button.go { background:var(--pick); color:#fff; border-color:var(--pick); }
@@ -60,6 +63,32 @@
   .note { margin-top:20px; padding:16px 20px; border:1px solid var(--line);
           border-radius:12px; font-size:16px; color:var(--muted); }
   .hide { display:none; }
+  .quick { margin:0 0 20px; border:2px solid var(--pick); border-radius:12px;
+           background:var(--card); }
+  .quick summary { padding:14px 20px; cursor:pointer; font-weight:600;
+                   color:var(--pick); font-size:0.95em; }
+  .quick .qin { padding:0 20px 20px; }
+  .quick .qrow { display:grid; grid-template-columns:repeat(4, 1fr); gap:12px; }
+  @media (max-width:1000px) { .quick .qrow { grid-template-columns:repeat(2,1fr); } }
+  @media (max-width:640px)  { .quick .qrow { grid-template-columns:1fr; } }
+  .quick .qf { background:var(--soft); border-radius:10px; padding:12px 14px; }
+  .quick label { display:block; font-size:0.85em; font-weight:600; margin:0 0 6px; }
+  .quick input, .quick select { width:100%; font:inherit; padding:10px 12px;
+    border:2px solid var(--line); border-radius:8px; background:#fff; }
+  .quick .go2 { width:100%; margin-top:14px; font:inherit; font-size:1.02em;
+    font-weight:600; padding:14px; background:var(--pick); color:#fff;
+    border:2px solid var(--pick); border-radius:10px; cursor:pointer; }
+  .quick .go2:disabled { background:#b4b9bd; border-color:#b4b9bd; }
+  .quick .said2 { margin:10px 0 0; font-size:0.9em; }
+  .quick .said2.ok { color:var(--ok); font-weight:600; }
+  .quick .said2.bad { color:var(--bad); font-weight:600; }
+  .guide { margin-top:16px; border:2px solid var(--line); border-radius:12px;
+           background:var(--card); }
+  .guide summary { padding:14px 20px; cursor:pointer; font-weight:600; font-size:0.95em; }
+  .guide dl { margin:0; padding:0 20px 20px; font-size:0.9em; }
+  .guide dt { font-weight:600; margin-top:14px; }
+  .guide dd { margin:4px 0 0; color:var(--muted); line-height:1.75; }
+  .guide a { color:var(--pick); }
   .empty { padding:40px 20px; text-align:center; color:var(--muted); }
   .empty b { display:block; font-size:19px; font-weight:600; color:var(--ink); margin-bottom:8px; }
   .empty span { font-size:16px; line-height:1.7; }
@@ -89,9 +118,26 @@
   .gate-box .no { color:var(--bad); font-size:16px; margin-top:12px; min-height:24px; }
   .gate-box a { display:inline-block; margin-top:20px; font-size:16px;
     color:var(--pick); text-decoration:none; }
+
+  .top { background:var(--head); }
+  .top-in { max-width:1360px; margin:0 auto; padding:0 28px;
+            display:flex; align-items:center; gap:24px; flex-wrap:wrap; }
+  .brandmark { display:flex; align-items:center; gap:10px; padding:14px 0;
+               color:#fff; font-weight:600; font-size:1.05em; white-space:nowrap; }
+  .brandmark .sq { width:32px; height:32px; border-radius:8px; background:#fff;
+                   color:var(--head); display:flex; align-items:center;
+                   justify-content:center; font-weight:700; font-size:0.9em; }
+  .menu { display:flex; gap:2px; flex-wrap:wrap; margin-left:auto; }
+  .menu a { font-size:0.92em; padding:14px 16px; color:#c9dbe4; text-decoration:none;
+            border-bottom:4px solid transparent; }
+  .menu a:hover { color:#fff; }
+  .menu a.here { color:#fff; font-weight:600; border-bottom-color:#fff; }
+  .sheet { background:var(--card); border-radius:16px; padding:24px 26px;
+           box-shadow:0 1px 3px rgba(0,0,0,.06); }
 </style>
 </head>
 <body>
+<div class="top"><div class="top-in"><span class="brandmark"><span class="sq">두</span>두두자격지원센터</span><nav class="menu"><a href="/">접수 신청</a><a href="/check">접수 확인</a><a href="/chat">물어보기</a><a href="/admin" class="here">접수 내역</a><a href="/faq">안내 문서</a></nav></div></div>
 <div class="gate" id="gate">
   <div class="gate-box">
     <h2>직원용 화면</h2>
@@ -104,11 +150,38 @@
 </div>
 
 <div class="wrap">
+  <div class="sheet">
+  <h1>접수 내역</h1>
+  <p class="lead">오늘 들어온 접수와 자격증별 현황을 봅니다.</p>
 
-  <div class="top">
-    <h1>접수 내역</h1>
-    <a class="back" href="/">← 접수 화면으로</a>
-  </div>
+  <details class="quick">
+    <summary>빠른 접수 — 전화나 방문으로 받은 신청을 여기서 바로 넣습니다</summary>
+    <div class="qin">
+      <div class="qrow">
+        <div class="qf"><label for="q-cert">자격증</label><select id="q-cert"></select></div>
+        <div class="qf"><label for="q-name">성함</label><input id="q-name" placeholder="홍길동"></div>
+        <div class="qf"><label for="q-birth">생년월일</label>
+          <input id="q-birth" inputmode="numeric" placeholder="19480612"></div>
+        <div class="qf"><label for="q-phone">연락처</label>
+          <input id="q-phone" inputmode="tel" placeholder="010-1234-5678"></div>
+        <div class="qf"><label for="q-gender">성별</label>
+          <select id="q-gender"><option value="">고르기</option>
+            <option value="M">남</option><option value="F">여</option></select></div>
+        <div class="qf"><label for="q-region">시험 지역</label><select id="q-region"></select></div>
+        <div class="qf"><label for="q-channel">접수 경로</label>
+          <select id="q-channel"><option>전화</option><option>방문</option></select></div>
+        <div class="qf"><label for="q-context">누가 접수</label>
+          <select id="q-context"><option>본인단독</option><option>가족보조</option>
+            <option>복지관</option><option>대리접수</option></select></div>
+      </div>
+      <div class="qf" style="margin-top:12px">
+        <label for="q-memo">비고</label>
+        <input id="q-memo" placeholder="예: 딸이 대신 문의">
+      </div>
+      <button type="button" class="go2" id="q-save">접수 넣기</button>
+      <p class="said2" id="q-said"></p>
+    </div>
+  </details>
 
   <div class="cards">
     <div class="stat"><p class="k">오늘 접수</p><p class="v" id="s-today">-<span class="u">건</span></p></div>
@@ -158,6 +231,23 @@
 
   <div class="pager" id="pager"></div>
   <p class="note" id="status">불러오는 중…</p>
+
+  <details class="guide">
+    <summary>이 화면 쓰는 법</summary>
+    <dl>
+      <dt>오늘 몇 건인지 보려면</dt>
+      <dd>맨 위 <b>오늘 접수</b> 숫자를 보시면 됩니다. 세지 않으셔도 됩니다.</dd>
+      <dt>특정 신청자를 찾으려면</dt>
+      <dd>목록 위 칸에 성함이나 연락처를 넣으시면 바로 걸러집니다.</dd>
+      <dt>자세한 내용을 보려면</dt>
+      <dd>표에서 줄을 누르면 접수번호, 교육기관, 과목 같은 것이 펼쳐집니다.</dd>
+      <dt>전화나 방문으로 받은 신청을 넣으려면</dt>
+      <dd>맨 위 <b>빠른 접수</b>를 펼쳐서 한 화면에 넣고 저장하십시오.</dd>
+      <dt>안내 내용을 고치려면</dt>
+      <dd><a href="/faq">안내 문서</a> 화면에서 고치시면 챗봇 답이 바로 바뀝니다.</dd>
+    </dl>
+  </details>
+  </div>
 </div>
 
 <script>
@@ -414,6 +504,86 @@ async function loadQuestions() {
     $("q-note").textContent = "질문 기록을 못 읽었습니다: " + e.message;
   }
 }
+
+// ---------- 빠른 접수 (직원용) ----------
+const QCERTS = [
+  { code:"7910", name:"한식조리기능사",   track:"국가기술", agency:"두두넷",   fee:14500, state:"now" },
+  { code:"7520", name:"지게차운전기능사", track:"국가기술", agency:"두두넷",   fee:14500, state:"now" },
+  { code:"7530", name:"굴착기운전기능사", track:"국가기술", agency:"두두넷",   fee:14500, state:"now" },
+  { code:"2300", name:"전기기능사",       track:"국가기술", agency:"두두넷",   fee:14500, state:"soon" },
+  { code:"P001", name:"손해평가사",       track:"전문",     agency:"두두넷",   fee:30000, state:"late" },
+  { code:"P002", name:"공인중개사",       track:"전문",     agency:"두두넷",   fee:13400, state:"late" },
+  { code:"H001", name:"요양보호사",       track:"보건",     agency:"두두보건", fee:32000, state:"now" },
+  { code:"H002", name:"위생사",           track:"보건",     agency:"두두보건", fee:30000, state:"late" }
+];
+const QREGIONS = ["서울","부산","대구","인천","광주","대전","울산","세종","경기","강원",
+                  "충북","충남","전북","전남","경북","경남","제주"];
+
+(function () {
+  $("q-cert").innerHTML = QCERTS.map(function (c, i) {
+    return '<option value="' + i + '">' + c.name + '</option>';
+  }).join("");
+  $("q-region").innerHTML = QREGIONS.map(function (r) { return "<option>" + r + "</option>"; }).join("");
+})();
+
+function qdig(v, m) { return v.replace(/[^0-9]/g, "").slice(0, m); }
+$("q-phone").addEventListener("input", function () {
+  const d = qdig(this.value, 11);
+  this.value = d.length <= 3 ? d
+    : d.length <= 6 ? d.slice(0,3) + "-" + d.slice(3)
+    : d.length <= 10 ? d.slice(0,3) + "-" + d.slice(3,6) + "-" + d.slice(6)
+    : d.slice(0,3) + "-" + d.slice(3,7) + "-" + d.slice(7);
+});
+$("q-birth").addEventListener("input", function () {
+  const d = qdig(this.value, 8);
+  this.value = d.length <= 4 ? d
+    : d.length <= 6 ? d.slice(0,4) + "-" + d.slice(4)
+    : d.slice(0,4) + "-" + d.slice(4,6) + "-" + d.slice(6);
+});
+
+function qsay(t, k) { $("q-said").textContent = t; $("q-said").className = "said2 " + (k || ""); }
+
+$("q-save").addEventListener("click", async function () {
+  const c = QCERTS[Number($("q-cert").value)];
+  const name = $("q-name").value.trim();
+  const birth = qdig($("q-birth").value, 8);
+  const phone = $("q-phone").value.trim();
+
+  if (!name) return qsay("성함을 넣어 주세요.", "bad");
+  if (birth.length !== 8) return qsay("생년월일 8자리를 넣어 주세요.", "bad");
+  if (qdig(phone, 11).length < 9) return qsay("연락처를 다시 확인해 주세요.", "bad");
+  if (!$("q-gender").value) return qsay("성별을 골라 주세요.", "bad");
+  if (!db) return qsay("데이터베이스에 연결되지 않았습니다.", "bad");
+
+  const head = c.track === "국가기술" ? "DN" : c.track === "전문" ? "DP" : "DH";
+  const rno = head + new Date().getFullYear() +
+              String(Math.floor(Math.random() * 900000) + 100000);
+
+  const btn = $("q-save");
+  btn.disabled = true; btn.textContent = "넣는 중…";
+
+  const res = await db.from("applications").insert({
+    track: c.track, agency: c.agency, cert_code: c.code, cert_name: c.name,
+    name: name, phone: phone, gender: $("q-gender").value,
+    birth_date: birth.slice(0,4) + "-" + birth.slice(4,6) + "-" + birth.slice(6),
+    exam_region: $("q-region").value,
+    fee_amount: c.fee, fee_discount_type: "없음", fee_discount_amount: 0, fee_final: c.fee,
+    payment_method: "신용카드",
+    status: c.state === "late" ? "문의" : "접수완료",
+    usage_context: $("q-context").value, channel: $("q-channel").value,
+    memo: $("q-memo").value.trim() || null,
+    receipt_no: rno, agreed_privacy: true, agreed_terms: true,
+    extra: { entered_by: "직원" }
+  });
+
+  btn.disabled = false; btn.textContent = "접수 넣기";
+  if (res.error) return qsay("저장 실패: " + res.error.message, "bad");
+
+  qsay(name + " 님 접수 완료. 접수번호 " + rno, "ok");
+  ["q-name","q-birth","q-phone","q-memo"].forEach(function (id) { $(id).value = ""; });
+  $("q-gender").value = "";
+  load(true);
+});
 
 $("q").addEventListener("input", reset);
 $("f-cert").addEventListener("change", reset);
