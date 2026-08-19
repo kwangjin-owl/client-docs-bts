@@ -31,8 +31,8 @@
   .card.picked { border:2px solid var(--pick); }
   .card.closed { background:#f7f8f9; cursor:not-allowed; }
   .card.closed .name, .card.closed .sub { color:#8b9096; }
-  .name { font-size:20px; font-weight:600; margin:0 0 2px; }
-  .sub { font-size:15px; color:var(--muted); margin:0; }
+  .name { display:block; font-size:20px; font-weight:600; margin:0 0 2px; }
+  .sub  { display:block; font-size:15px; color:var(--muted); margin:0; }
   .tag { font-size:15px; padding:5px 12px; border-radius:8px; white-space:nowrap; }
   .tag.on { background:var(--pick-bg); color:var(--pick); }
   .tag.go { color:var(--muted); }
@@ -63,6 +63,30 @@
   .req { color:var(--bad); }
   .bad-field { border:2px solid var(--bad) !important; background:var(--bad-bg); }
   .echo-ok { color:var(--ok); }
+
+  .steps { display:flex; gap:6px; margin:0 0 24px; }
+  .steps div { flex:1; text-align:center; font-size:14px; color:var(--muted);
+               padding-bottom:8px; border-bottom:3px solid var(--line); }
+  .steps div.on { color:var(--pick); font-weight:600; border-bottom-color:var(--pick); }
+  .steps div.done { color:var(--ink); border-bottom-color:var(--pick); }
+
+  .stage { display:none; }
+  .stage.on { display:block; }
+
+  .picked-box { background:var(--pick-bg); color:var(--pick); border-radius:12px;
+                padding:14px 18px; margin-bottom:8px; font-size:17px; }
+
+  .nav { display:flex; gap:10px; margin-top:28px; }
+  .nav button { flex:1; font:inherit; font-size:18px; font-weight:600;
+                padding:16px; border-radius:12px; cursor:pointer; }
+  .nav .prev { background:#fff; color:var(--ink); border:1px solid var(--line); }
+  .nav .next { background:var(--pick); color:#fff; border:0; }
+  .nav .next:disabled { background:#9aa4ab; cursor:not-allowed; }
+
+  .review { background:#f7f8f9; border-radius:12px; padding:16px 20px; font-size:16px; }
+  .review dl { margin:0; display:grid; grid-template-columns:auto 1fr; gap:6px 16px; }
+  .review dt { color:var(--muted); }
+  .review dd { margin:0; }
   .staff { margin-top:40px; padding-top:20px; border-top:1px solid var(--line);
            text-align:center; }
   .staff a { font-size:16px; color:var(--muted); text-decoration:none; }
@@ -107,19 +131,31 @@
 <div class="wrap">
 
   <p class="brand">두두자격지원센터</p>
-  <h1>어떤 자격증을 신청하시나요</h1>
-  <p class="lead">아래에서 하나를 눌러 주세요</p>
 
-  <p class="group">두두넷 · 국가기술자격</p>
-  <div id="g-national"></div>
-  <p class="group">두두넷 · 전문자격</p>
-  <div id="g-professional"></div>
-  <p class="group">두두보건</p>
-  <div id="g-health"></div>
+  <div class="steps" id="steps">
+    <div class="on">1. 자격증</div>
+    <div>2. 본인 정보</div>
+    <div>3. 시험 정보</div>
+    <div>4. 확인·결제</div>
+  </div>
 
-  <div id="form" class="hide">
-    <h2>신청서 작성</h2>
-    <p class="lead" id="picked-line"></p>
+  <!-- 1단계 -->
+  <div class="stage on" id="st1">
+    <h1>어떤 자격증을 신청하시나요</h1>
+    <p class="lead">아래에서 하나를 눌러 주세요</p>
+
+    <p class="group">두두넷 · 국가기술자격</p>
+    <div id="g-national"></div>
+    <p class="group">두두넷 · 전문자격</p>
+    <div id="g-professional"></div>
+    <p class="group">두두보건</p>
+    <div id="g-health"></div>
+  </div>
+
+  <!-- 2단계 -->
+  <div class="stage" id="st2">
+    <h1>신청하시는 분</h1>
+    <p class="picked-box" id="picked-line"></p>
     <p class="hint"><span class="req">*</span> 표시는 꼭 넣으셔야 하는 칸입니다</p>
 
     <label for="f-name">성함 <span class="req">*</span></label>
@@ -142,6 +178,25 @@
     <label for="f-edu">최종학력</label>
     <select id="f-edu"></select>
 
+    <label for="f-context">누가 접수하시나요</label>
+    <select id="f-context">
+      <option value="본인단독">본인이 직접</option>
+      <option value="가족보조">가족이 도와서</option>
+      <option value="복지관">복지관에서 도와서</option>
+      <option value="대리접수">대리 접수</option>
+    </select>
+
+    <div class="nav">
+      <button type="button" class="prev" data-go="1">← 이전</button>
+      <button type="button" class="next" data-go="3">다음 →</button>
+    </div>
+  </div>
+
+  <!-- 3단계 -->
+  <div class="stage" id="st3">
+    <h1>시험 정보</h1>
+    <p class="picked-box" id="picked-line2"></p>
+
     <div id="track-fields"></div>
 
     <label for="f-region">시험 지역 <span class="req">*</span></label>
@@ -153,13 +208,17 @@
     <label for="f-session" id="l-session">교시</label>
     <select id="f-session"></select>
 
-    <label for="f-context">누가 접수하시나요</label>
-    <select id="f-context">
-      <option value="본인단독">본인이 직접</option>
-      <option value="가족보조">가족이 도와서</option>
-      <option value="복지관">복지관에서 도와서</option>
-      <option value="대리접수">대리 접수</option>
-    </select>
+    <div class="nav">
+      <button type="button" class="prev" data-go="2">← 이전</button>
+      <button type="button" class="next" data-go="4">다음 →</button>
+    </div>
+  </div>
+
+  <!-- 4단계 -->
+  <div class="stage" id="st4">
+    <h1>확인하고 결제</h1>
+
+    <div class="review" id="review"></div>
 
     <label for="f-discount">감면 대상이신가요</label>
     <select id="f-discount"></select>
@@ -175,6 +234,10 @@
 
     <button type="button" class="send" id="send">신청서 내기</button>
     <p class="msg hide" id="msg"></p>
+
+    <div class="nav">
+      <button type="button" class="prev" data-go="3">← 이전</button>
+    </div>
   </div>
 
   <p class="msg plain" id="status">Supabase 연결 확인 중…</p>
@@ -291,7 +354,7 @@ function bindMasks() {
 let db = null, picked = null, gender = null;
 
 const $ = function (id) { return document.getElementById(id); };
-const statusBox = $("status"), msgBox = $("msg"), formBox = $("form");
+const statusBox = $("status"), msgBox = $("msg");
 
 // ---------- 카드 그리기 ----------
 function drawCards() {
@@ -331,8 +394,9 @@ function pick(cert, btn) {
   t.className = "tag on"; t.textContent = "선택됨";
 
   picked = cert;
-  $("picked-line").textContent = cert.name + " (" + cert.agency + ") 로 접수합니다";
-  formBox.classList.remove("hide");
+  const line = cert.name + " (" + cert.agency + ") 로 접수합니다";
+  $("picked-line").textContent = line;
+  $("picked-line2").textContent = line;
 
   fill($("f-edu"), EDU);
   fill($("f-discount"), DISCOUNTS);
@@ -343,7 +407,78 @@ function pick(cert, btn) {
   drawTrackFields(cert);
   drawSession(cert);
   calcFee();
-  formBox.scrollIntoView({ behavior:"smooth", block:"start" });
+  go(2);
+}
+
+// ---------- 단계 이동 ----------
+let step = 1;
+
+function go(n) {
+  step = n;
+  for (let i = 1; i <= 4; i++) {
+    document.getElementById("st" + i).classList.toggle("on", i === n);
+  }
+  const tabs = document.querySelectorAll("#steps div");
+  tabs.forEach(function (t, i) {
+    t.classList.toggle("on", i + 1 === n);
+    t.classList.toggle("done", i + 1 < n);
+  });
+  if (n === 4) drawReview();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+// 2단계에서 다음으로 넘어갈 때만 본인 정보를 검사한다
+function checkStep2() {
+  clearMarks();
+  const name = $("f-name").value.trim();
+  const phone = $("f-phone").value.trim();
+  const b = checkBirth($("f-birth").value);
+
+  if (!name) return fail("성함을 넣어 주세요.", "f-name");
+  if (!b.ok) return fail(b.why, "f-birth");
+  if (!gender) return fail("성별을 골라 주세요.", "f-gender");
+  if (phone.replace(/[^0-9]/g,"").length !== 11)
+    return fail("연락처 11자리를 다 넣어 주세요. 예: 010-1234-5678", "f-phone");
+  return true;
+}
+
+function checkStep3() {
+  clearMarks();
+  if (picked.track === "보건") {
+    if (!$("f-org").value.trim())    return fail("교육기관을 넣어 주세요.", "f-org");
+    if (!$("f-certno").value.trim()) return fail("교육수료번호를 넣어 주세요.", "f-certno");
+    if (!$("f-done").value)          return fail("교육수료일을 넣어 주세요.", "f-done");
+  }
+  return true;
+}
+
+document.querySelectorAll(".nav button").forEach(function (b) {
+  b.addEventListener("click", function () {
+    const to = Number(b.dataset.go);
+    if (b.classList.contains("next")) {
+      if (step === 2 && checkStep2() !== true) return;
+      if (step === 3 && checkStep3() !== true) return;
+    }
+    go(to);
+  });
+});
+
+// ---------- 4단계 확인표 ----------
+function drawReview() {
+  const b = checkBirth($("f-birth").value);
+  const rows = [
+    ["자격증", picked.name + " (" + picked.agency + ")"],
+    ["성함", $("f-name").value.trim()],
+    ["생년월일", b.ok ? b.label : "-"],
+    ["성별", gender === "M" ? "남" : "여"],
+    ["연락처", $("f-phone").value.trim()],
+    ["시험 " + (picked.track === "보건" ? "센터" : "지역"), $("f-region").value],
+    ["희망 시험일", $("f-examdate").value || "정하지 않음"],
+    [$("l-session").textContent, $("f-session").value]
+  ];
+  $("review").innerHTML = "<dl>" + rows.map(function (r) {
+    return "<dt>" + r[0] + "</dt><dd>" + r[1] + "</dd>";
+  }).join("") + "</dl>";
 }
 
 // ---------- 트랙별로만 있는 칸 ----------
@@ -477,25 +612,14 @@ function fail(text, id) {
 
 // ---------- 제출 ----------
 $("send").addEventListener("click", async function () {
-  clearMarks();
+  if (!picked) { show("자격증을 먼저 골라 주세요.", "bad"); return; }
+  if (checkStep2() !== true) { go(2); return; }
+  if (checkStep3() !== true) { go(3); return; }
+  if (!db) { show("아직 데이터베이스에 연결되지 않았습니다.", "bad"); return; }
+
   const name = $("f-name").value.trim();
   const phone = $("f-phone").value.trim();
-  const birthCheck = checkBirth($("f-birth").value);
-  const birth = birthCheck.ok ? birthCheck.value : "";
-
-  if (!picked) { show("자격증을 먼저 골라 주세요.", "bad"); return; }
-  if (!name) { fail("성함을 넣어 주세요.", "f-name"); return; }
-  if (!birth) { fail(birthCheck.why, "f-birth"); return; }
-  if (!gender) { fail("성별을 골라 주세요.", "f-gender"); return; }
-  if (phone.replace(/[^0-9]/g,"").length !== 11) {
-    fail("연락처 11자리를 다 넣어 주세요. 예: 010-1234-5678", "f-phone"); return;
-  }
-  if (picked.track === "보건") {
-    if (!$("f-org").value.trim())    { fail("교육기관을 넣어 주세요.", "f-org"); return; }
-    if (!$("f-certno").value.trim()) { fail("교육수료번호를 넣어 주세요.", "f-certno"); return; }
-    if (!$("f-done").value)          { fail("교육수료일을 넣어 주세요.", "f-done"); return; }
-  }
-  if (!db) { show("아직 데이터베이스에 연결되지 않았습니다.", "bad"); return; }
+  const birth = checkBirth($("f-birth").value).value;
 
   const fee = calcFee();
   const extra = { education: $("f-edu").value };
@@ -548,6 +672,8 @@ $("send").addEventListener("click", async function () {
   $("f-name").value = ""; $("f-phone").value = ""; $("f-birth").value = "";
   $("birth-echo").textContent = "숫자 8자리만 넣으시면 됩니다. 예: 19480612";
   $("birth-echo").className = "hint";
+  gender = null;
+  $("f-gender").querySelectorAll("button").forEach(function (x) { x.classList.remove("on"); });
   connect();
 });
 
