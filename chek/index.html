@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>접수 확인 - 두두자격지원센터</title>
+<style>
+  :root {
+    --fs:18px;
+    --ink:#1a1a1a; --muted:#5a5f66; --line:#d7dbdf; --soft:#f7f8f9;
+    --pick:#1b5e7e; --pick-bg:#e7f1f6;
+    --stop:#8a5a00; --stop-bg:#fdf2dc;
+    --ok:#1c6b3a; --ok-bg:#e6f4ea;
+    --bad:#a32d2d; --bad-bg:#fceceb;
+  }
+  html[data-fs="big"]  { --fs:21px; }
+  html[data-fs="huge"] { --fs:24px; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:#fff; color:var(--ink); font-size:var(--fs); line-height:1.6;
+         font-family:system-ui,"Malgun Gothic","Apple SD Gothic Neo",sans-serif; }
+
+  .top { border-bottom:1px solid var(--line); }
+  .top-in { max-width:960px; margin:0 auto; padding:12px 20px;
+            display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; }
+  .menu { display:flex; gap:4px; flex-wrap:wrap; }
+  .menu a { font-size:0.95em; padding:8px 14px; border-radius:8px;
+            color:var(--muted); text-decoration:none; }
+  .menu a:hover { background:var(--soft); color:var(--pick); }
+  .menu a.here { background:var(--pick-bg); color:var(--pick); font-weight:600; }
+  .fs-set { display:flex; align-items:center; gap:6px; font-size:0.8em; color:var(--muted); }
+  .fs-set button { font:inherit; padding:6px 12px; border:1px solid var(--line);
+                   background:#fff; border-radius:8px; cursor:pointer; }
+  .fs-set button.on { border-color:var(--pick); color:var(--pick); font-weight:600; }
+
+  .wrap { max-width:720px; margin:0 auto; padding:28px 20px 60px; }
+  h1 { font-size:1.5em; font-weight:600; margin:0 0 4px; }
+  .lead { font-size:0.95em; color:var(--muted); margin:0 0 20px; }
+
+  .box { border:1px solid var(--line); border-radius:12px; padding:18px 20px 22px; }
+  label { display:block; font-size:0.9em; margin:14px 0 5px; }
+  label:first-child { margin-top:0; }
+  input { width:100%; font:inherit; padding:11px 13px;
+          border:1px solid var(--line); border-radius:8px; background:#fff; }
+  input:focus { outline:3px solid var(--pick); outline-offset:1px; }
+  .hint { font-size:0.8em; color:var(--muted); margin:4px 0 0; }
+  .find { width:100%; margin-top:18px; font:inherit; font-size:1.05em; font-weight:600;
+          padding:15px; background:var(--pick); color:#fff; border:0;
+          border-radius:10px; cursor:pointer; }
+  .find:disabled { background:#9aa4ab; cursor:not-allowed; }
+
+  .msg { margin-top:16px; padding:14px 18px; border-radius:10px; font-size:0.95em;
+         font-weight:600; display:flex; align-items:center; gap:10px; }
+  .msg::before { font-size:1.2em; flex:none; }
+  .msg.bad { background:var(--bad-bg); color:var(--bad); border:2px solid var(--bad); }
+  .msg.bad::before { content:"\26A0"; }
+  .bad-field { border:2px solid var(--bad) !important; background:var(--bad-bg); }
+
+  .item { border:1px solid var(--line); border-radius:12px; padding:18px 20px; margin-top:12px; }
+  .item .cert { font-size:1.15em; font-weight:600; margin:0 0 2px; }
+  .item .when { font-size:0.85em; color:var(--muted); margin:0 0 12px; }
+  .item dl { margin:0; display:grid; grid-template-columns:auto 1fr; gap:4px 16px; font-size:0.9em; }
+  .item dt { color:var(--muted); }
+  .item dd { margin:0; }
+  .pill { display:inline-block; font-size:0.78em; padding:4px 12px; border-radius:6px; }
+  .pill.ok   { background:var(--ok-bg);   color:var(--ok); }
+  .pill.wait { background:var(--stop-bg); color:var(--stop); }
+  .pill.no   { background:var(--bad-bg);  color:var(--bad); }
+
+  .empty { padding:36px 20px; text-align:center; color:var(--muted); }
+  .empty b { display:block; font-size:1.1em; color:var(--ink); margin-bottom:8px; }
+  .empty span { font-size:0.9em; line-height:1.7; }
+  .empty a { color:var(--pick); }
+  .hide { display:none; }
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="top-in">
+    <nav class="menu">
+      <a href="/">접수 신청</a>
+      <a href="/check" class="here">접수 확인</a>
+      <a href="/chat">물어보기</a>
+      <a href="/admin">직원용</a>
+    </nav>
+    <div class="fs-set">
+      글자 크기
+      <button type="button" data-fs="">기본</button>
+      <button type="button" data-fs="big">크게</button>
+      <button type="button" data-fs="huge">더 크게</button>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+  <h1>접수하신 내역 보기</h1>
+  <p class="lead">접수하실 때 넣으신 성함과 연락처를 넣어 주세요.</p>
+
+  <div class="box">
+    <label for="f-name">성함</label>
+    <input id="f-name" type="text" placeholder="홍길동">
+
+    <label for="f-phone">연락처</label>
+    <input id="f-phone" type="text" inputmode="tel" placeholder="010-1234-5678">
+    <p class="hint">접수하실 때 넣으신 번호와 같아야 합니다</p>
+
+    <button type="button" class="find" id="find">찾아보기</button>
+    <p class="msg hide" id="msg"></p>
+  </div>
+
+  <div id="result"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const $ = function (id) { return document.getElementById(id); };
+
+(function () {
+  const saved = localStorage.getItem("fs") || "";
+  document.documentElement.dataset.fs = saved;
+  document.querySelectorAll(".fs-set button").forEach(function (b) {
+    b.classList.toggle("on", b.dataset.fs === saved);
+    b.addEventListener("click", function () {
+      document.documentElement.dataset.fs = b.dataset.fs;
+      localStorage.setItem("fs", b.dataset.fs);
+      document.querySelectorAll(".fs-set button").forEach(function (x) {
+        x.classList.toggle("on", x === b);
+      });
+    });
+  });
+})();
+
+function digits(v, max) { return v.replace(/[^0-9]/g, "").slice(0, max); }
+function maskPhone(v) {
+  const d = digits(v, 11);
+  if (d.startsWith("02")) {
+    if (d.length <= 2) return d;
+    if (d.length <= 5) return d.slice(0,2) + "-" + d.slice(2);
+    if (d.length <= 9) return d.slice(0,2) + "-" + d.slice(2,5) + "-" + d.slice(5);
+    return d.slice(0,2) + "-" + d.slice(2,6) + "-" + d.slice(6);
+  }
+  if (d.length <= 3) return d;
+  if (d.length <= 6) return d.slice(0,3) + "-" + d.slice(3);
+  if (d.length <= 10) return d.slice(0,3) + "-" + d.slice(3,6) + "-" + d.slice(6);
+  return d.slice(0,3) + "-" + d.slice(3,7) + "-" + d.slice(7);
+}
+$("f-phone").addEventListener("input", function () {
+  this.value = maskPhone(this.value); this.classList.remove("bad-field");
+});
+$("f-name").addEventListener("input", function () { this.classList.remove("bad-field"); });
+
+function show(text) { $("msg").textContent = text; $("msg").className = "msg bad"; }
+function clearMsg() { $("msg").textContent = ""; $("msg").className = "msg hide"; }
+function fail(text, id) {
+  show(text); const el = $(id);
+  el.classList.add("bad-field"); el.focus(); return false;
+}
+
+function fmt(iso) {
+  const d = new Date(iso);
+  return d.getFullYear() + "년 " + (d.getMonth()+1) + "월 " + d.getDate() + "일";
+}
+function pill(s) {
+  if (s === "접수완료") return '<span class="pill ok">접수완료</span>';
+  if (s === "결제대기") return '<span class="pill wait">결제대기</span>';
+  if (s === "문의")     return '<span class="pill wait">문의 접수</span>';
+  return '<span class="pill no">' + (s || "-") + '</span>';
+}
+function guide(s) {
+  if (s === "접수완료") return "직원이 확인한 뒤 원서접수를 대신 해 드립니다. 연락을 기다려 주십시오.";
+  if (s === "결제대기") return "결제가 아직 끝나지 않았습니다. 고객센터로 문의해 주십시오.";
+  if (s === "문의")     return "지금은 접수 기간이 아니라 문의로 남아 있습니다. 다음 일정이 정해지면 연락드립니다.";
+  if (s === "취소")     return "취소된 접수입니다.";
+  return "";
+}
+
+async function find() {
+  clearMsg();
+  const name = $("f-name").value.trim();
+  const phone = $("f-phone").value.trim();
+  if (!name) return fail("성함을 넣어 주세요.", "f-name");
+  if (digits(phone, 11).length < 9) return fail("연락처를 다시 확인해 주세요.", "f-phone");
+
+  const btn = $("find");
+  btn.disabled = true; btn.textContent = "찾는 중…";
+  $("result").innerHTML = "";
+
+  try {
+    const r = await fetch("/api/config");
+    const conf = await r.json();
+    if (!conf.url || !conf.key) { show("서버에 환경변수가 설정되어 있지 않습니다."); return; }
+    const db = supabase.createClient(conf.url, conf.key);
+
+    const res = await db.from("applications").select("*")
+      .eq("name", name).eq("phone", phone)
+      .order("created_at", { ascending:false });
+
+    if (res.error) { show("찾기 실패: " + res.error.message); return; }
+    const rows = res.data || [];
+
+    if (!rows.length) {
+      $("result").innerHTML =
+        '<div class="empty"><b>접수하신 내역이 없습니다</b>' +
+        '<span>성함과 연락처가 접수하실 때와 같은지 확인해 주세요.<br>' +
+        '아직 접수를 안 하셨으면 <a href="/">접수 신청</a>에서 하실 수 있습니다.</span></div>';
+      return;
+    }
+
+    $("result").innerHTML = rows.map(function (a) {
+      const x = a.extra || {};
+      const rowsHtml = [
+        ["접수 상태", pill(a.status)],
+        ["기관", a.agency || "-"],
+        [a.track === "보건" ? "시험 센터" : "시험 지역", a.exam_region || "-"],
+        ["희망 시험일", a.exam_date || "정하지 않음"],
+        ["결제하실 금액", (a.fee_final == null ? 0 : a.fee_final).toLocaleString() + "원"],
+        ["결제수단", a.payment_method || "-"]
+      ];
+      if (x.exam_stage) rowsHtml.push(["차수", x.exam_stage]);
+      if (x.exam_round && x.exam_round !== "해당없음 (상시)") rowsHtml.push(["회차", x.exam_round]);
+      if (x.training_org) rowsHtml.push(["교육기관", x.training_org]);
+
+      return '<div class="item">' +
+        '<p class="cert">' + a.cert_name + '</p>' +
+        '<p class="when">' + fmt(a.created_at) + ' 접수</p>' +
+        '<dl>' + rowsHtml.map(function (p) {
+          return "<dt>" + p[0] + "</dt><dd>" + p[1] + "</dd>";
+        }).join("") + '</dl>' +
+        (guide(a.status) ? '<p class="hint" style="margin-top:12px">' + guide(a.status) + '</p>' : "") +
+        '</div>';
+    }).join("");
+
+  } catch (e) {
+    show("찾기 실패: " + e.message);
+  } finally {
+    btn.disabled = false; btn.textContent = "찾아보기";
+  }
+}
+
+$("find").addEventListener("click", find);
+$("f-phone").addEventListener("keydown", function (e) { if (e.key === "Enter") find(); });
+</script>
+</body>
+</html>
