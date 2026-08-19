@@ -60,6 +60,9 @@
   .msg.bad { background:var(--bad-bg); color:var(--bad); }
   .msg.plain { border:1px solid var(--line); color:var(--muted); font-size:16px; }
   .hide { display:none; }
+  .req { color:var(--bad); }
+  .bad-field { border:2px solid var(--bad) !important; background:var(--bad-bg); }
+  .echo-ok { color:var(--ok); }
 </style>
 </head>
 <body>
@@ -79,29 +82,31 @@
   <div id="form" class="hide">
     <h2>신청서 작성</h2>
     <p class="lead" id="picked-line"></p>
+    <p class="hint"><span class="req">*</span> 표시는 꼭 넣으셔야 하는 칸입니다</p>
 
-    <label for="f-name">성함</label>
+    <label for="f-name">성함 <span class="req">*</span></label>
     <input id="f-name" type="text" placeholder="홍길동">
 
-    <label for="f-birth">생년월일</label>
-    <input id="f-birth" type="date">
+    <label for="f-birth">생년월일 <span class="req">*</span></label>
+    <input id="f-birth" type="text" inputmode="numeric" placeholder="1948-06-12" autocomplete="off">
+    <p class="hint" id="birth-echo">숫자 8자리만 넣으시면 됩니다. 예: 19480612</p>
 
-    <label>성별</label>
+    <label>성별 <span class="req">*</span></label>
     <div class="radios" id="f-gender">
       <button type="button" data-v="M">남</button>
       <button type="button" data-v="F">여</button>
     </div>
 
-    <label for="f-phone">연락처</label>
-    <input id="f-phone" type="text" placeholder="010-1234-5678">
-    <p class="hint">하이픈은 넣으셔도 안 넣으셔도 됩니다</p>
+    <label for="f-phone">연락처 <span class="req">*</span></label>
+    <input id="f-phone" type="text" inputmode="numeric" placeholder="010-1234-5678">
+    <p class="hint">휴대전화 11자리. 하이픈은 넣으셔도 안 넣으셔도 됩니다</p>
 
     <label for="f-edu">최종학력</label>
     <select id="f-edu"></select>
 
     <div id="track-fields"></div>
 
-    <label for="f-region">시험 지역</label>
+    <label for="f-region">시험 지역 <span class="req">*</span></label>
     <select id="f-region"></select>
 
     <label for="f-examdate">희망 시험일</label>
@@ -169,6 +174,68 @@ function discountRate(type, track) {
   return 50;
 }
 const DISCOUNTS = ["없음","장애인","기초생활수급자","국가유공자","차상위계층"];
+
+// ---------- 입력 형태 제한 ----------
+// 숫자만 받고, 화면에 보이는 모양 그대로 저장한다.
+
+function digitsOnly(v, max) { return v.replace(/[^0-9]/g, "").slice(0, max); }
+
+function maskBirth(v) {
+  const d = digitsOnly(v, 8);
+  if (d.length <= 4) return d;
+  if (d.length <= 6) return d.slice(0,4) + "-" + d.slice(4);
+  return d.slice(0,4) + "-" + d.slice(4,6) + "-" + d.slice(6);
+}
+
+function maskPhone(v) {
+  const d = digitsOnly(v, 11);
+  if (d.length <= 3) return d;
+  if (d.length <= 7) return d.slice(0,3) + "-" + d.slice(3);
+  return d.slice(0,3) + "-" + d.slice(3,7) + "-" + d.slice(7);
+}
+
+// 생년월일이 실제로 있는 날인지 본다
+function checkBirth(text) {
+  const d = digitsOnly(text, 8);
+  if (d.length !== 8) return { ok:false, why:"숫자 8자리를 넣어 주세요. 예: 19480612" };
+  const y = +d.slice(0,4), m = +d.slice(4,6), day = +d.slice(6);
+  const today = new Date();
+  if (y < 1900 || y > today.getFullYear()) return { ok:false, why:"연도를 다시 확인해 주세요" };
+  if (m < 1 || m > 12) return { ok:false, why:"월은 1월부터 12월까지입니다" };
+  const dt = new Date(y, m-1, day);
+  if (dt.getFullYear()!==y || dt.getMonth()!==m-1 || dt.getDate()!==day)
+    return { ok:false, why:y + "년 " + m + "월에는 " + day + "일이 없습니다" };
+  if (dt > today) return { ok:false, why:"오늘보다 뒤의 날짜입니다" };
+  let age = today.getFullYear() - y;
+  if (today.getMonth() < m-1 || (today.getMonth() === m-1 && today.getDate() < day)) age--;
+  return { ok:true, value: d.slice(0,4)+"-"+d.slice(4,6)+"-"+d.slice(6), age: age,
+           label: y + "년 " + m + "월 " + day + "일 (만 " + age + "세)" };
+}
+
+function bindMasks() {
+  const b = document.getElementById("f-birth");
+  const p = document.getElementById("f-phone");
+  const echo = document.getElementById("birth-echo");
+
+  b.addEventListener("input", function () {
+    b.value = maskBirth(b.value);
+    b.classList.remove("bad-field");
+    const d = digitsOnly(b.value, 8);
+    if (d.length < 8) {
+      echo.textContent = "숫자 8자리만 넣으시면 됩니다. 예: 19480612";
+      echo.className = "hint";
+      return;
+    }
+    const r = checkBirth(b.value);
+    echo.textContent = r.ok ? r.label : r.why;
+    echo.className = r.ok ? "hint echo-ok" : "hint";
+  });
+
+  p.addEventListener("input", function () {
+    p.value = maskPhone(p.value);
+    p.classList.remove("bad-field");
+  });
+}
 
 // ---------- 상태 ----------
 let db = null, picked = null, gender = null;
@@ -259,11 +326,13 @@ function drawTrackFields(cert) {
 
   if (cert.track === "보건") {
     box.innerHTML =
-      '<label for="f-org">교육기관</label>' +
-      '<input id="f-org" type="text" placeholder="수료증에 적힌 기관명">' +
-      '<label for="f-certno">교육수료번호</label>' +
-      '<input id="f-certno" type="text" placeholder="TR20261080">' +
-      '<label for="f-done">교육수료일</label>' +
+      '<label for="f-org">교육기관 <span class="req">*</span></label>' +
+      '<input id="f-org" type="text" placeholder="예: 서울시립요양보호사교육원">' +
+      '<p class="hint">수료증 맨 위에 적힌 기관 이름</p>' +
+      '<label for="f-certno">교육수료번호 <span class="req">*</span></label>' +
+      '<input id="f-certno" type="text" placeholder="예: TR20261080">' +
+      '<p class="hint">수료증 오른쪽 위 번호</p>' +
+      '<label for="f-done">교육수료일 <span class="req">*</span></label>' +
       '<input id="f-done" type="date">' +
       '<label for="f-hours">교육이수시간</label>' +
       '<input id="f-hours" type="number" value="' + (cert.hours || "") + '">';
@@ -317,14 +386,6 @@ function calcFee() {
 }
 $("f-discount").addEventListener("change", calcFee);
 
-// ---------- 표기 통일 ----------
-function normPhone(v) {
-  const d = v.replace(/[^0-9]/g, "");
-  if (d.length === 11) return d.slice(0,3) + "-" + d.slice(3,7) + "-" + d.slice(7);
-  if (d.length === 10) return d.slice(0,3) + "-" + d.slice(3,6) + "-" + d.slice(6);
-  return v;
-}
-
 // ---------- 연결 ----------
 async function connect() {
   try {
@@ -350,17 +411,40 @@ $("f-gender").querySelectorAll("button").forEach(function (b) {
 
 function show(text, kind) { msgBox.textContent = text; msgBox.className = "msg " + kind; }
 
+function clearMarks() {
+  document.querySelectorAll(".bad-field").forEach(function (e) { e.classList.remove("bad-field"); });
+}
+function fail(text, id) {
+  show(text, "bad");
+  const el = id ? document.getElementById(id) : null;
+  if (el) {
+    el.classList.add("bad-field");
+    el.scrollIntoView({ behavior:"smooth", block:"center" });
+    if (el.focus) el.focus();
+  }
+  return false;
+}
+
 // ---------- 제출 ----------
 $("send").addEventListener("click", async function () {
+  clearMarks();
   const name = $("f-name").value.trim();
   const phone = $("f-phone").value.trim();
-  const birth = $("f-birth").value;
+  const birthCheck = checkBirth($("f-birth").value);
+  const birth = birthCheck.ok ? birthCheck.value : "";
 
   if (!picked) { show("자격증을 먼저 골라 주세요.", "bad"); return; }
-  if (!name) { show("성함을 넣어 주세요.", "bad"); return; }
-  if (!birth) { show("생년월일을 넣어 주세요.", "bad"); return; }
-  if (!gender) { show("성별을 골라 주세요.", "bad"); return; }
-  if (phone.replace(/[^0-9]/g,"").length < 10) { show("연락처를 다시 확인해 주세요.", "bad"); return; }
+  if (!name) { fail("성함을 넣어 주세요.", "f-name"); return; }
+  if (!birth) { fail(birthCheck.why, "f-birth"); return; }
+  if (!gender) { fail("성별을 골라 주세요.", "f-gender"); return; }
+  if (phone.replace(/[^0-9]/g,"").length !== 11) {
+    fail("연락처 11자리를 다 넣어 주세요. 예: 010-1234-5678", "f-phone"); return;
+  }
+  if (picked.track === "보건") {
+    if (!$("f-org").value.trim())    { fail("교육기관을 넣어 주세요.", "f-org"); return; }
+    if (!$("f-certno").value.trim()) { fail("교육수료번호를 넣어 주세요.", "f-certno"); return; }
+    if (!$("f-done").value)          { fail("교육수료일을 넣어 주세요.", "f-done"); return; }
+  }
   if (!db) { show("아직 데이터베이스에 연결되지 않았습니다.", "bad"); return; }
 
   const fee = calcFee();
@@ -391,7 +475,7 @@ $("send").addEventListener("click", async function () {
     cert_code: picked.code,
     cert_name: picked.name,
     name: name,
-    phone: normPhone(phone),
+    phone: phone,
     gender: gender,
     birth_date: birth,
     exam_region: $("f-region").value,
@@ -412,9 +496,12 @@ $("send").addEventListener("click", async function () {
 
   show(name + " 님, 접수되었습니다. 담당자가 확인 후 연락드립니다.", "ok");
   $("f-name").value = ""; $("f-phone").value = ""; $("f-birth").value = "";
+  $("birth-echo").textContent = "숫자 8자리만 넣으시면 됩니다. 예: 19480612";
+  $("birth-echo").className = "hint";
   connect();
 });
 
+bindMasks();
 drawCards();
 connect();
 </script>
