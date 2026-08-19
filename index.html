@@ -544,7 +544,7 @@ function drawReview() {
     ["연락처", $("f-phone").value.trim()],
     ["시험 " + (picked.track === "보건" ? "센터" : "지역"), $("f-region").value],
     ["희망 시험일", $("f-examdate").value || "정하지 않음"],
-    [$("l-session").textContent, $("f-session").value],
+    [$("l-session").textContent, $("f-session").selectedOptions[0].textContent],
     ["접수 방법", $("f-channel").selectedOptions[0].textContent],
     ["남기신 말씀", $("f-memo").value.trim() || "없음"]
   ];
@@ -609,7 +609,10 @@ function drawSession(cert) {
   const s = $("f-session");
   if (cert.track === "보건") {
     $("l-session").textContent = "시간대";
-    fill(s, ["오전 (09:00)","오후 (14:00)"]);
+    // 01_form_정책.md 3절: 두두보건 timeSlot 은 AM / PM
+    s.innerHTML =
+      '<option value="AM">오전 9시</option>' +
+      '<option value="PM">오후 2시</option>';
   } else if (cert.track === "전문") {
     $("l-session").textContent = "교시";
     fill(s, ["1교시 (09:30)","2교시 (11:00)"]);

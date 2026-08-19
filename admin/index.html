@@ -233,7 +233,8 @@ function detailRow(r) {
   add("성별", r.gender === "M" ? "남" : r.gender === "F" ? "여" : r.gender);
   add("시험지역", r.exam_region);
   add("희망 시험일", r.exam_date);
-  add("교시/시간대", r.exam_session);
+  const SLOT = { AM:"오전 9시", PM:"오후 2시" };
+  add("교시/시간대", SLOT[r.exam_session] || r.exam_session);
   add("접수 방법", r.channel);
   add("남기신 말씀", r.memo);
   add("응시료", won(r.fee_amount) + "원");
