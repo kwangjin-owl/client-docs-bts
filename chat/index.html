@@ -130,12 +130,11 @@
     .subtop-in, .foot-in { padding-left:16px; padding-right:16px; }
   }
 
-  .cols { display:grid; grid-template-columns:minmax(0,1fr) 330px; gap:18px; align-items:start; }
-  @media (max-width:1040px) { .cols { grid-template-columns:1fr; } }
-  .side { display:flex; flex-direction:column; gap:12px;
-          max-height:min(620px, calc(100vh - 300px)); overflow-y:auto; }
-  @media (max-width:1040px) { .side { max-height:none; overflow:visible; } }
-  .pane { background:var(--soft); border-radius:14px; padding:20px 22px 22px; }
+  .pane { background:var(--soft); border-radius:14px; padding:16px 18px 18px;
+          margin-bottom:14px; }
+  .pane-t { font-size:0.85em; font-weight:700; color:var(--muted); margin:0 0 10px; }
+  .chips { display:flex; flex-wrap:wrap; gap:8px; }
+  .chip { flex:0 1 auto; }
 
   /* 대화 칸 높이를 고정한다. 입력칸은 늘 같은 자리에 있고 대화만 안에서 흐른다. */
   .talk { background:var(--card); border:2px solid var(--line); border-radius:14px;
@@ -165,16 +164,15 @@
   .ask .btn { flex:none; white-space:nowrap; }
 
 
-  .chips { display:flex; flex-direction:column; gap:8px; }
   .chip { font:inherit; font-size:0.86em; font-weight:700; text-align:left;
           padding:14px 16px; background:var(--card); border:2px solid var(--line);
           border-radius:10px; cursor:pointer; line-height:1.5;
           word-break:keep-all; overflow-wrap:break-word; }
   .chip:hover { border-color:var(--key); color:var(--key-d); background:var(--key-bg); }
-  .warnbox { background:var(--warn-bg); color:var(--warn); border-radius:10px;
-             padding:15px 17px; font-size:0.84em; line-height:1.75;
+  .warnbox { background:var(--warn-bg); color:var(--warn); border-radius:12px;
+             padding:16px 20px; margin:14px 0 0; font-size:0.86em; line-height:1.75;
              word-break:keep-all; overflow-wrap:break-word; }
-  .warnbox b { display:block; margin-bottom:4px; }
+  .warnbox b { margin-right:8px; }
 
   /* 내용이 짧아도 꼬리가 화면 맨 아래에 붙게 */
 
@@ -183,8 +181,23 @@
   html { scrollbar-gutter:stable; overflow-y:scroll; }
   html, body { height:100%; }
   body { display:flex; flex-direction:column; min-height:100%; }
-  .wrap { flex:1 0 auto; }
+  .wrap { flex-grow:1; flex-shrink:0; flex-basis:auto; min-width:0; }
   .foot { flex:none; }
+
+  /* 안쪽 내용이 폭을 밀어내지 못하게 못박는다.
+     textarea, 긴 글, 표가 상자를 늘리거나 줄이던 문제. */
+  .wrap, .sheet, .wrap > *, .sheet > * { min-width:0; max-width:100%; }
+  .sheet { box-sizing:border-box; }
+  textarea, input, select, pre, table { max-width:100%; }
+  * { overflow-wrap:anywhere; }
+
+
+  /* 어떤 경우에도 본문 상자가 폭을 다 쓰게 못박는다 */
+  .wrap { width:100%; }
+  .wrap > * { width:100%; box-sizing:border-box; }
+  .sheet { width:100%; }
+  body { align-items:stretch; }
+
 </style>
 </head>
 <body>
@@ -196,8 +209,12 @@
   <p class="lead">응시료, 접수 일정, 준비물을 안내합니다.
      안내 문서에서 확인되지 않는 것은 모른다고 말씀드립니다.</p>
 
-  <div class="cols">
-    <div class="talk">
+  <div class="pane chips-pane">
+    <p class="pane-t">이런 질문을 해보세요 — 눌러 보시면 바로 답해 드립니다</p>
+    <div class="chips" id="chips"></div>
+  </div>
+
+  <div class="talk">
       <div class="talk-top">
         <span class="av">두두</span>
         <span><b>두두 안내 도우미</b><span>필기 접수 문서에서만 답변합니다</span></span>
@@ -213,21 +230,13 @@
         <input id="q" type="text" placeholder="궁금한 것을 적어 주세요" autocomplete="off">
         <button type="button" class="btn key" id="send">물어보기</button>
       </div>
-    </div>
-
-    <div class="side">
-      <div class="pane">
-        <h2 class="sec">이런 질문을 해보세요</h2>
-        <p class="lead">눌러 보시면 바로 답해 드립니다.</p>
-        <div class="chips" id="chips"></div>
-      </div>
-      <div class="warnbox">
-        <b>안내 범위</b>
-        필기 접수까지만 안내합니다. 실기나 문서에 없는 내용은 안내하지 않습니다.
-        그럴 때는 고객센터 02-000-0000으로 전화 주십시오.
-      </div>
-    </div>
   </div>
+
+  <p class="warnbox">
+    <b>안내 범위</b>
+    필기 접수까지만 안내합니다. 실기나 문서에 없는 내용은 안내하지 않습니다.
+    그럴 때는 고객센터 02-000-0000으로 전화 주십시오.
+  </p>
  </div>
 </div>
 
@@ -370,10 +379,9 @@ $("q").addEventListener("keydown", function(e){ if(e.key==="Enter") ask($("q").v
 
 // 접수 화면 안에 겹쳐 떠 있을 때는 머리·꼬리를 숨긴다
 if (window.self !== window.top) {
-  [".top",".foot","h1",".lead",".talk-top",".side"].forEach(function(sel){
+  [".top",".foot","h1",".lead",".talk-top",".warnbox"].forEach(function(sel){
     document.querySelectorAll(sel).forEach(function(e){ e.style.display="none"; }); });
   document.querySelector(".wrap").style.padding="12px 14px 14px";
-  document.querySelector(".cols").style.gridTemplateColumns="1fr";
   document.querySelector(".talk").style.border="0";
   document.querySelector(".sheet").style.cssText="padding:0;box-shadow:none;background:none;margin:0";
   document.querySelector(".talk").style.height="calc(100vh - 110px)";
@@ -381,5 +389,28 @@ if (window.self !== window.top) {
 
 boot();
 </script>
+
+<div id="__probe" style="position:fixed;left:0;bottom:0;z-index:9999;
+  background:#111;color:#0f0;font:12px monospace;padding:6px 10px;
+  white-space:pre;line-height:1.5;pointer-events:none"></div>
+<script>
+(function(){
+  function px(el){ return el ? Math.round(el.getBoundingClientRect().width) : "-"; }
+  function draw(){
+    var w=document.querySelector(".wrap"), s=document.querySelector(".sheet"),
+        t=document.querySelector(".top-in"), b=document.body;
+    document.getElementById("__probe").textContent =
+      "창 " + window.innerWidth + "  body " + px(b) +
+      "\n머리 " + px(t) + "  wrap " + px(w) + "  흰상자 " + px(s) +
+      "\nwrap max-width " + (w ? getComputedStyle(w).maxWidth : "-") +
+      "\n" + location.pathname;
+  }
+  draw();
+  addEventListener("resize", draw);
+  new ResizeObserver(draw).observe(document.documentElement);
+  setInterval(draw, 400);
+})();
+</script>
+
 </body>
 </html>

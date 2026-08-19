@@ -164,8 +164,23 @@
   html { scrollbar-gutter:stable; overflow-y:scroll; }
   html, body { height:100%; }
   body { display:flex; flex-direction:column; min-height:100%; }
-  .wrap { flex:1 0 auto; }
+  .wrap { flex-grow:1; flex-shrink:0; flex-basis:auto; min-width:0; }
   .foot { flex:none; }
+
+  /* 안쪽 내용이 폭을 밀어내지 못하게 못박는다.
+     textarea, 긴 글, 표가 상자를 늘리거나 줄이던 문제. */
+  .wrap, .sheet, .wrap > *, .sheet > * { min-width:0; max-width:100%; }
+  .sheet { box-sizing:border-box; }
+  textarea, input, select, pre, table { max-width:100%; }
+  * { overflow-wrap:anywhere; }
+
+
+  /* 어떤 경우에도 본문 상자가 폭을 다 쓰게 못박는다 */
+  .wrap { width:100%; }
+  .wrap > * { width:100%; box-sizing:border-box; }
+  .sheet { width:100%; }
+  body { align-items:stretch; }
+
 </style>
 </head>
 <body>
@@ -315,5 +330,28 @@ $("find-rno").addEventListener("click", byRno);
 $("f-phone").addEventListener("keydown", function(e){ if(e.key==="Enter") byName(); });
 $("f-rno").addEventListener("keydown", function(e){ if(e.key==="Enter") byRno(); });
 </script>
+
+<div id="__probe" style="position:fixed;left:0;bottom:0;z-index:9999;
+  background:#111;color:#0f0;font:12px monospace;padding:6px 10px;
+  white-space:pre;line-height:1.5;pointer-events:none"></div>
+<script>
+(function(){
+  function px(el){ return el ? Math.round(el.getBoundingClientRect().width) : "-"; }
+  function draw(){
+    var w=document.querySelector(".wrap"), s=document.querySelector(".sheet"),
+        t=document.querySelector(".top-in"), b=document.body;
+    document.getElementById("__probe").textContent =
+      "창 " + window.innerWidth + "  body " + px(b) +
+      "\n머리 " + px(t) + "  wrap " + px(w) + "  흰상자 " + px(s) +
+      "\nwrap max-width " + (w ? getComputedStyle(w).maxWidth : "-") +
+      "\n" + location.pathname;
+  }
+  draw();
+  addEventListener("resize", draw);
+  new ResizeObserver(draw).observe(document.documentElement);
+  setInterval(draw, 400);
+})();
+</script>
+
 </body>
 </html>
