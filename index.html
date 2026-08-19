@@ -77,6 +77,9 @@
 
   .picked-box { background:var(--pick-bg); color:var(--pick); border-radius:12px;
                 padding:14px 18px; margin-bottom:8px; font-size:17px; }
+  .late-box { background:var(--stop-bg); color:var(--stop); border-radius:12px;
+              padding:16px 20px; margin-bottom:8px; font-size:17px; line-height:1.6; }
+  .late-box.hide { display:none; }
 
   .nav { display:flex; gap:10px; margin-top:28px; }
   .nav button { flex:1; font:inherit; font-size:18px; font-weight:600;
@@ -158,6 +161,7 @@
   <div class="stage" id="st2">
     <h1>신청하시는 분</h1>
     <p class="picked-box" id="picked-line"></p>
+    <p class="late-box hide" id="late-1"></p>
     <p class="hint"><span class="req">*</span> 표시는 꼭 넣으셔야 하는 칸입니다</p>
 
     <label for="f-name">성함 <span class="req">*</span></label>
@@ -220,6 +224,7 @@
   <div class="stage" id="st4">
     <h1>확인하고 결제</h1>
 
+    <p class="late-box hide" id="late-2"></p>
     <div class="review" id="review"></div>
 
     <label for="f-discount">감면 대상이신가요</label>
@@ -272,7 +277,7 @@ const CERTS = [
   { code:"P001", name:"손해평가사",       track:"전문",     agency:"두두넷",   fee:{ "1차":30000, "2차":30000 },
     state:"late", note:"올해 1차 접수 끝남 (4월 6일 ~ 4월 10일)" },
   { code:"P002", name:"공인중개사",       track:"전문",     agency:"두두넷",   fee:{ "1차":13400, "2차":15200 },
-    state:"soon", note:"1차 접수 끝남 · 빈자리 추가접수 10월 1일 ~ 2일" },
+    state:"late", note:"올해 1차 접수 끝남 (8월 3일 ~ 8월 7일)" },
   { code:"H001", name:"요양보호사",       track:"보건",     agency:"두두보건", fee:32000, hours:240,
     state:"now",  note:"아무 때나 접수 · 요양사" },
   { code:"H002", name:"위생사",           track:"보건",     agency:"두두보건", fee:30000, hours:null,
@@ -405,6 +410,14 @@ function pick(cert, btn) {
   const line = cert.name + " (" + cert.agency + ") 로 접수합니다";
   $("picked-line").textContent = line;
   $("picked-line2").textContent = line;
+
+  const late = cert.state === "late";
+  const msg = cert.name + "는 지금 접수 기간이 아닙니다. " + cert.note + ".\n" +
+    "지금 넣으시는 신청서는 문의로 남고, 다음 접수 일정이 정해지면 저희가 연락드립니다.";
+  ["late-1", "late-2"].forEach(function (id) {
+    $(id).textContent = late ? msg : "";
+    $(id).classList.toggle("hide", !late);
+  });
 
   fill($("f-edu"), EDU);
   fill($("f-discount"), DISCOUNTS);
@@ -667,7 +680,7 @@ $("send").addEventListener("click", async function () {
     fee_discount_type: $("f-discount").value,
     fee_final: fee.final,
     payment_method: $("f-pay").value,
-    status: "접수완료",
+    status: picked.state === "late" ? "문의" : "접수완료",
     usage_context: $("f-context").value,
     extra: extra
   });
@@ -676,7 +689,9 @@ $("send").addEventListener("click", async function () {
 
   if (res.error) { show("저장 실패: " + res.error.message, "bad"); return; }
 
-  show(name + " 님, 접수되었습니다. 담당자가 확인 후 연락드립니다.", "ok");
+  show(picked.state === "late"
+    ? name + " 님, 문의로 접수되었습니다. 다음 일정이 정해지면 연락드립니다."
+    : name + " 님, 접수되었습니다. 담당자가 확인 후 연락드립니다.", "ok");
   $("f-name").value = ""; $("f-phone").value = ""; $("f-birth").value = "";
   $("birth-echo").textContent = "숫자 8자리만 넣으시면 됩니다. 예: 19480612";
   $("birth-echo").className = "hint";
