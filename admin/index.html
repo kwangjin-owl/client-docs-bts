@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>접수 내역 - 두두자격지원센터</title>
+<style>
+  :root {
+    --ink:#1a1a1a; --muted:#5a5f66; --line:#d7dbdf;
+    --pick:#1b5e7e; --pick-bg:#e7f1f6;
+    --bad:#a32d2d; --bad-bg:#fceceb;
+    --warn:#8a5a00; --warn-bg:#fdf2dc;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:#fff; color:var(--ink); font-size:17px; line-height:1.6;
+         font-family:system-ui,"Malgun Gothic","Apple SD Gothic Neo",sans-serif; }
+  .wrap { max-width:960px; margin:0 auto; padding:32px 20px 80px; }
+
+  .top { display:flex; align-items:baseline; justify-content:space-between; gap:16px; flex-wrap:wrap; }
+  h1 { font-size:26px; font-weight:600; margin:0; }
+  .back { font-size:16px; color:var(--pick); text-decoration:none; }
+
+  .cards { display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:12px; margin:24px 0 8px; }
+  .stat { background:#f7f8f9; border-radius:12px; padding:18px 20px; }
+  .stat .k { font-size:15px; color:var(--muted); margin:0; }
+  .stat .v { font-size:32px; font-weight:600; margin:2px 0 0; }
+  .stat .u { font-size:17px; font-weight:400; color:var(--muted); }
+
+  h2 { font-size:19px; font-weight:600; margin:32px 0 12px; }
+
+  .bar { display:flex; align-items:center; gap:10px; margin-bottom:6px; font-size:16px; }
+  .bar .nm { width:150px; flex:none; }
+  .bar .track { flex:1; background:#eef0f2; border-radius:6px; height:22px; overflow:hidden; }
+  .bar .fill { background:var(--pick); height:100%; }
+  .bar .ct { width:64px; flex:none; text-align:right; color:var(--muted); }
+
+  .tools { display:flex; gap:10px; flex-wrap:wrap; margin:8px 0 16px; }
+  input, select, button { font:inherit; color:inherit; padding:10px 12px;
+    border:1px solid var(--line); border-radius:8px; background:#fff; }
+  input { flex:1; min-width:180px; }
+  button { cursor:pointer; }
+  button.go { background:var(--pick); color:#fff; border-color:var(--pick); }
+
+  table { width:100%; border-collapse:collapse; font-size:16px; }
+  th, td { text-align:left; padding:12px 10px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { font-weight:600; color:var(--muted); font-size:15px; white-space:nowrap; }
+  tr.row { cursor:pointer; }
+  tr.row:hover td { background:#f7f8f9; }
+  td.num { text-align:right; white-space:nowrap; }
+  .pill { display:inline-block; font-size:14px; padding:3px 10px; border-radius:6px; white-space:nowrap; }
+  .pill.ok { background:var(--pick-bg); color:var(--pick); }
+  .pill.wait { background:var(--warn-bg); color:var(--warn); }
+  .pill.no { background:var(--bad-bg); color:var(--bad); }
+  .detail td { background:#f7f8f9; font-size:15px; color:var(--muted); }
+  .detail dl { margin:0; display:grid; grid-template-columns:auto 1fr; gap:4px 16px; }
+  .detail dt { color:var(--ink); }
+  .detail dd { margin:0; }
+
+  .note { margin-top:20px; padding:16px 20px; border:1px solid var(--line);
+          border-radius:12px; font-size:16px; color:var(--muted); }
+  .hide { display:none; }
+  @media (max-width:640px) {
+    .cards { grid-template-columns:1fr; }
+    .bar .nm { width:110px; font-size:15px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="top">
+    <h1>접수 내역</h1>
+    <a class="back" href="/">← 접수 화면으로</a>
+  </div>
+
+  <div class="cards">
+    <div class="stat"><p class="k">오늘 접수</p><p class="v" id="s-today">-<span class="u">건</span></p></div>
+    <div class="stat"><p class="k">전체 접수</p><p class="v" id="s-all">-<span class="u">건</span></p></div>
+    <div class="stat"><p class="k">오늘 결제 금액</p><p class="v" id="s-fee">-<span class="u">원</span></p></div>
+  </div>
+
+  <h2>자격증별</h2>
+  <div id="by-cert"></div>
+
+  <h2>누가 접수했나</h2>
+  <div id="by-context"></div>
+
+  <h2>목록</h2>
+  <div class="tools">
+    <input id="q" type="text" placeholder="성함이나 연락처로 찾기">
+    <select id="f-cert"><option value="">자격증 전체</option></select>
+    <select id="f-when">
+      <option value="">기간 전체</option>
+      <option value="today">오늘</option>
+      <option value="week">최근 7일</option>
+    </select>
+    <button class="go" id="reload">새로고침</button>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>접수일시</th><th>성함</th><th>연락처</th><th>자격증</th>
+        <th>기관</th><th class="num">결제금액</th><th>접수경로</th><th>상태</th>
+      </tr>
+    </thead>
+    <tbody id="rows"></tbody>
+  </table>
+
+  <p class="note" id="status">불러오는 중…</p>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const $ = function (id) { return document.getElementById(id); };
+let db = null, all = [];
+
+function isToday(iso) {
+  const d = new Date(iso), n = new Date();
+  return d.getFullYear() === n.getFullYear() && d.getMonth() === n.getMonth() && d.getDate() === n.getDate();
+}
+function withinDays(iso, days) {
+  return (Date.now() - new Date(iso).getTime()) <= days * 86400000;
+}
+function fmtWhen(iso) {
+  const d = new Date(iso);
+  const p = function (n) { return String(n).padStart(2, "0"); };
+  return (d.getMonth()+1) + "/" + d.getDate() + " " + p(d.getHours()) + ":" + p(d.getMinutes());
+}
+function won(n) { return (n == null ? 0 : n).toLocaleString(); }
+
+function pill(status) {
+  if (status === "접수완료") return '<span class="pill ok">접수완료</span>';
+  if (status === "결제대기") return '<span class="pill wait">결제대기</span>';
+  return '<span class="pill no">' + (status || "-") + '</span>';
+}
+
+function drawBars(boxId, counts) {
+  const box = $(boxId);
+  const entries = Object.keys(counts).map(function (k) { return [k, counts[k]]; })
+                        .sort(function (a, b) { return b[1] - a[1]; });
+  if (!entries.length) { box.innerHTML = '<p class="note">아직 접수가 없습니다.</p>'; return; }
+  const max = entries[0][1];
+  const total = entries.reduce(function (s, e) { return s + e[1]; }, 0);
+  box.innerHTML = entries.map(function (e) {
+    const pct = Math.round(e[1] / max * 100);
+    const share = Math.round(e[1] / total * 100);
+    return '<div class="bar"><span class="nm">' + e[0] + '</span>' +
+           '<span class="track"><span class="fill" style="width:' + pct + '%"></span></span>' +
+           '<span class="ct">' + e[1] + '건 · ' + share + '%</span></div>';
+  }).join("");
+}
+
+function detailRow(r) {
+  const x = r.extra || {};
+  const pairs = [];
+  const add = function (k, v) { if (v !== undefined && v !== null && v !== "") pairs.push([k, v]); };
+  add("생년월일", r.birth_date);
+  add("성별", r.gender === "M" ? "남" : r.gender === "F" ? "여" : r.gender);
+  add("시험지역", r.exam_region);
+  add("희망 시험일", r.exam_date);
+  add("교시/시간대", r.exam_session);
+  add("응시료", won(r.fee_amount) + "원");
+  add("감면", r.fee_discount_type);
+  add("결제수단", r.payment_method);
+  add("최종학력", x.education);
+  add("시험유형", x.exam_type);
+  add("회차", x.exam_round);
+  add("응시자격", x.eligibility);
+  add("차수", x.exam_stage);
+  add("과목", Array.isArray(x.subjects) ? x.subjects.join(" · ") : x.subjects);
+  add("1차 합격번호", x.first_pass_number);
+  add("교육기관", x.training_org);
+  add("교육수료번호", x.training_cert_no);
+  add("교육수료일", x.training_done);
+  add("교육이수시간", x.training_hours ? x.training_hours + "시간" : "");
+  return '<tr class="detail"><td colspan="8"><dl>' +
+    pairs.map(function (p) { return '<dt>' + p[0] + '</dt><dd>' + p[1] + '</dd>'; }).join("") +
+    '</dl></td></tr>';
+}
+
+function render() {
+  const q = $("q").value.trim();
+  const cert = $("f-cert").value;
+  const when = $("f-when").value;
+
+  const list = all.filter(function (r) {
+    if (cert && r.cert_name !== cert) return false;
+    if (when === "today" && !isToday(r.created_at)) return false;
+    if (when === "week" && !withinDays(r.created_at, 7)) return false;
+    if (q && (r.name || "").indexOf(q) < 0 && (r.phone || "").indexOf(q) < 0) return false;
+    return true;
+  });
+
+  const todayRows = all.filter(function (r) { return isToday(r.created_at); });
+  $("s-today").innerHTML = todayRows.length + '<span class="u">건</span>';
+  $("s-all").innerHTML = all.length + '<span class="u">건</span>';
+  $("s-fee").innerHTML = won(todayRows.reduce(function (s, r) { return s + (r.fee_final || 0); }, 0)) + '<span class="u">원</span>';
+
+  const byCert = {}, byCtx = {};
+  all.forEach(function (r) {
+    byCert[r.cert_name] = (byCert[r.cert_name] || 0) + 1;
+    const c = r.usage_context || "미기재";
+    byCtx[c] = (byCtx[c] || 0) + 1;
+  });
+  drawBars("by-cert", byCert);
+  drawBars("by-context", byCtx);
+
+  const sel = $("f-cert"), keep = sel.value;
+  sel.innerHTML = '<option value="">자격증 전체</option>' +
+    Object.keys(byCert).sort().map(function (k) { return '<option>' + k + '</option>'; }).join("");
+  sel.value = keep;
+
+  $("rows").innerHTML = list.map(function (r) {
+    return '<tr class="row" data-id="' + r.id + '">' +
+      '<td>' + fmtWhen(r.created_at) + '</td>' +
+      '<td>' + (r.name || "") + '</td>' +
+      '<td>' + (r.phone || "") + '</td>' +
+      '<td>' + (r.cert_name || "") + '</td>' +
+      '<td>' + (r.agency || "") + '</td>' +
+      '<td class="num">' + won(r.fee_final) + '원</td>' +
+      '<td>' + (r.usage_context || "-") + '</td>' +
+      '<td>' + pill(r.status) + '</td></tr>';
+  }).join("");
+
+  $("status").textContent = list.length
+    ? "보이는 것 " + list.length + "건 / 전체 " + all.length + "건 · 줄을 누르면 자세히 보입니다"
+    : "조건에 맞는 접수가 없습니다.";
+
+  document.querySelectorAll("tr.row").forEach(function (tr) {
+    tr.addEventListener("click", function () {
+      const next = tr.nextElementSibling;
+      if (next && next.classList.contains("detail")) { next.remove(); return; }
+      document.querySelectorAll("tr.detail").forEach(function (d) { d.remove(); });
+      const row = all.find(function (r) { return String(r.id) === tr.dataset.id; });
+      tr.insertAdjacentHTML("afterend", detailRow(row));
+    });
+  });
+}
+
+async function load() {
+  $("status").textContent = "불러오는 중…";
+  try {
+    if (!db) {
+      const r = await fetch("/api/config");
+      if (!r.ok) { $("status").textContent = "서버 함수 응답 " + r.status + " — api/config.js 위치 확인"; return; }
+      const conf = await r.json();
+      if (!conf.url || !conf.key) { $("status").textContent = "서버에 환경변수가 설정되어 있지 않습니다"; return; }
+      db = supabase.createClient(conf.url, conf.key);
+    }
+    const res = await db.from("applications").select("*").order("created_at", { ascending:false });
+    if (res.error) { $("status").textContent = "불러오기 실패: " + res.error.message; return; }
+    all = res.data || [];
+    render();
+  } catch (e) {
+    $("status").textContent = "불러오기 실패: " + e.message;
+  }
+}
+
+$("q").addEventListener("input", render);
+$("f-cert").addEventListener("change", render);
+$("f-when").addEventListener("change", render);
+$("reload").addEventListener("click", load);
+
+load();
+</script>
+</body>
+</html>
