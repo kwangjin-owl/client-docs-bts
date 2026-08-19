@@ -117,6 +117,13 @@
   <h2>누가 접수했나</h2>
   <div id="by-context"></div>
 
+  <h2>어떻게 접수했나</h2>
+  <div id="by-channel"></div>
+
+  <h2>챗봇이 받은 질문</h2>
+  <p class="note" id="q-note" style="margin-top:0">불러오는 중…</p>
+  <div id="by-question"></div>
+
   <h2>목록</h2>
   <div class="tools">
     <input id="q" type="text" placeholder="성함이나 연락처로 찾기">
@@ -198,6 +205,7 @@ function won(n) { return (n == null ? 0 : n).toLocaleString(); }
 function pill(status) {
   if (status === "접수완료") return '<span class="pill ok">접수완료</span>';
   if (status === "결제대기") return '<span class="pill wait">결제대기</span>';
+  if (status === "문의") return '<span class="pill wait">문의</span>';
   return '<span class="pill no">' + (status || "-") + '</span>';
 }
 
@@ -226,6 +234,8 @@ function detailRow(r) {
   add("시험지역", r.exam_region);
   add("희망 시험일", r.exam_date);
   add("교시/시간대", r.exam_session);
+  add("접수 방법", r.channel);
+  add("남기신 말씀", r.memo);
   add("응시료", won(r.fee_amount) + "원");
   add("감면", r.fee_discount_type);
   add("결제수단", r.payment_method);
@@ -269,8 +279,14 @@ function render() {
     const c = r.usage_context || "미기재";
     byCtx[c] = (byCtx[c] || 0) + 1;
   });
+  const byCh = {};
+  all.forEach(function (r) {
+    const c = r.channel || "미기재";
+    byCh[c] = (byCh[c] || 0) + 1;
+  });
   drawBars("by-cert", byCert);
   drawBars("by-context", byCtx);
+  drawBars("by-channel", byCh);
 
   const sel = $("f-cert"), keep = sel.value;
   sel.innerHTML = '<option value="">자격증 전체</option>' +
@@ -329,12 +345,46 @@ async function load() {
     if (res.error) { $("status").textContent = "불러오기 실패: " + res.error.message; return; }
     all = res.data || [];
     render();
+    loadQuestions();
   } catch (e) {
     $("status").textContent = "불러오기 실패: " + e.message;
   }
 }
 
 function reset() { page = 1; render(); }
+// 발주서 4절: 어떤 질문이 제일 많이 들어오는지
+async function loadQuestions() {
+  try {
+    const res = await db.from("questions").select("*").order("created_at", { ascending:false });
+    if (res.error) { $("q-note").textContent = "질문 기록을 못 읽었습니다: " + res.error.message; return; }
+    const qs = res.data || [];
+    if (!qs.length) { $("q-note").textContent = "아직 들어온 질문이 없습니다."; return; }
+
+    const cnt = {}, miss = {};
+    qs.forEach(function (q) {
+      cnt[q.question] = (cnt[q.question] || 0) + 1;
+      if (!q.answered) miss[q.question] = (miss[q.question] || 0) + 1;
+    });
+    const missN = qs.filter(function (q) { return !q.answered; }).length;
+    $("q-note").textContent =
+      "전체 " + qs.length + "건 · 답한 것 " + (qs.length - missN) + "건 · 못 답한 것 " + missN + "건";
+
+    drawBars("by-question", cnt);
+
+    if (missN) {
+      const box = document.createElement("div");
+      box.innerHTML = '<p class="note" style="margin-top:16px">답을 못 한 질문 — 문서를 보태거나 비슷한말을 넣을 후보입니다</p>';
+      const list = Object.keys(miss).sort(function (a,b) { return miss[b]-miss[a]; })
+        .map(function (k) { return '<div class="bar"><span class="nm" style="width:auto;flex:1">' + k +
+          '</span><span class="ct">' + miss[k] + '건</span></div>'; }).join("");
+      box.innerHTML += list;
+      $("by-question").appendChild(box);
+    }
+  } catch (e) {
+    $("q-note").textContent = "질문 기록을 못 읽었습니다: " + e.message;
+  }
+}
+
 $("q").addEventListener("input", reset);
 $("f-cert").addEventListener("change", reset);
 $("f-when").addEventListener("change", reset);

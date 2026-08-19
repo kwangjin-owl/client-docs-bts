@@ -69,7 +69,24 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 const $ = function (id) { return document.getElementById(id); };
-let CFG = null, DOCS = [], busy = false;
+let CFG = null, DOCS = [], busy = false, db = null;
+
+// 발주서 4절: 어떤 질문이 많이 들어오는지 보려면 질문을 남겨야 한다
+async function logQ(question, answered, score, doc, route) {
+  if (!db) return;
+  try {
+    await db.from("questions").insert({
+      question: question,
+      answered: answered,
+      score: Number(score.toFixed(2)),
+      doc_id: doc ? doc.id : null,
+      doc_title: doc ? doc.title : null,
+      route: route
+    });
+  } catch (e) {
+    console.log("질문 기록 실패:", e.message);
+  }
+}
 
 const SAMPLES = [
   "한식조리기능사 접수비가 얼마예요",
@@ -169,6 +186,7 @@ async function ask(question) {
   if (best && best.s >= CFG.MIN_SCORE) {
     fillTurn(box, best.doc.body,
       "출처: " + (best.doc.source || best.doc.title) + " · 규칙 답변 (" + best.s.toFixed(2) + ")");
+    logQ(question, true, best.s, best.doc, "규칙");
     busy = false; $("send").disabled = false; $("q").focus();
     return;
   }
@@ -177,6 +195,7 @@ async function ask(question) {
   //    근거 없이 넘기면 지어낸다.
   if (!CFG.USE_AI) {
     fillTurn(box, CFG.FALLBACK, "찾은 문서 없음 (최고 " + (best ? best.s.toFixed(2) : "0.00") + ")");
+    logQ(question, false, best ? best.s : 0, null, "못찾음");
     busy = false; $("send").disabled = false; return;
   }
 
@@ -196,6 +215,7 @@ async function ask(question) {
       fillTurn(box, data.error, "AI 호출 단계", true);
     } else {
       fillTurn(box, data.answer, "AI 답변 · 문서 전체 참고 (검색 최고 " + (best ? best.s.toFixed(2) : "0.00") + ")");
+      logQ(question, true, best ? best.s : 0, null, "AI");
     }
   } catch (e) {
     fillTurn(box, "연결 실패: " + e.message, "AI 호출 단계", true);
@@ -217,7 +237,7 @@ async function boot() {
     const r = await fetch("/api/config");
     const conf = await r.json();
     if (!conf.url || !conf.key) { $("note").textContent = "서버에 환경변수가 설정되어 있지 않습니다"; return; }
-    const db = supabase.createClient(conf.url, conf.key);
+    db = supabase.createClient(conf.url, conf.key);
     const res = await db.from("docs").select("*").order("id");
     if (res.error) { $("note").textContent = "문서 불러오기 실패: " + res.error.message; return; }
     DOCS = res.data || [];
