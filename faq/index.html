@@ -183,6 +183,10 @@
 
   /* ===== 공통 머리·꼬리 ===== */
   /* 내용이 짧아도 꼬리가 화면 맨 아래에 붙게 */
+
+  /* 내용 길이와 상관없이 스크롤바 자리를 늘 잡아 둔다.
+     안 그러면 화면을 옮길 때마다 가운데 정렬이 스크롤바 폭만큼 밀린다. */
+  html { scrollbar-gutter:stable; overflow-y:scroll; }
   html, body { height:100%; }
   body { display:flex; flex-direction:column; min-height:100%; }
   .wrap { flex:1 0 auto; }
