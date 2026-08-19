@@ -131,9 +131,12 @@
 
   .back { font-size:16px; color:var(--key); text-decoration:none; }
 
-  .cards { display:grid; grid-template-columns:repeat(3, minmax(0,1fr));
+  .cards { display:grid; grid-template-columns:repeat(4, minmax(0,1fr));
            gap:12px; margin:20px 0 10px; }
-  @media (max-width:700px) { .cards { grid-template-columns:1fr; } }
+  @media (max-width:900px) { .cards { grid-template-columns:repeat(2,1fr); } }
+  @media (max-width:560px) { .cards { grid-template-columns:1fr; } }
+  .stat.todo { background:var(--key-bg); }
+  .stat.todo .k, .stat.todo .v { color:var(--key-d); }
   .stat { background:var(--soft); border-radius:12px; padding:18px 22px; }
   .stat .k { font-size:0.8em; color:var(--muted); margin:0; }
   .stat .v { font-size:1.9em; font-weight:700; margin:2px 0 0; line-height:1.2; }
@@ -146,6 +149,20 @@
   .bar .track { flex:1; background:#eef0f2; border-radius:6px; height:22px; overflow:hidden; }
   .bar .fill { display:block; background:var(--key); height:22px; border-radius:6px; }
   .bar .ct { width:120px; flex:none; text-align:right; color:var(--muted); white-space:nowrap; }
+
+  .stats { margin-top:8px; }
+  .stats > summary { padding:14px 18px; cursor:pointer; font-weight:700; font-size:0.9em;
+                     background:var(--soft); border-radius:12px; color:var(--muted); }
+  .stats > summary:hover { color:var(--key-d); }
+  .stats[open] > summary { margin-bottom:6px; }
+
+  .quicks { display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin:10px 0 0; }
+  .quicks button { font:inherit; font-size:0.85em; padding:9px 16px; cursor:pointer;
+                   border:2px solid var(--line); border-radius:999px;
+                   background:var(--card); color:var(--muted); }
+  .quicks button:hover { border-color:var(--key); color:var(--key-d); }
+  .quicks button.on { background:var(--key); border-color:var(--key); color:#fff; font-weight:700; }
+  .quicks .sep { width:1px; height:22px; background:var(--line); margin:0 6px; }
 
   .tools { display:grid; grid-template-columns:1fr 210px 170px auto;
            gap:10px; align-items:center; margin:10px 0 16px; }
@@ -200,6 +217,24 @@
   .quick .qfee { margin:12px 0 0; padding:10px 16px; background:var(--key-bg);
                  border-radius:8px; font-size:0.9em; color:var(--key); }
   .quick .qfee b { font-size:1.25em; }
+
+  /* 챗봇 질문 표 */
+  .qh { display:flex; align-items:baseline; gap:8px; flex-wrap:wrap;
+        font-size:0.92em; font-weight:700; margin:20px 0 8px; }
+  .qh.bad { color:var(--bad); }
+  .qh b { font-weight:800; }
+  .qh span { font-size:0.82em; font-weight:400; color:var(--muted); }
+  .qtable { width:100%; border-collapse:collapse; }
+  .qtable td { padding:11px 12px; border-bottom:1px solid var(--line); font-size:0.88em;
+               vertical-align:middle; }
+  .qtable tr:hover td { background:var(--soft); }
+  .qq { width:auto; }
+  .qn { width:80px; text-align:right; font-weight:700; white-space:nowrap; }
+  .qd { width:130px; text-align:right; color:var(--muted); font-size:0.82em; white-space:nowrap; }
+  .qmore { margin-top:10px; font:inherit; font-size:0.85em; padding:10px 18px;
+           border:2px solid var(--line); border-radius:8px; background:var(--card);
+           color:var(--muted); cursor:pointer; }
+  .qmore:hover { border-color:var(--key); color:var(--key-d); }
   .guide { margin-top:16px; border:2px solid var(--line); border-radius:16px;
            background:var(--card); }
   .guide summary { padding:14px 20px; cursor:pointer; font-weight:600; font-size:0.95em; }
@@ -217,6 +252,15 @@
                  font-size:0.95em; }
   .pager button { padding:10px 16px; font-size:0.95em; }
   .pager button:disabled { color:#b4b9bd; border-color:var(--line); cursor:default; }
+  .rno { font-variant-numeric:tabular-nums; letter-spacing:.3px; }
+  .dash { color:#c2c8cd; }
+  .step { font:inherit; font-size:0.82em; padding:7px 13px; white-space:nowrap;
+          border:2px solid var(--key); border-radius:7px;
+          background:var(--card); color:var(--key-d); cursor:pointer; font-weight:700; }
+  .step:hover { background:var(--key); color:#fff; }
+  .step:disabled { border-color:var(--line); color:var(--muted); background:var(--soft); }
+  .pill.mid  { background:var(--key-bg); color:var(--key-d); }
+  .pill.done { background:#e8eaec; color:#5c6a75; }
   @media (max-width:640px) {
     .cards { grid-template-columns:1fr; }
     .bar .nm { width:110px; font-size:15px; }
@@ -333,8 +377,11 @@
     <div class="stat"><p class="k">오늘 접수</p><p class="v" id="s-today">-<span class="u">건</span></p></div>
     <div class="stat"><p class="k">전체 접수</p><p class="v" id="s-all">-<span class="u">건</span></p></div>
     <div class="stat"><p class="k">오늘 결제 금액</p><p class="v" id="s-fee">-<span class="u">원</span></p></div>
+    <div class="stat todo"><p class="k">처리 기다리는 건</p><p class="v" id="s-todo">-</p></div>
   </div>
 
+  <details class="stats" open>
+    <summary>현황 자세히 보기</summary>
   <h2>자격증별</h2>
   <div id="by-cert"></div>
 
@@ -344,14 +391,26 @@
   <h2>어떻게 접수했나</h2>
   <div id="by-channel"></div>
 
+  </details>
+
   <h2>챗봇이 받은 질문</h2>
   <p class="note" id="q-note" style="margin-top:0">불러오는 중…</p>
   <div id="by-question"></div>
 
   <h2 class="sec" style="margin-top:28px">접수 목록</h2>
-  <p class="lead">성함이나 연락처로 찾으실 수 있습니다.</p>
+  <p class="lead">성함, 연락처, 접수번호로 찾으실 수 있습니다.</p>
+
+  <div class="quicks" id="quicks">
+    <button type="button" data-w="today" class="on">오늘</button>
+    <button type="button" data-w="week">최근 7일</button>
+    <button type="button" data-w="">전체</button>
+    <span class="sep"></span>
+    <button type="button" data-s="접수완료" class="st">처리할 것만</button>
+    <button type="button" data-s="">상태 전체</button>
+  </div>
+
   <div class="tools">
-    <input id="q" type="text" placeholder="성함이나 연락처로 찾기">
+    <input id="q" type="text" placeholder="성함, 연락처, 접수번호로 찾기">
     <select id="f-cert"><option value="">자격증 전체</option></select>
     <select id="f-when">
       <option value="">기간 전체</option>
@@ -363,14 +422,14 @@
 
   <table>
     <colgroup>
-      <col style="width:96px"><col style="width:72px"><col style="width:134px">
-      <col style="width:150px"><col style="width:82px"><col style="width:96px">
+      <col style="width:92px"><col style="width:124px"><col style="width:72px">
+      <col style="width:130px"><col style="width:144px"><col style="width:92px">
       <col style="width:88px"><col style="width:92px">
     </colgroup>
     <thead>
       <tr>
-        <th>접수일시</th><th>성함</th><th>연락처</th><th>자격증</th>
-        <th>기관</th><th class="num">결제금액</th><th>접수경로</th><th>상태</th>
+        <th>접수일시</th><th>접수번호</th><th>성함</th><th>연락처</th><th>자격증</th>
+        <th class="num">결제금액</th><th>상태</th><th>처리</th>
       </tr>
     </thead>
     <tbody id="rows"></tbody>
@@ -390,6 +449,11 @@
       <dd>표에서 줄을 누르면 접수번호, 교육기관, 과목 같은 것이 펼쳐집니다.</dd>
       <dt>전화나 방문으로 받은 신청을 넣으려면</dt>
       <dd>맨 위 <b>빠른 접수</b>를 펼쳐서 한 화면에 넣고 저장하십시오.</dd>
+      <dt>확인 · 완료 처리는 무엇인가요</dt>
+      <dd>발주 문서(01_사업현황_발주서.md 3절)상 3 확인 · 4 완료는 직원이 손으로 하는 단계입니다.
+          이 화면은 그 단계를 <b>기록만</b> 합니다. 실제 원서접수는 두두넷·두두보건에서 하십시오.
+          어제 처리한 건을 오늘 다시 찾는 일을 줄이려고 넣었습니다.</dd>
+
       <dt>안내 내용을 고치려면</dt>
       <dd><a href="/faq">안내 문서</a> 화면에서 고치시면 챗봇 답이 바로 바뀝니다.</dd>
     </dl>
@@ -430,7 +494,7 @@ document.getElementById("lock").addEventListener("click", function () {
   pw.focus();
 })();
 </script>
-<div class="foot"><div class="foot-in"><div class="call"><span class="lb">고객센터</span><b>02-000-0000</b><span class="hr">평일 09:00 ~ 18:00</span></div><div class="help">화면에서 막히시면 <b>궁금한 것 물어보기</b>를 눌러 주세요. 접수하신 뒤에는 <a href="/check">접수 확인</a>에서 진행 상황을 보실 수 있습니다.</div></div></div>
+<div class="foot"><div class="foot-in"><div class="call"><span class="lb">고객센터</span><b>02-000-0000</b><span class="hr">평일 09:00 ~ 18:00</span></div><div class="help">필기(1차) 접수까지만 도와드립니다. 실기 접수는 안내하지 않습니다.<br>화면에서 막히시면 <b>궁금한 것 물어보기</b>를 눌러 주세요. 접수하신 뒤에는 <a href="/check">접수 확인</a>에서 진행 상황을 보실 수 있습니다.</div></div></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 const $ = function (id) { return document.getElementById(id); };
@@ -513,8 +577,11 @@ function detailRow(r) {
     '</dl></td></tr>';
 }
 
+let onlyStatus = "";
+
 function render() {
   const q = $("q").value.trim();
+  const qd = q.replace(/[^0-9]/g, "");
   const cert = $("f-cert").value;
   const when = $("f-when").value;
 
@@ -522,7 +589,15 @@ function render() {
     if (cert && r.cert_name !== cert) return false;
     if (when === "today" && !isToday(r.created_at)) return false;
     if (when === "week" && !withinDays(r.created_at, 7)) return false;
-    if (q && (r.name || "").indexOf(q) < 0 && (r.phone || "").indexOf(q) < 0) return false;
+    if (onlyStatus && r.status !== onlyStatus) return false;
+    if (q) {
+      const byName = (r.name || "").indexOf(q) >= 0;
+      const byPhone = qd.length >= 3 &&
+        (r.phone || "").replace(/[^0-9]/g, "").indexOf(qd) >= 0;
+      const byRno = qd.length >= 3 &&
+        (r.receipt_no || "").replace(/[^0-9]/g, "").indexOf(qd) >= 0;
+      if (!byName && !byPhone && !byRno) return false;
+    }
     return true;
   });
 
@@ -530,6 +605,8 @@ function render() {
   $("s-today").innerHTML = todayRows.length + '<span class="u">건</span>';
   $("s-all").innerHTML = all.length + '<span class="u">건</span>';
   $("s-fee").innerHTML = won(todayRows.reduce(function (s, r) { return s + (r.fee_final || 0); }, 0)) + '<span class="u">원</span>';
+  const waiting = all.filter(function (r) { return r.status === "접수완료" || r.status === "확인"; });
+  $("s-todo").innerHTML = waiting.length + '<span class="u">건</span>';
 
   const byCert = {}, byCtx = {};
   all.forEach(function (r) {
@@ -579,13 +656,13 @@ function render() {
   $("rows").innerHTML = shown.map(function (r) {
     return '<tr class="row" data-id="' + r.id + '">' +
       '<td>' + fmtWhen(r.created_at) + '</td>' +
+      '<td class="rno">' + (r.receipt_no || "-") + '</td>' +
       '<td>' + (r.name || "") + '</td>' +
       '<td>' + (r.phone || "") + '</td>' +
       '<td>' + (r.cert_name || "") + '</td>' +
-      '<td>' + (r.agency || "") + '</td>' +
       '<td class="num">' + won(r.fee_final) + '원</td>' +
-      '<td>' + (r.usage_context || "-") + '</td>' +
-      '<td>' + pill(r.status) + '</td></tr>';
+      '<td>' + pill(r.status) + '</td>' +
+      '<td>' + nextBtn(r) + '</td></tr>';
   }).join("");
 
   $("status").textContent = list.length
@@ -617,21 +694,44 @@ async function load() {
     if (res.error) { $("status").textContent = "불러오기 실패: " + res.error.message; return; }
     all = res.data || [];
     render();
-    loadQuestions();
+    if (!$("f-when").value) $("f-when").value = "today";
+  loadQuestions();
   } catch (e) {
     $("status").textContent = "불러오기 실패: " + e.message;
   }
 }
 
 function reset() { page = 1; render(); }
+
+// 발주서 3절: 3 확인 · 4 완료는 직원이 손으로 한다. 그 단계를 여기서 넘긴다.
+const NEXT = { "접수완료":"확인", "확인":"완료" };
+function nextBtn(r) {
+  const n = NEXT[r.status];
+  if (!n) return '<span class="dash">-</span>';
+  return '<button type="button" class="step" data-id="' + r.id +
+         '" data-to="' + n + '">' + n + ' 처리</button>';
+}
+
+async function stepTo(id, to, btn) {
+  btn.disabled = true; btn.textContent = "저장 중…";
+  const res = await db.from("applications").update({ status: to }).eq("id", id);
+  if (res.error) { btn.disabled = false; btn.textContent = to + " 처리";
+    alert("바꾸지 못했습니다: " + res.error.message); return; }
+  const row = all.find(function (x) { return x.id === id; });
+  if (row) row.status = to;
+  render();
+}
 // 발주서 4절: 어떤 질문이 제일 많이 들어오는지
+// 질문이 쌓이면 세로로 끝없이 길어지므로 표로 묶고 10개씩만 보여 준다.
+let QALL = { miss:[], hit:[] }, qShow = { miss:10, hit:10 };
+
 async function loadQuestions() {
   try {
     const res = await db.from("questions").select("*").order("created_at", { ascending:false });
     if (res.error) { $("q-note").textContent = "질문 기록을 못 읽었습니다: " + res.error.message; return; }
     const qs = res.data || [];
     if (!qs.length) {
-      $("q-note").innerHTML = '';
+      $("q-note").innerHTML = "";
       $("by-question").innerHTML =
         '<div class="empty"><b>아직 들어온 질문이 없습니다</b>' +
         '<span>챗봇에 질문이 들어오면 여기에 쌓입니다.<br>' +
@@ -639,29 +739,57 @@ async function loadQuestions() {
       return;
     }
 
-    const cnt = {}, miss = {};
+    const agg = {};
     qs.forEach(function (q) {
-      cnt[q.question] = (cnt[q.question] || 0) + 1;
-      if (!q.answered) miss[q.question] = (miss[q.question] || 0) + 1;
+      const k = (q.question || "").trim();
+      if (!k) return;
+      if (!agg[k]) agg[k] = { q:k, n:0, miss:0, last:q.created_at };
+      agg[k].n++;
+      if (!q.answered) agg[k].miss++;
+      if (q.created_at > agg[k].last) agg[k].last = q.created_at;
     });
+    const rows = Object.values(agg);
+    QALL.miss = rows.filter(function (r) { return r.miss > 0; })
+                    .sort(function (a,b) { return b.miss - a.miss || b.n - a.n; });
+    QALL.hit  = rows.filter(function (r) { return r.miss === 0; })
+                    .sort(function (a,b) { return b.n - a.n; });
+
     const missN = qs.filter(function (q) { return !q.answered; }).length;
-    $("q-note").textContent =
-      "전체 " + qs.length + "건 · 답한 것 " + (qs.length - missN) + "건 · 못 답한 것 " + missN + "건";
+    $("q-note").textContent = "전체 " + qs.length + "건 · 답한 것 " +
+      (qs.length - missN) + "건 · 못 답한 것 " + missN + "건 · 서로 다른 질문 " + rows.length + "가지";
 
-    drawBars("by-question", cnt);
-
-    if (missN) {
-      const box = document.createElement("div");
-      box.innerHTML = '<p class="note" style="margin-top:16px">답을 못 한 질문 — 문서를 보태거나 비슷한말을 넣을 후보입니다</p>';
-      const list = Object.keys(miss).sort(function (a,b) { return miss[b]-miss[a]; })
-        .map(function (k) { return '<div class="bar"><span class="nm" style="width:auto;flex:1">' + k +
-          '</span><span class="ct">' + miss[k] + '건</span></div>'; }).join("");
-      box.innerHTML += list;
-      $("by-question").appendChild(box);
-    }
+    drawQ();
   } catch (e) {
     $("q-note").textContent = "질문 기록을 못 읽었습니다: " + e.message;
   }
+}
+
+function qTable(list, shown, kind) {
+  if (!list.length) return "";
+  const head = kind === "miss"
+    ? '<p class="qh bad">답을 못 한 질문 <b>' + list.length + '가지</b>' +
+      ' <span>문서를 보태거나 비슷한말을 넣을 후보입니다</span></p>'
+    : '<p class="qh">답한 질문 <b>' + list.length + '가지</b>' +
+      ' <span>많이 들어오는 순서입니다</span></p>';
+  const body = list.slice(0, shown).map(function (r) {
+    return '<tr><td class="qq">' + esc(r.q) + '</td>' +
+           '<td class="qn">' + r.n + '건</td>' +
+           '<td class="qd">' + fmtWhen(r.last) + '</td></tr>';
+  }).join("");
+  const more = list.length > shown
+    ? '<button type="button" class="qmore" data-kind="' + kind + '">' +
+      (list.length - shown) + '가지 더 보기</button>' : "";
+  return head + '<table class="qtable"><tbody>' + body + '</tbody></table>' + more;
+}
+
+function drawQ() {
+  $("by-question").innerHTML =
+    qTable(QALL.miss, qShow.miss, "miss") + qTable(QALL.hit, qShow.hit, "hit");
+  document.querySelectorAll(".qmore").forEach(function (b) {
+    b.addEventListener("click", function () {
+      qShow[b.dataset.kind] += 20; drawQ();
+    });
+  });
 }
 
 // ---------- 빠른 접수 (직원용) ----------
@@ -873,6 +1001,22 @@ $("q-save").addEventListener("click", async function () {
   ["q-name","q-birth","q-phone","q-memo"].forEach(function (id) { $(id).value = ""; });
   $("q-gender").value = "";
   load(true);
+});
+
+// 빠른 필터
+document.querySelectorAll("#quicks button").forEach(function (b) {
+  b.addEventListener("click", function () {
+    if (b.dataset.w !== undefined) {
+      $("f-when").value = b.dataset.w;
+      document.querySelectorAll("#quicks button[data-w]").forEach(function (x) {
+        x.classList.toggle("on", x === b); });
+    } else {
+      onlyStatus = b.dataset.s;
+      document.querySelectorAll("#quicks button[data-s]").forEach(function (x) {
+        x.classList.toggle("on", x === b); });
+    }
+    reset();
+  });
 });
 
 $("q").addEventListener("input", reset);

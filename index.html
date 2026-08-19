@@ -174,6 +174,12 @@
 
   /* ===== 자격증 카드 ===== */
   /* 묶음마다 배경을 달리해서 구역이 보이게 */
+  .scope { display:flex; align-items:flex-start; gap:9px; background:var(--key-bg);
+           border-radius:10px; padding:13px 17px; margin:0 0 4px;
+           font-size:0.86em; color:var(--key-d); line-height:1.7; }
+  .scope::before { content:"\2139"; flex:none; font-weight:700; }
+  .scope b { font-weight:700; }
+
   .bloc { border-radius:14px; padding:16px 18px 18px; margin-top:16px; }
   .bloc.open { background:var(--ok-bg); }
   .bloc.shut { background:#eef1f3; }
@@ -239,14 +245,14 @@
            cursor:pointer; font-size:0.95em; background:var(--soft); }
   .agree:hover { border-color:var(--key); background:var(--card); }
   .agree:has(input:checked) { border-color:var(--ok); background:var(--ok-bg); }
-  .agree b { color:var(--bad); }
-  .agree:has(input:checked) b { color:var(--ok); }
   .agree input { width:26px; height:26px; flex:none; margin-top:1px; cursor:pointer;
                  accent-color:var(--key); }
-  .agree dl { margin:9px 0 0; display:grid; grid-template-columns:auto 1fr;
-              gap:5px 14px; font-size:0.95em; color:var(--muted); line-height:1.6; }
-  .agree dt { white-space:nowrap; }
-  .agree dd { margin:0; }
+  .agree > span { flex:1; min-width:0; }
+  .agree b { display:block; font-size:1.02em; font-weight:700; color:var(--ink); }
+  .agree em { display:block; font-style:normal; font-size:0.85em; color:var(--muted);
+              margin-top:5px; padding-left:16px; position:relative; line-height:1.6; }
+  .agree em::before { content:"·"; position:absolute; left:4px; }
+  .agree:has(input:checked) b { color:var(--ok); }
 
   /* 접수 완료 — 화면을 덮어서 놓칠 수 없게 */
   .cover { position:fixed; inset:0; z-index:80; background:rgba(18,58,82,.55);
@@ -268,6 +274,8 @@
   .cv-hint { font-size:0.82em; color:var(--muted); margin:10px 0 0; line-height:1.7; }
   .cv-body { margin-top:22px; padding-top:20px; border-top:1px solid var(--line);
              font-size:0.88em; line-height:1.75; }
+  .cv-scope { background:var(--key-bg); color:var(--key-d); border-radius:10px;
+              padding:12px 16px; margin:0 0 16px; font-size:0.95em; }
   .cv-body h3 { font-size:1.05em; font-weight:700; margin:0 0 6px; }
   .cv-body ol { margin:8px 0 0; padding-left:20px; }
   .cv-body .tell { margin:16px 0 0; padding:14px 16px; background:var(--hot-bg);
@@ -371,6 +379,9 @@
     <div class="ibody">
     <p class="lead">복잡한 원서접수는 저희가 대신 해 드립니다.
        자격증 하나를 고르고 성함과 연락처만 남겨 주세요.</p>
+    <p class="scope"><b>필기 접수만 도와드립니다.</b>
+       실기 접수는 저희가 안내하지 않습니다.
+       전문자격은 필기를 <b>1차</b>라고 부릅니다.</p>
 
     <div class="bloc open">
       <p class="group"><span class="dot"></span>지금 접수하실 수 있습니다</p>
@@ -429,22 +440,18 @@
 
     <label class="agree" id="ag1-box" for="f-ag1">
       <input type="checkbox" id="f-ag1">
-      <span><b>[필수]</b> 개인정보 수집 · 이용에 동의합니다
-        <dl>
-          <dt>받는 정보</dt><dd>이름, 연락처, 신청 자격증, 남기신 말씀</dd>
-          <dt>쓰는 곳</dt><dd>자격증 필기 접수를 대신 해 드리는 데에만 씁니다</dd>
-          <dt>보관 기간</dt><dd>접수 도움이 끝날 때까지. 자세한 기간은 담당자가 안내드립니다</dd>
-        </dl></span>
+      <span><b>개인정보를 받는 것에 동의합니다</b>
+        <em>이름 · 연락처 · 신청하신 자격증 · 남기신 말씀</em>
+        <em>접수를 대신 해 드리는 데에만 쓰고, 끝나면 지웁니다</em>
+      </span>
     </label>
 
     <label class="agree" id="ag2-box" for="f-ag2">
       <input type="checkbox" id="f-ag2">
-      <span><b>[필수]</b> 이용약관에 동의합니다
-        <dl>
-          <dt>내용</dt><dd>두두넷 원서접수 첫 단계에서 약관 4가지에 동의하셔야 합니다.
-            사진 규격, 신분증 범위 등입니다</dd>
-          <dt>전문 보기</dt><dd>접수를 대신 해 드릴 때 담당자가 함께 확인해 드립니다</dd>
-        </dl></span>
+      <span><b>두두넷 접수 약관에 동의합니다</b>
+        <em>사진 규격 · 신분증 범위 등 4가지입니다</em>
+        <em>저희가 대신 접수할 때 함께 확인해 드립니다</em>
+      </span>
     </label>
 
     <p class="msg hide" id="msg"></p>
@@ -454,7 +461,7 @@
 
 </div>
 
-<div class="foot"><div class="foot-in"><div class="call"><span class="lb">고객센터</span><b>02-000-0000</b><span class="hr">평일 09:00 ~ 18:00</span></div><div class="help">화면에서 막히시면 <b>궁금한 것 물어보기</b>를 눌러 주세요. 접수하신 뒤에는 <a href="/check">접수 확인</a>에서 진행 상황을 보실 수 있습니다.</div></div></div>
+<div class="foot"><div class="foot-in"><div class="call"><span class="lb">고객센터</span><b>02-000-0000</b><span class="hr">평일 09:00 ~ 18:00</span></div><div class="help">필기(1차) 접수까지만 도와드립니다. 실기 접수는 안내하지 않습니다.<br>화면에서 막히시면 <b>궁금한 것 물어보기</b>를 눌러 주세요. 접수하신 뒤에는 <a href="/check">접수 확인</a>에서 진행 상황을 보실 수 있습니다.</div></div></div>
 
 <div class="cover hide" id="cover">
   <div class="cover-box">
