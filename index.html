@@ -107,12 +107,6 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-  // ↓↓↓ 여기 두 줄만 내 값으로 바꾸세요 ↓↓↓
-  // Supabase 대시보드 > Project Settings > API 에서 복사
-  const SUPABASE_URL = "여기에_Project_URL_붙여넣기";
-  const SUPABASE_ANON_KEY = "여기에_anon_public_key_붙여넣기";
-  // ↑↑↑ 여기까지 ↑↑↑
-
   // 자격증 카드 고르기
   const cards = document.querySelectorAll(".card:not(.closed)");
   cards.forEach(function (card) {
@@ -129,15 +123,22 @@
   });
 
   // Supabase 연결 확인
+  // 키는 Vercel 환경변수에 있고, 서버 함수 /api/config 가 꺼내 준다
   const box = document.getElementById("status");
 
   async function checkDb() {
-    if (SUPABASE_URL.indexOf("여기에") === 0) {
-      box.textContent = "아직 Supabase 키를 넣지 않았습니다.";
-      return;
-    }
     try {
-      const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      const r = await fetch("/api/config");
+      if (!r.ok) {
+        box.textContent = "서버 함수 응답 " + r.status + " — api/config.js 위치 확인";
+        return;
+      }
+      const conf = await r.json();
+      if (!conf.url || !conf.key) {
+        box.textContent = "서버에 환경변수가 설정되어 있지 않습니다";
+        return;
+      }
+      const db = supabase.createClient(conf.url, conf.key);
       const res = await db
         .from("applications")
         .select("*", { count: "exact", head: true });
