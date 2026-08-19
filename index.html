@@ -16,8 +16,13 @@
   body { margin:0; background:#fff; color:var(--ink); font-size:18px; line-height:1.7;
          font-family:system-ui,"Malgun Gothic","Apple SD Gothic Neo",sans-serif; }
   .wrap { max-width:1040px; margin:0 auto; padding:32px 20px 80px; }
-  #st2, #st3, #st4 { max-width:640px; }
-  .steps, .stage h1, .stage .lead { max-width:1040px; }
+  #st2, #st3, #st4 { max-width:880px; margin:0 auto; }
+  .row2 { display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr));
+          gap:0 24px; }
+  .fld { min-width:0; }
+  .fld label { margin-top:20px; }
+  .steps { max-width:820px; margin:0 auto 28px; }
+  .brand { text-align:center; }
   .brand { font-size:16px; color:var(--muted); margin:0 0 32px; }
   h1 { font-size:28px; font-weight:600; margin:0 0 8px; }
   h2 { font-size:22px; font-weight:600; margin:40px 0 4px; }
@@ -42,6 +47,7 @@
 
   label { display:block; font-size:17px; margin:20px 0 6px; }
   textarea { resize:vertical; line-height:1.6; }
+  input[readonly] { background:#f7f8f9; color:var(--muted); }
   input, select, textarea { width:100%; font:inherit; color:inherit; background:#fff;
     padding:12px 14px; border:1px solid var(--line); border-radius:8px; }
   input:focus, select:focus, textarea:focus { outline:3px solid var(--pick); outline-offset:1px; }
@@ -58,13 +64,18 @@
     font-weight:600; background:var(--pick); color:#fff; border:0; border-radius:12px; cursor:pointer; }
   .send:disabled { background:#9aa4ab; cursor:not-allowed; }
 
-  .msg { margin-top:16px; padding:16px 20px; border-radius:12px; font-size:17px; }
-  .msg.ok { background:var(--ok-bg); color:var(--ok); }
-  .msg.bad { background:var(--bad-bg); color:var(--bad); }
+  .msg { margin-top:16px; padding:18px 22px; border-radius:12px; font-size:18px;
+         font-weight:600; display:flex; align-items:center; gap:12px; }
+  .msg::before { font-size:22px; flex:none; }
+  .msg.ok { background:var(--ok-bg); color:var(--ok); border:2px solid var(--ok); }
+  .msg.ok::before { content:"\2713"; }
+  .msg.bad { background:var(--bad-bg); color:var(--bad); border:2px solid var(--bad); }
+  .msg.bad::before { content:"\26A0"; }
   .msg.plain { border:1px solid var(--line); color:var(--muted); font-size:16px; }
   .hide { display:none; }
   .req { color:var(--bad); }
-  .bad-field { border:2px solid var(--bad) !important; background:var(--bad-bg); }
+  .bad-field { border:2px solid var(--bad) !important; background:var(--bad-bg);
+               box-shadow:0 0 0 4px rgba(163,45,45,.12); }
   .echo-ok { color:var(--ok); }
 
   .steps { display:flex; gap:6px; margin:0 0 24px; }
@@ -178,41 +189,54 @@
     <p class="picked-box" id="picked-line"></p>
     <p class="late-box hide" id="late-1"></p>
     <p class="hint"><span class="req">*</span> 표시는 꼭 넣으셔야 하는 칸입니다</p>
+    <p class="msg hide" id="msg2"></p>
 
-    <label for="f-name">성함 <span class="req">*</span></label>
-    <input id="f-name" type="text" placeholder="홍길동">
-
-    <label for="f-birth">생년월일 <span class="req">*</span></label>
-    <input id="f-birth" type="text" inputmode="numeric" placeholder="1948-06-12" autocomplete="off">
-    <p class="hint" id="birth-echo">숫자 8자리만 넣으시면 됩니다. 예: 19480612</p>
-
-    <label>성별 <span class="req">*</span></label>
-    <div class="radios" id="f-gender">
-      <button type="button" data-v="M">남</button>
-      <button type="button" data-v="F">여</button>
+    <div class="row2">
+      <div class="fld">
+        <label for="f-name">성함 <span class="req">*</span></label>
+        <input id="f-name" type="text" placeholder="홍길동">
+        <p class="hint">주민등록증에 있는 이름</p>
+      </div>
+      <div class="fld">
+        <label for="f-birth">생년월일 <span class="req">*</span></label>
+        <input id="f-birth" type="text" inputmode="numeric" placeholder="1948-06-12" autocomplete="off">
+        <p class="hint" id="birth-echo">숫자 8자리만 넣으시면 됩니다. 예: 19480612</p>
+      </div>
+      <div class="fld">
+        <label>성별 <span class="req">*</span></label>
+        <div class="radios" id="f-gender">
+          <button type="button" data-v="M">남</button>
+          <button type="button" data-v="F">여</button>
+        </div>
+        <p class="hint">둘 중 하나를 눌러 주세요</p>
+      </div>
+      <div class="fld">
+        <label for="f-phone">연락처 <span class="req">*</span></label>
+        <input id="f-phone" type="text" inputmode="tel" placeholder="010-1234-5678">
+        <p class="hint">휴대폰이나 집 전화. 예: 010-1234-5678, 02-123-4567</p>
+      </div>
+      <div class="fld">
+        <label for="f-edu">최종학력</label>
+        <select id="f-edu"></select>
+      </div>
+      <div class="fld">
+        <label for="f-channel">어떻게 접수하시나요</label>
+        <select id="f-channel">
+          <option value="온라인">이 화면에서 직접</option>
+          <option value="전화">전화로 알려주셔서 직원이 넣음</option>
+          <option value="방문">방문하셔서 직원이 넣음</option>
+        </select>
+      </div>
+      <div class="fld">
+        <label for="f-context">누가 접수하시나요</label>
+        <select id="f-context">
+          <option value="본인단독">본인이 직접</option>
+          <option value="가족보조">가족이 도와서</option>
+          <option value="복지관">복지관에서 도와서</option>
+          <option value="대리접수">대리 접수</option>
+        </select>
+      </div>
     </div>
-
-    <label for="f-phone">연락처 <span class="req">*</span></label>
-    <input id="f-phone" type="text" inputmode="numeric" placeholder="010-1234-5678">
-    <p class="hint">휴대전화 11자리. 하이픈은 넣으셔도 안 넣으셔도 됩니다</p>
-
-    <label for="f-edu">최종학력</label>
-    <select id="f-edu"></select>
-
-    <label for="f-channel">어떻게 접수하시나요</label>
-    <select id="f-channel">
-      <option value="온라인">이 화면에서 직접</option>
-      <option value="전화">전화로 알려주셔서 직원이 넣음</option>
-      <option value="방문">방문하셔서 직원이 넣음</option>
-    </select>
-
-    <label for="f-context">누가 접수하시나요</label>
-    <select id="f-context">
-      <option value="본인단독">본인이 직접</option>
-      <option value="가족보조">가족이 도와서</option>
-      <option value="복지관">복지관에서 도와서</option>
-      <option value="대리접수">대리 접수</option>
-    </select>
 
     <label for="f-memo">남기실 말씀</label>
     <textarea id="f-memo" rows="2" placeholder="예: 딸이 대신 문의합니다"></textarea>
@@ -228,17 +252,25 @@
   <div class="stage" id="st3">
     <h1>시험 정보</h1>
     <p class="picked-box" id="picked-line2"></p>
+    <p class="msg hide" id="msg3"></p>
 
-    <div id="track-fields"></div>
+    <div id="track-fields" class="row2"></div>
 
-    <label for="f-region">시험 지역 <span class="req">*</span></label>
-    <select id="f-region"></select>
-
-    <label for="f-examdate">희망 시험일</label>
-    <input id="f-examdate" type="date">
-
-    <label for="f-session" id="l-session">교시</label>
-    <select id="f-session"></select>
+    <div class="row2">
+      <div class="fld">
+        <label for="f-region">시험 지역 <span class="req">*</span></label>
+        <select id="f-region"></select>
+      </div>
+      <div class="fld">
+        <label for="f-examdate">희망 시험일</label>
+        <input id="f-examdate" type="date">
+        <p class="hint">오늘 이후로 골라 주세요. 안 정하셔도 됩니다</p>
+      </div>
+      <div class="fld">
+        <label for="f-session" id="l-session">교시</label>
+        <select id="f-session"></select>
+      </div>
+    </div>
 
     <div class="nav">
       <button type="button" class="prev" data-go="2">← 이전</button>
@@ -273,8 +305,8 @@
       </span>
     </label>
 
-    <button type="button" class="send" id="send">신청서 내기</button>
     <p class="msg hide" id="msg"></p>
+    <button type="button" class="send" id="send">신청서 내기</button>
 
     <div class="done-box hide" id="done-box">
       <h3>접수 다음에 준비하실 것</h3>
@@ -333,6 +365,13 @@ const REGIONS = ["서울","부산","대구","인천","광주","대전","울산",
 const CENTERS = ["서울","부산","대구","광주","대전","수원","청주","전주","제주"];
 const EDU = ["무학","초등학교졸업","중학교졸업","고등학교졸업","전문대졸","대학교졸","대학원졸"];
 
+// 01_form_정책.md 3절. 고정 목록이 아니므로 직접 입력도 열어 둔다.
+const TRAINING_ORGS = {
+  "요양보호사": ["서울시립요양보호사교육원","부산광역시요양보호사교육원",
+                "대한적십자사 서울지사","한국요양보호협회 교육센터","사회복지법인 위드 교육원"],
+  "위생사":     ["보건환경연구원","한국보건복지인력개발원","대학교 보건학과"]
+};
+
 const SUBJECTS = {
   "손해평가사|1차": ["상법 보험편","농어업재해보험법령"],
   "손해평가사|2차": ["농작물재해보험 및 가축재해보험의 이론과 실무","농작물재해보험 및 가축재해보험 손해평가의 이론과 실무"],
@@ -360,11 +399,31 @@ function maskBirth(v) {
   return d.slice(0,4) + "-" + d.slice(4,6) + "-" + d.slice(6);
 }
 
+// 휴대폰과 집 전화를 모두 받는다.
+// 010-1234-5678 / 02-123-4567 / 031-123-4567 처럼 앞자리에 따라 갈린다.
 function maskPhone(v) {
   const d = digitsOnly(v, 11);
+  if (d.startsWith("02")) {                       // 서울은 지역번호가 두 자리
+    if (d.length <= 2) return d;
+    if (d.length <= 9) return d.slice(0,2) + "-" + d.slice(2, 5 + (d.length > 9 ? 1 : 0)) +
+      (d.length > 5 ? "-" + d.slice(5) : "");
+    return d.slice(0,2) + "-" + d.slice(2,6) + "-" + d.slice(6);
+  }
   if (d.length <= 3) return d;
-  if (d.length <= 7) return d.slice(0,3) + "-" + d.slice(3);
+  if (d.length <= 6) return d.slice(0,3) + "-" + d.slice(3);
+  if (d.length <= 10) return d.slice(0,3) + "-" + d.slice(3,6) + "-" + d.slice(6);
   return d.slice(0,3) + "-" + d.slice(3,7) + "-" + d.slice(7);
+}
+
+// 우리나라 유선·이동전화 자리수만 본다. 9~11자리.
+function checkPhone(v) {
+  const d = digitsOnly(v, 11);
+  if (!d) return { ok:false, why:"연락처를 넣어 주세요." };
+  if (d.length < 9)
+    return { ok:false, why:"연락처가 짧습니다. 휴대폰이나 집 전화 번호를 넣어 주세요." };
+  if (!d.startsWith("0"))
+    return { ok:false, why:"연락처는 0 으로 시작합니다. 예: 010-1234-5678, 02-123-4567" };
+  return { ok:true };
 }
 
 // 생년월일이 실제로 있는 날인지 본다
@@ -463,7 +522,7 @@ function pick(cert, btn) {
   btn.classList.add("picked");
 
   $("done-box").classList.add("hide");
-  msgBox.className = "msg hide";
+  clearMsgs();
   picked = cert;
   const line = cert.name + " (" + cert.agency + ") 로 접수합니다";
   $("picked-line").textContent = line;
@@ -480,9 +539,12 @@ function pick(cert, btn) {
   fill($("f-edu"), EDU);
   fill($("f-discount"), DISCOUNTS);
   fill($("f-region"), cert.track === "보건" ? CENTERS : REGIONS);
-  $("f-region").previousElementSibling.textContent =
-    cert.track === "보건" ? "시험 센터" : "시험 지역";
+  document.querySelector('label[for="f-region"]').innerHTML =
+    (cert.track === "보건" ? "시험 센터" : "시험 지역") + ' <span class="req">*</span>';
 
+  const t = new Date();
+  $("f-examdate").min = t.getFullYear() + "-" +
+    String(t.getMonth()+1).padStart(2,"0") + "-" + String(t.getDate()).padStart(2,"0");
   drawTrackFields(cert);
   drawSession(cert);
   calcFee();
@@ -494,6 +556,7 @@ let step = 1;
 
 function go(n) {
   step = n;
+  clearMarks();
   for (let i = 1; i <= 4; i++) {
     document.getElementById("st" + i).classList.toggle("on", i === n);
   }
@@ -510,21 +573,35 @@ function go(n) {
 function checkStep2() {
   clearMarks();
   const name = $("f-name").value.trim();
-  const phone = $("f-phone").value.trim();
   const b = checkBirth($("f-birth").value);
 
   if (!name) return fail("성함을 넣어 주세요.", "f-name");
+  if (!/[가-힣a-zA-Z]/.test(name))
+    return fail("성함을 글자로 넣어 주세요. 숫자만으로는 안 됩니다.", "f-name");
+  if (name.length < 2)
+    return fail("성함을 두 글자 이상 넣어 주세요.", "f-name");
+
   if (!b.ok) return fail(b.why, "f-birth");
   if (!gender) return fail("성별을 골라 주세요.", "f-gender");
-  if (phone.replace(/[^0-9]/g,"").length !== 11)
-    return fail("연락처 11자리를 다 넣어 주세요. 예: 010-1234-5678", "f-phone");
+
+  const ph = checkPhone($("f-phone").value);
+  if (!ph.ok) return fail(ph.why, "f-phone");
   return true;
 }
 
 function checkStep3() {
   clearMarks();
+  const want = $("f-examdate").value;
+  if (want) {
+    const today = new Date(); today.setHours(0,0,0,0);
+    if (new Date(want) < today)
+      return fail("희망 시험일은 오늘 이후로 골라 주세요.", "f-examdate");
+  }
   if (picked.track === "보건") {
-    if (!$("f-org").value.trim())    return fail("교육기관을 넣어 주세요.", "f-org");
+    const pickVal = $("f-org-pick").value;
+    if (!pickVal) return fail("교육기관을 골라 주세요.", "f-org-pick");
+    if (pickVal === "__etc" && !$("f-org").value.trim())
+      return fail("교육기관 이름을 넣어 주세요.", "f-org");
     if (!$("f-certno").value.trim()) return fail("교육수료번호를 넣어 주세요.", "f-certno");
     if (!$("f-done").value)          return fail("교육수료일을 넣어 주세요.", "f-done");
   }
@@ -537,6 +614,7 @@ document.querySelectorAll(".nav button").forEach(function (b) {
     if (b.classList.contains("next")) {
       if (step === 2 && checkStep2() !== true) return;
       if (step === 3 && checkStep3() !== true) return;
+      clearMsgs();
     }
     go(to);
   });
@@ -569,11 +647,10 @@ function drawTrackFields(cert) {
 
   if (cert.track === "국가기술") {
     box.innerHTML =
-      '<label for="f-round">회차</label>' +
-      '<select id="f-round"></select>' +
-      '<label for="f-elig">응시자격</label>' +
-      '<select id="f-elig">' +
-      '<option>제한없음</option><option>관련학과졸업</option><option>경력</option><option>기타</option></select>';
+      '<div class="fld"><label for="f-round">회차</label><select id="f-round"></select></div>' +
+      '<div class="fld"><label for="f-elig">응시자격</label>' +
+      '<select id="f-elig"><option>제한없음</option><option>관련학과졸업</option>' +
+      '<option>경력</option><option>기타</option></select></div>';
     const r = $("f-round");
     if (cert.examType === "정기") { fill(r, ["1회","2회","3회","4회"]); r.value = "4회"; }
     else { fill(r, ["해당없음 (상시)"]); r.disabled = true; }
@@ -581,34 +658,65 @@ function drawTrackFields(cert) {
 
   if (cert.track === "전문") {
     box.innerHTML =
-      '<label for="f-stage">차수</label>' +
-      '<select id="f-stage"><option>1차</option><option>2차</option></select>' +
-      '<div id="pass-box"></div>' +
-      '<label>응시 과목</label>' +
-      '<p class="hint" id="subj-line"></p>';
+      '<div class="fld"><label for="f-stage">차수</label>' +
+      '<select id="f-stage"><option>1차</option><option>2차</option></select></div>' +
+      '<div class="fld" id="pass-box"></div>' +
+      '<div class="fld" style="grid-column:1/-1"><label>응시 과목</label>' +
+      '<p class="hint" id="subj-line"></p></div>';
     $("f-stage").addEventListener("change", function () { drawStage(cert); calcFee(); });
     drawStage(cert);
   }
 
   if (cert.track === "보건") {
+    const orgs = TRAINING_ORGS[cert.name] || [];
+    const isCare = cert.name === "요양보호사";
     box.innerHTML =
-      '<label for="f-org">교육기관 <span class="req">*</span></label>' +
-      '<input id="f-org" type="text" placeholder="예: 서울시립요양보호사교육원">' +
-      '<p class="hint">수료증 맨 위에 적힌 기관 이름</p>' +
-      '<label for="f-certno">교육수료번호 <span class="req">*</span></label>' +
+      '<div class="fld"><label for="f-org-pick">' +
+        (isCare ? '교육기관' : '졸업한 학교') + ' <span class="req">*</span></label>' +
+      '<select id="f-org-pick">' +
+        '<option value="">골라 주세요</option>' +
+        orgs.map(function (o) { return '<option>' + o + '</option>'; }).join("") +
+        '<option value="__etc">목록에 없습니다 (직접 넣기)</option>' +
+      '</select>' +
+      '<input id="f-org" type="text" class="hide" placeholder="' +
+        (isCare ? '수료증에 적힌 기관 이름' : '졸업한 대학과 학과') + '">' +
+      '<p class="hint">' +
+        (isCare ? '수료증 맨 위에 적힌 기관 이름' : '보건 관련 학과 졸업이 응시자격입니다') +
+      '</p></div>' +
+
+      '<div class="fld"><label for="f-certno">' +
+        (isCare ? '교육수료번호' : '졸업증명 번호') + ' <span class="req">*</span></label>' +
       '<input id="f-certno" type="text" placeholder="예: TR20261080">' +
-      '<p class="hint">수료증 오른쪽 위 번호</p>' +
-      '<label for="f-done">교육수료일 <span class="req">*</span></label>' +
-      '<input id="f-done" type="date">' +
-      '<label for="f-hours">교육이수시간</label>' +
-      '<input id="f-hours" type="number" value="' + (cert.hours || "") + '">';
+      '<p class="hint">' + (isCare ? '수료증 오른쪽 위 번호' : '졸업증명서에 적힌 번호') + '</p></div>' +
+
+      '<div class="fld"><label for="f-done">' +
+        (isCare ? '교육수료일' : '졸업일') + ' <span class="req">*</span></label>' +
+      '<input id="f-done" type="date"></div>' +
+
+      '<div class="fld"><label for="f-hours">교육이수시간</label>' +
+      (isCare
+        ? '<input id="f-hours" type="text" value="240시간" readonly>' +
+          '<p class="hint">요양보호사는 240시간으로 정해져 있습니다</p>'
+        : '<input id="f-hours" type="text" value="학과 이수" readonly>' +
+          '<p class="hint">위생사는 학과 이수로 갈음합니다</p>') +
+      '</div>';
+
+    // 목록에 없으면 직접 넣는 칸을 연다
+    $("f-org-pick").addEventListener("change", function () {
+      const etc = this.value === "__etc";
+      $("f-org").classList.toggle("hide", !etc);
+      if (etc) $("f-org").focus();
+      else $("f-org").value = this.value;
+      $("f-org-pick").classList.remove("bad-field");
+    });
   }
 }
 
 function drawStage(cert) {
   const stage = $("f-stage").value;
   $("pass-box").innerHTML = stage === "2차"
-    ? '<label for="f-passno">1차 합격번호</label><input id="f-passno" type="text" placeholder="1차 합격자만">'
+    ? '<label for="f-passno">1차 합격번호</label>' +
+      '<input id="f-passno" type="text" placeholder="1차 합격자만">'
     : "";
   const list = SUBJECTS[cert.name + "|" + stage] || [];
   $("subj-line").textContent = list.join(" · ");
@@ -681,18 +789,46 @@ $("f-gender").querySelectorAll("button").forEach(function (b) {
   });
 });
 
-function show(text, kind) { msgBox.textContent = text; msgBox.className = "msg " + kind; }
+// 오류는 지금 보이는 단계의 자리에 띄운다
+function slot() {
+  return step === 2 ? $("msg2") : step === 3 ? $("msg3") : msgBox;
+}
+function clearMsgs() {
+  ["msg", "msg2", "msg3"].forEach(function (id) {
+    const e = $(id);
+    e.textContent = "";
+    e.className = "msg hide";
+  });
+}
+function show(text, kind) {
+  const b = slot();
+  b.textContent = text;
+  b.className = "msg " + kind;
+}
 
 function clearMarks() {
   document.querySelectorAll(".bad-field").forEach(function (e) { e.classList.remove("bad-field"); });
 }
+
+// 어느 단계의 칸인지 찾아 그 단계로 옮긴 뒤 표시한다
+function stepOf(id) {
+  const el = document.getElementById(id);
+  if (!el) return step;
+  const st = el.closest(".stage");
+  return st ? Number(st.id.replace("st", "")) : step;
+}
 function fail(text, id) {
+  clearMsgs();
+  const to = id ? stepOf(id) : step;
+  if (to !== step) go(to);
   show(text, "bad");
   const el = id ? document.getElementById(id) : null;
   if (el) {
     el.classList.add("bad-field");
-    el.scrollIntoView({ behavior:"smooth", block:"center" });
-    if (el.focus) el.focus();
+    setTimeout(function () {
+      el.scrollIntoView({ behavior:"smooth", block:"center" });
+      if (el.focus) el.focus();
+    }, 60);
   }
   return false;
 }
@@ -700,9 +836,10 @@ function fail(text, id) {
 // ---------- 제출 ----------
 $("send").addEventListener("click", async function () {
   if (!picked) { show("자격증을 먼저 골라 주세요.", "bad"); return; }
-  if (checkStep2() !== true) { go(2); return; }
-  if (checkStep3() !== true) { go(3); return; }
+  if (checkStep2() !== true) return;
+  if (checkStep3() !== true) return;
   if (!$("f-agree").checked) {
+    clearMsgs();
     $("agree-box").classList.add("bad-field");
     show("개인정보 수집에 동의해 주셔야 접수할 수 있습니다.", "bad");
     $("agree-box").scrollIntoView({ behavior:"smooth", block:"center" });
@@ -731,7 +868,7 @@ $("send").addEventListener("click", async function () {
     extra.training_org = $("f-org").value.trim();
     extra.training_cert_no = $("f-certno").value.trim();
     extra.training_done = $("f-done").value;
-    extra.training_hours = Number($("f-hours").value) || null;
+    extra.training_hours = picked.hours || null;
   }
 
   $("send").disabled = true; $("send").textContent = "보내는 중…";
