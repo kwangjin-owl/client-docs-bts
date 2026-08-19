@@ -7,50 +7,79 @@
 <style>
   :root {
     --fs:20px;
-    --ink:#1a1a1a; --muted:#5a5f66; --line:#d7dbdf; --soft:#f7f8f9;
+    --ink:#1a1a1a; --muted:#5a5f66; --line:#dde1e4;
+    --bg:#eef1f3; --card:#fff; --soft:#f5f7f8;
+    --head:#12455c;
     --pick:#1b5e7e; --pick-bg:#e7f1f6;
     --stop:#8a5a00; --stop-bg:#fdf2dc;
     --ok:#1c6b3a; --ok-bg:#e6f4ea;
     --bad:#a32d2d; --bad-bg:#fceceb;
   }
   * { box-sizing:border-box; }
-  body { margin:0; background:#fff; color:var(--ink); font-size:var(--fs); line-height:1.6;
+  body { margin:0; background:var(--bg); color:var(--ink); font-size:var(--fs); line-height:1.6;
          font-family:system-ui,"Malgun Gothic","Apple SD Gothic Neo",sans-serif; }
 
   /* 위쪽 메뉴 */
-  .top { border-bottom:1px solid var(--line); background:#fff; }
-  .top-in { max-width:960px; margin:0 auto; padding:12px 20px;
-            display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; }
-  .menu { display:flex; gap:4px; flex-wrap:wrap; }
-  .menu a { font-size:0.95em; padding:8px 14px; border-radius:8px;
-            color:var(--muted); text-decoration:none; }
-  .menu a:hover { background:var(--soft); color:var(--pick); }
-  .menu a.here { background:var(--pick-bg); color:var(--pick); font-weight:600; }
+  .top { background:var(--head); }
+  .top-in { max-width:1360px; margin:0 auto; padding:0 28px;
+            display:flex; align-items:center; gap:24px; flex-wrap:wrap; }
+  .brandmark { display:flex; align-items:center; gap:10px; padding:14px 0;
+               color:#fff; font-weight:600; font-size:1.05em; white-space:nowrap; }
+  .brandmark .sq { width:32px; height:32px; border-radius:8px; background:#fff;
+                   color:var(--head); display:flex; align-items:center;
+                   justify-content:center; font-weight:700; font-size:0.9em; }
+  .menu { display:flex; gap:2px; flex-wrap:wrap; margin-left:auto; }
+  .menu a { font-size:0.92em; padding:14px 16px; color:#c9dbe4; text-decoration:none;
+            border-bottom:4px solid transparent; }
+  .menu a:hover { color:#fff; }
+  .menu a.here { color:#fff; font-weight:600; border-bottom-color:#fff; }
 
-  .wrap { max-width:960px; margin:0 auto; padding:24px 20px 20px; }
+  .wrap { max-width:1360px; margin:0 auto; padding:20px 28px 24px; }
+  .sheet { background:var(--card); border-radius:16px; padding:22px 26px 16px;
+           box-shadow:0 1px 3px rgba(0,0,0,.06); }
 
   /* 단계 표시 */
-  .steps { display:flex; gap:6px; margin:0 0 20px; }
+  .steps { display:flex; margin:0 0 18px; background:var(--soft);
+           border-radius:12px; padding:10px 8px; }
   .steps div { flex:1; text-align:center; font-size:0.8em; color:var(--muted);
-               padding-bottom:8px; border-bottom:4px solid var(--line); }
-  .steps div.on { color:var(--pick); font-weight:600; border-bottom-color:var(--pick); }
-  .steps div.done { color:var(--ink); border-bottom-color:var(--pick); }
+               position:relative; }
+  .steps div::before { content:attr(data-n); display:block; width:32px; height:32px;
+    margin:0 auto 6px; border-radius:50%; background:#fff; border:2px solid var(--line);
+    color:var(--muted); font-size:1.05em; font-weight:600; line-height:28px; }
+  .steps div::after { content:""; position:absolute; top:16px; left:calc(50% + 22px);
+    width:calc(100% - 44px); height:2px; background:var(--line); }
+  .steps div:last-child::after { display:none; }
+  .steps div.on { color:var(--pick); font-weight:600; }
+  .steps div.on::before { background:var(--pick); border-color:var(--pick); color:#fff; }
+  .steps div.done { color:var(--pick); }
+  .steps div.done::before { background:var(--pick-bg); border-color:var(--pick); color:var(--pick); }
+  .steps div.done::after { background:var(--pick); }
 
   h1 { font-size:1.5em; font-weight:600; margin:0 0 4px; }
   .lead { font-size:0.95em; color:var(--muted); margin:0 0 16px; }
-  .group { font-size:0.85em; color:var(--muted); margin:16px 0 8px; }
+  .group { display:flex; align-items:center; gap:8px; font-size:0.85em;
+           font-weight:600; color:var(--ink); margin:20px 0 10px; }
+  .group::before { content:""; width:4px; height:16px; border-radius:2px;
+                   background:var(--pick); }
+  .group:first-of-type { margin-top:14px; }
 
   .stage { display:none; }
   .stage.on { display:block; }
 
   /* 자격증 카드 */
-  .grid { display:grid; grid-template-columns:repeat(2, 1fr); gap:10px; }
-  @media (max-width:700px) { .grid { grid-template-columns:1fr; } }
+  .grid { display:grid; grid-template-columns:repeat(4, 1fr); gap:12px; }
+  @media (max-width:1180px) { .grid { grid-template-columns:repeat(3, 1fr); } }
+  @media (max-width:900px)  { .grid { grid-template-columns:repeat(2, 1fr); } }
+  @media (max-width:620px)  { .grid { grid-template-columns:1fr; } }
   .card { display:flex; align-items:center; justify-content:space-between; gap:12px;
-          width:100%; text-align:left; background:#fff;
-          border:1px solid var(--line); border-radius:12px; padding:14px 18px;
+          width:100%; text-align:left; background:var(--card);
+          border:1px solid var(--line); border-left:7px solid var(--line);
+          border-radius:10px; padding:16px 18px;
           font:inherit; color:inherit; cursor:pointer; }
-  .card:hover { border-color:var(--pick); background:var(--soft); }
+  .card.s-now  { border-left-color:#1c6b3a; }
+  .card.s-soon { border-left-color:#1b5e7e; }
+  .card.s-late { border-left-color:#c9a227; }
+  .card:hover { background:var(--soft); box-shadow:0 2px 8px rgba(0,0,0,.08); }
   .card:focus-visible { outline:3px solid var(--pick); outline-offset:2px; }
   .card.picked { border:2px solid var(--pick); background:var(--pick-bg); }
   .card .go { flex:none; color:var(--muted); font-size:1.2em; }
@@ -65,13 +94,16 @@
   .tag.late { background:var(--stop-bg); color:var(--stop); }
 
   /* 입력 */
-  .box { border:1px solid var(--line); border-radius:14px; padding:18px 20px 20px; margin-bottom:14px; }
+  .box { border:1px solid var(--line); border-radius:14px; padding:18px 20px 20px;
+         margin-bottom:14px; background:var(--card); }
   .box > h2 { font-size:1em; font-weight:600; color:var(--ink); margin:0 0 14px;
               padding-bottom:12px; border-bottom:1px solid var(--line); }
 
   /* 칸 하나하나를 회색 상자로 떼어 놓는다 */
-  .row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
-  @media (max-width:700px) { .row { grid-template-columns:1fr; } }
+  .row { display:grid; grid-template-columns:repeat(4, 1fr); gap:12px; }
+  @media (max-width:1180px) { .row { grid-template-columns:repeat(3, 1fr); } }
+  @media (max-width:900px)  { .row { grid-template-columns:repeat(2, 1fr); } }
+  @media (max-width:620px)  { .row { grid-template-columns:1fr; } }
   .fld { min-width:0; background:var(--soft); border-radius:12px; padding:14px 16px 16px; }
   .fld.wide { grid-column:1 / -1; }
   label { display:flex; align-items:center; gap:8px;
@@ -87,7 +119,7 @@
   .hint { font-size:0.78em; color:#8b9096; margin:6px 0 0; }
   .hint.good { color:var(--ok); font-weight:600; }
   .two { display:flex; gap:8px; }
-  .two button { flex:1; font:inherit; padding:12px; background:#fff;
+  .two button { flex:1; min-width:0; font:inherit; padding:12px; background:#fff;
                 border:1px solid var(--line); border-radius:8px; cursor:pointer; }
   .two button.on { border:2px solid var(--pick); background:var(--pick-bg); color:var(--pick); font-weight:600; }
 
@@ -98,7 +130,9 @@
   .late-box.hide, .hide { display:none; }
 
   /* 확인표 */
-  .review { background:var(--soft); border-radius:12px; padding:14px 18px; font-size:0.92em; }
+  .two-col { display:grid; grid-template-columns:1fr 1fr; gap:14px; align-items:start; }
+  @media (max-width:900px) { .two-col { grid-template-columns:1fr; } }
+  .review { background:var(--soft); border-radius:12px; padding:16px 20px; font-size:0.92em; }
   .review dl { margin:0; display:grid; grid-template-columns:auto 1fr; gap:4px 16px; }
   .review dt { color:var(--muted); }
   .review dd { margin:0; }
@@ -138,7 +172,7 @@
   .done-box ol { margin:6px 0 0; padding-left:20px; }
 
   /* 아래 버튼 */
-  .nav { position:sticky; bottom:0; background:#fff; z-index:20;
+  .nav { position:sticky; bottom:0; background:var(--card); z-index:20;
          padding:14px 0; margin-top:16px; border-top:1px solid var(--line);
          display:flex; gap:10px; }
   .nav button { flex:1; font:inherit; font-size:1.05em; font-weight:600;
@@ -153,15 +187,20 @@
              font-size:0.95em; font-weight:600; padding:14px 20px; border:0;
              border-radius:999px; background:var(--pick); color:#fff; cursor:pointer;
              box-shadow:0 4px 16px rgba(0,0,0,.18); }
-  .panel { position:fixed; right:20px; bottom:20px; z-index:60; width:400px;
-           max-width:calc(100vw - 40px); height:600px; max-height:calc(100vh - 40px);
+  .panel { position:fixed; right:20px; bottom:20px; z-index:60; width:540px;
+           max-width:calc(100vw - 40px); height:min(680px, calc(100vh - 40px));
            background:#fff; border:1px solid var(--line); border-radius:16px;
-           box-shadow:0 8px 40px rgba(0,0,0,.22); display:none; flex-direction:column; overflow:hidden; }
+           box-shadow:0 8px 40px rgba(0,0,0,.22); display:none; flex-direction:column;
+           overflow:hidden; transition:width .18s, height .18s; }
   .panel.on { display:flex; }
+  .panel.wide { width:min(940px, calc(100vw - 40px)); height:calc(100vh - 40px); }
   .panel-top { display:flex; align-items:center; justify-content:space-between;
-               padding:12px 16px; border-bottom:1px solid var(--line); flex:none; }
-  .panel-close { font:inherit; font-size:0.9em; padding:7px 14px; border:1px solid var(--line);
-                 border-radius:8px; background:#fff; cursor:pointer; }
+               gap:8px; padding:12px 16px; border-bottom:1px solid var(--line); flex:none; }
+  .panel-top .btns { display:flex; gap:6px; }
+  .panel-top button { font:inherit; font-size:0.85em; padding:7px 14px;
+                      border:1px solid var(--line); border-radius:8px;
+                      background:#fff; cursor:pointer; white-space:nowrap; }
+  .panel-top button:hover { border-color:var(--pick); color:var(--pick); }
   .panel iframe { flex:1; width:100%; border:0; }
   @media (max-width:640px) {
     .panel { left:0; right:0; top:0; bottom:0; width:100%; height:100%;
@@ -175,6 +214,7 @@
 
 <div class="top">
   <div class="top-in">
+    <span class="brandmark"><span class="sq">두</span>두두자격지원센터</span>
     <nav class="menu">
       <a href="/" class="here">접수 신청</a>
       <a href="/check">접수 확인</a>
@@ -186,11 +226,12 @@
 
 <div class="wrap">
 
+  <div class="sheet">
   <div class="steps" id="steps">
-    <div class="on">1. 자격증</div>
-    <div>2. 신청하시는 분</div>
-    <div>3. 시험</div>
-    <div>4. 확인</div>
+    <div class="on" data-n="1">자격증 고르기</div>
+    <div data-n="2">신청하시는 분</div>
+    <div data-n="3">시험 정보</div>
+    <div data-n="4">확인하고 접수</div>
   </div>
 
   <!-- 1단계 -->
@@ -290,6 +331,7 @@
     <p class="lead">아래 내용이 맞는지 봐 주세요.</p>
     <p class="late-box hide" id="late2"></p>
 
+    <div class="two-col">
     <div class="review" id="review"></div>
 
     <div class="box">
@@ -308,7 +350,10 @@
       </div>
       <p class="fee" id="fee-box"></p>
     </div>
+    </div>
 
+    <div class="two-col">
+    <div>
     <label class="agree" id="ag1-box" for="f-ag1">
       <input type="checkbox" id="f-ag1">
       <span><b>[필수]</b> 개인정보 수집 · 이용에 동의합니다
@@ -331,9 +376,13 @@
       </span>
     </label>
 
-    <label for="f-memo">남기실 말씀</label>
-    <textarea id="f-memo" rows="2" placeholder="예: 딸이 대신 문의합니다"></textarea>
-    <p class="hint">안 쓰셔도 됩니다</p>
+    </div>
+    <div class="fld">
+      <label for="f-memo">남기실 말씀</label>
+      <textarea id="f-memo" rows="4" placeholder="예: 딸이 대신 문의합니다"></textarea>
+      <p class="hint">안 쓰셔도 됩니다</p>
+    </div>
+    </div>
 
     <p class="msg hide" id="msg"></p>
 
@@ -357,12 +406,17 @@
       <button type="button" class="next" id="send">신청서 내기</button>
     </div>
   </div>
+  </div>
 </div>
 
 <button type="button" class="ask-btn" id="ask-btn">궁금한 것 물어보기</button>
 <div class="panel" id="panel" role="dialog" aria-label="문의 챗봇">
   <div class="panel-top"><b>궁금한 것 물어보기</b>
-    <button type="button" class="panel-close" id="panel-close">닫기</button></div>
+    <span class="btns">
+      <button type="button" id="panel-wide">창 크게</button>
+      <button type="button" id="panel-close">닫기</button>
+    </span>
+  </div>
   <iframe id="panel-frame" title="문의 챗봇"></iframe>
 </div>
 
@@ -584,7 +638,7 @@ function drawCards() {
   const TAG = { now:"지금 접수 가능", soon:"접수 예정", late:"접수 기간 아님" };
   CERTS.forEach(function (c) {
     const b = document.createElement("button");
-    b.type = "button"; b.className = "card";
+    b.type = "button"; b.className = "card s-" + c.state;
     const fee = typeof c.fee === "number" ? c.fee.toLocaleString() + "원"
                                           : c.fee["1차"].toLocaleString() + "원부터";
     b.innerHTML = '<span>' +
@@ -922,7 +976,12 @@ $("send").addEventListener("click", async function () {
 
 // ---------- 챗봇 ----------
 (function () {
-  const btn = $("ask-btn"), panel = $("panel"), frame = $("panel-frame"), close = $("panel-close");
+  const btn = $("ask-btn"), panel = $("panel"), frame = $("panel-frame"),
+        close = $("panel-close"), wide = $("panel-wide");
+  wide.addEventListener("click", function () {
+    const on = panel.classList.toggle("wide");
+    wide.textContent = on ? "창 작게" : "창 크게";
+  });
   btn.addEventListener("click", function () {
     if (!frame.getAttribute("src")) frame.setAttribute("src", "/chat");
     panel.classList.add("on"); btn.style.display = "none"; close.focus();
