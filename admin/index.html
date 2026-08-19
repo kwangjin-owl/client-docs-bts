@@ -234,6 +234,7 @@ function detailRow(r) {
   const x = r.extra || {};
   const pairs = [];
   const add = function (k, v) { if (v !== undefined && v !== null && v !== "") pairs.push([k, v]); };
+  add("접수번호", r.receipt_no);
   add("생년월일", r.birth_date);
   add("성별", r.gender === "M" ? "남" : r.gender === "F" ? "여" : r.gender);
   add("시험지역", r.exam_region);
@@ -241,6 +242,8 @@ function detailRow(r) {
   const SLOT = { AM:"오전 9시", PM:"오후 2시" };
   add("교시/시간대", SLOT[r.exam_session] || r.exam_session);
   add("접수 방법", r.channel);
+  add("편의제공", r.disability_type && r.disability_type !== "없음" ? r.disability_type : "");
+  add("요청사항", r.accommodation_request);
   add("남기신 말씀", r.memo);
   add("응시료", won(r.fee_amount) + "원");
   add("감면", r.fee_discount_type);
@@ -249,9 +252,14 @@ function detailRow(r) {
   add("시험유형", x.exam_type);
   add("회차", x.exam_round);
   add("응시자격", x.eligibility);
+  add("학교", x.education_school);
+  add("전공", x.education_major);
+  add("경력 회사", x.career_company);
+  add("경력 기간", x.career_period_months ? x.career_period_months + "개월" : "");
   add("차수", x.exam_stage);
   add("과목", Array.isArray(x.subjects) ? x.subjects.join(" · ") : x.subjects);
   add("1차 합격번호", x.first_pass_number);
+  add("1차 합격연도", x.first_pass_year);
   add("교육기관", x.training_org);
   add("교육수료번호", x.training_cert_no);
   add("교육수료일", x.training_done);

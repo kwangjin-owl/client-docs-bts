@@ -6,15 +6,13 @@
 <title>접수 확인 - 두두자격지원센터</title>
 <style>
   :root {
-    --fs:18px;
+    --fs:20px;
     --ink:#1a1a1a; --muted:#5a5f66; --line:#d7dbdf; --soft:#f7f8f9;
     --pick:#1b5e7e; --pick-bg:#e7f1f6;
     --stop:#8a5a00; --stop-bg:#fdf2dc;
     --ok:#1c6b3a; --ok-bg:#e6f4ea;
     --bad:#a32d2d; --bad-bg:#fceceb;
   }
-  html[data-fs="big"]  { --fs:21px; }
-  html[data-fs="huge"] { --fs:24px; }
   * { box-sizing:border-box; }
   body { margin:0; background:#fff; color:var(--ink); font-size:var(--fs); line-height:1.6;
          font-family:system-ui,"Malgun Gothic","Apple SD Gothic Neo",sans-serif; }
@@ -27,16 +25,16 @@
             color:var(--muted); text-decoration:none; }
   .menu a:hover { background:var(--soft); color:var(--pick); }
   .menu a.here { background:var(--pick-bg); color:var(--pick); font-weight:600; }
-  .fs-set { display:flex; align-items:center; gap:6px; font-size:0.8em; color:var(--muted); }
-  .fs-set button { font:inherit; padding:6px 12px; border:1px solid var(--line);
-                   background:#fff; border-radius:8px; cursor:pointer; }
-  .fs-set button.on { border-color:var(--pick); color:var(--pick); font-weight:600; }
 
   .wrap { max-width:720px; margin:0 auto; padding:28px 20px 60px; }
   h1 { font-size:1.5em; font-weight:600; margin:0 0 4px; }
   .lead { font-size:0.95em; color:var(--muted); margin:0 0 20px; }
 
   .box { border:1px solid var(--line); border-radius:12px; padding:18px 20px 22px; }
+  .box > h2 { font-size:0.9em; font-weight:600; color:var(--muted); margin:0 0 12px;
+              padding-bottom:10px; border-bottom:1px solid var(--line); }
+  .rno { font-size:0.85em; color:var(--muted); margin:0 0 8px; }
+  .rno b { font-size:1.25em; color:var(--ink); letter-spacing:1px; }
   label { display:block; font-size:0.9em; margin:14px 0 5px; }
   label:first-child { margin-top:0; }
   input { width:100%; font:inherit; padding:11px 13px;
@@ -83,20 +81,24 @@
       <a href="/chat">물어보기</a>
       <a href="/admin">직원용</a>
     </nav>
-    <div class="fs-set">
-      글자 크기
-      <button type="button" data-fs="">기본</button>
-      <button type="button" data-fs="big">크게</button>
-      <button type="button" data-fs="huge">더 크게</button>
-    </div>
   </div>
 </div>
 
 <div class="wrap">
   <h1>접수하신 내역 보기</h1>
-  <p class="lead">접수하실 때 넣으신 성함과 연락처를 넣어 주세요.</p>
+  <p class="lead">두 가지 방법 중 편하신 것으로 찾으시면 됩니다.</p>
 
   <div class="box">
+    <h2>접수번호로 찾기</h2>
+    <label for="f-rno">접수번호</label>
+    <input id="f-rno" type="text" placeholder="DN2026123456" autocomplete="off">
+    <p class="hint">접수를 마치셨을 때 화면에 나온 번호입니다</p>
+    <button type="button" class="find" id="find-rno">이 번호로 찾기</button>
+  </div>
+
+  <div class="box" style="margin-top:14px">
+    <h2>성함과 연락처로 찾기</h2>
+    <p class="hint" style="margin:0 0 4px">번호를 잊으셨으면 이쪽으로 찾으세요</p>
     <label for="f-name">성함</label>
     <input id="f-name" type="text" placeholder="홍길동">
 
@@ -105,8 +107,9 @@
     <p class="hint">접수하실 때 넣으신 번호와 같아야 합니다</p>
 
     <button type="button" class="find" id="find">찾아보기</button>
-    <p class="msg hide" id="msg"></p>
   </div>
+
+  <p class="msg hide" id="msg"></p>
 
   <div id="result"></div>
 </div>
@@ -114,21 +117,6 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 const $ = function (id) { return document.getElementById(id); };
-
-(function () {
-  const saved = localStorage.getItem("fs") || "";
-  document.documentElement.dataset.fs = saved;
-  document.querySelectorAll(".fs-set button").forEach(function (b) {
-    b.classList.toggle("on", b.dataset.fs === saved);
-    b.addEventListener("click", function () {
-      document.documentElement.dataset.fs = b.dataset.fs;
-      localStorage.setItem("fs", b.dataset.fs);
-      document.querySelectorAll(".fs-set button").forEach(function (x) {
-        x.classList.toggle("on", x === b);
-      });
-    });
-  });
-})();
 
 function digits(v, max) { return v.replace(/[^0-9]/g, "").slice(0, max); }
 function maskPhone(v) {
@@ -174,15 +162,10 @@ function guide(s) {
   return "";
 }
 
-async function find() {
+async function run(btn, apply) {
   clearMsg();
-  const name = $("f-name").value.trim();
-  const phone = $("f-phone").value.trim();
-  if (!name) return fail("성함을 넣어 주세요.", "f-name");
-  if (digits(phone, 11).length < 9) return fail("연락처를 다시 확인해 주세요.", "f-phone");
-
-  const btn = $("find");
-  btn.disabled = true; btn.textContent = "찾는 중…";
+  btn.disabled = true;
+  const old = btn.textContent; btn.textContent = "찾는 중…";
   $("result").innerHTML = "";
 
   try {
@@ -191,8 +174,7 @@ async function find() {
     if (!conf.url || !conf.key) { show("서버에 환경변수가 설정되어 있지 않습니다."); return; }
     const db = supabase.createClient(conf.url, conf.key);
 
-    const res = await db.from("applications").select("*")
-      .eq("name", name).eq("phone", phone)
+    const res = await apply(db.from("applications").select("*"))
       .order("created_at", { ascending:false });
 
     if (res.error) { show("찾기 실패: " + res.error.message); return; }
@@ -201,7 +183,7 @@ async function find() {
     if (!rows.length) {
       $("result").innerHTML =
         '<div class="empty"><b>접수하신 내역이 없습니다</b>' +
-        '<span>성함과 연락처가 접수하실 때와 같은지 확인해 주세요.<br>' +
+        '<span>접수번호나 성함·연락처가 접수하실 때와 같은지 확인해 주세요.<br>' +
         '아직 접수를 안 하셨으면 <a href="/">접수 신청</a>에서 하실 수 있습니다.</span></div>';
       return;
     }
@@ -221,6 +203,7 @@ async function find() {
       if (x.training_org) rowsHtml.push(["교육기관", x.training_org]);
 
       return '<div class="item">' +
+        (a.receipt_no ? '<p class="rno">접수번호 <b>' + a.receipt_no + '</b></p>' : "") +
         '<p class="cert">' + a.cert_name + '</p>' +
         '<p class="when">' + fmt(a.created_at) + ' 접수</p>' +
         '<dl>' + rowsHtml.map(function (p) {
@@ -233,12 +216,28 @@ async function find() {
   } catch (e) {
     show("찾기 실패: " + e.message);
   } finally {
-    btn.disabled = false; btn.textContent = "찾아보기";
+    btn.disabled = false; btn.textContent = old;
   }
 }
 
-$("find").addEventListener("click", find);
-$("f-phone").addEventListener("keydown", function (e) { if (e.key === "Enter") find(); });
+function byName() {
+  const name = $("f-name").value.trim();
+  const phone = $("f-phone").value.trim();
+  if (!name) return fail("성함을 넣어 주세요.", "f-name");
+  if (digits(phone, 11).length < 9) return fail("연락처를 다시 확인해 주세요.", "f-phone");
+  run($("find"), function (q) { return q.eq("name", name).eq("phone", phone); });
+}
+function byRno() {
+  const no = $("f-rno").value.trim().toUpperCase();
+  if (no.length < 6) return fail("접수번호를 넣어 주세요.", "f-rno");
+  run($("find-rno"), function (q) { return q.eq("receipt_no", no); });
+}
+
+$("find").addEventListener("click", byName);
+$("find-rno").addEventListener("click", byRno);
+$("f-phone").addEventListener("keydown", function (e) { if (e.key === "Enter") byName(); });
+$("f-rno").addEventListener("keydown", function (e) { if (e.key === "Enter") byRno(); });
+$("f-rno").addEventListener("input", function () { this.classList.remove("bad-field"); });
 </script>
 </body>
 </html>

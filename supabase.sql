@@ -48,7 +48,13 @@ create table applications (
   usage_context text,               -- 본인단독 / 가족보조 / 복지관 / 대리접수
   channel text,                     -- 온라인 / 전화 / 방문  (접수대장의 접수경로)
   memo text,                        -- 접수대장의 비고
+
+  receipt_no text unique,           -- 접수번호 (손님에게 알려 드리는 번호)
+  fee_discount_amount int,          -- 감면 금액
   agreed_privacy boolean default false,  -- 개인정보 수집 동의
+  agreed_terms boolean default false,    -- 이용약관 동의
+  disability_type text,             -- 편의제공 신청 (두두보건)
+  accommodation_request text,
 
   extra jsonb                       -- 트랙별로만 있는 칸
 );
