@@ -169,10 +169,11 @@
 
   /* 안쪽 내용이 폭을 밀어내지 못하게 못박는다.
      textarea, 긴 글, 표가 상자를 늘리거나 줄이던 문제. */
-  .wrap, .sheet, .wrap > *, .sheet > * { min-width:0; max-width:100%; }
-  .sheet { box-sizing:border-box; }
+  /* 폭 제한은 .wrap 이 갖는다. 안쪽은 넘치지만 않게 한다. */
+  .wrap > *, .sheet > * { min-width:0; }
+  .sheet { box-sizing:border-box; max-width:100%; }
   textarea, input, select, pre, table { max-width:100%; }
-  * { overflow-wrap:anywhere; }
+  p, li, dd, td, th, .a { overflow-wrap:anywhere; }
 
 
   /* 어떤 경우에도 본문 상자가 폭을 다 쓰게 못박는다 */
@@ -184,7 +185,7 @@
 </style>
 </head>
 <body>
-<div class="top"><div class="top-in"><a class="brandmark" href="/"><span class="sq">두두</span>두두자격지원센터</a><nav class="menu"><a href="/">접수 신청</a><a href="/check" class="here">접수 확인</a><a href="/chat">물어보기</a></nav><a class="staff-btn" href="/admin">직원용</a></div></div>
+<div class="top"><div class="top-in"><a class="brandmark" href="/"><span class="sq">두두</span>두두자격지원센터</a><nav class="menu"><a href="/">접수 신청</a><a href="/check" class="here">접수 확인</a><a href="/chat">물어보기</a></nav><a class="staff-btn" href="/admin" title="센터 직원만 쓰는 화면입니다">직원용</a></div></div>
 
 <div class="wrap">
   <div class="sheet">
@@ -197,8 +198,8 @@
         <h2 class="sec">접수번호로 찾기</h2>
         <p class="lead">가장 빠릅니다.</p>
         <label for="f-rno">접수번호 <span class="req">*</span></label>
-        <input id="f-rno" type="text" placeholder="DN2026123456" autocomplete="off">
-        <p class="hint">접수를 마치셨을 때 화면에 나온 번호입니다</p>
+        <input id="f-rno" type="text" placeholder="1081-9235-2975" autocomplete="off">
+        <p class="hint">접수를 마치셨을 때 화면에 나온 숫자 11자리입니다</p>
         <button type="button" class="btn key big" id="find-rno">이 번호로 찾기</button>
       </div>
 
@@ -322,7 +323,7 @@ function byName() {
 }
 function byRno() {
   const no=$("f-rno").value.trim().toUpperCase();
-  if(no.length<6) return fail("접수번호를 넣어 주세요.","f-rno");
+  if(no.replace(/\D/g,"").length < 8) return fail("접수번호를 다시 확인해 주세요.","f-rno");
   run($("find-rno"), function(q){ return q.eq("receipt_no",no); });
 }
 $("find").addEventListener("click", byName);
@@ -331,27 +332,6 @@ $("f-phone").addEventListener("keydown", function(e){ if(e.key==="Enter") byName
 $("f-rno").addEventListener("keydown", function(e){ if(e.key==="Enter") byRno(); });
 </script>
 
-<div id="__probe" style="position:fixed;left:0;bottom:0;z-index:9999;
-  background:#111;color:#0f0;font:12px monospace;padding:6px 10px;
-  white-space:pre;line-height:1.5;pointer-events:none"></div>
-<script>
-(function(){
-  function px(el){ return el ? Math.round(el.getBoundingClientRect().width) : "-"; }
-  function draw(){
-    var w=document.querySelector(".wrap"), s=document.querySelector(".sheet"),
-        t=document.querySelector(".top-in"), b=document.body;
-    document.getElementById("__probe").textContent =
-      "창 " + window.innerWidth + "  body " + px(b) +
-      "\n머리 " + px(t) + "  wrap " + px(w) + "  흰상자 " + px(s) +
-      "\nwrap max-width " + (w ? getComputedStyle(w).maxWidth : "-") +
-      "\n" + location.pathname;
-  }
-  draw();
-  addEventListener("resize", draw);
-  new ResizeObserver(draw).observe(document.documentElement);
-  setInterval(draw, 400);
-})();
-</script>
 
 </body>
 </html>

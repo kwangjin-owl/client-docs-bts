@@ -157,7 +157,9 @@
        font-size:0.92em; margin-top:8px;
        word-break:keep-all; overflow-wrap:break-word; }
   .a.err { background:var(--bad-bg); border-color:var(--bad); color:var(--bad); }
-  .meta { font-size:0.72em; color:var(--muted); margin:6px 0 0 4px; }
+  .meta { font-size:0.78em; color:var(--muted); margin:8px 0 0 4px; }
+  .meta:empty { display:none; }
+  .meta::before { content:"\1F4C4  "; }
   .ask { flex:none; display:flex; gap:10px; padding:16px 20px;
          border-top:2px solid var(--line); background:var(--card); }
   .ask input { flex:1; }
@@ -186,10 +188,11 @@
 
   /* 안쪽 내용이 폭을 밀어내지 못하게 못박는다.
      textarea, 긴 글, 표가 상자를 늘리거나 줄이던 문제. */
-  .wrap, .sheet, .wrap > *, .sheet > * { min-width:0; max-width:100%; }
-  .sheet { box-sizing:border-box; }
+  /* 폭 제한은 .wrap 이 갖는다. 안쪽은 넘치지만 않게 한다. */
+  .wrap > *, .sheet > * { min-width:0; }
+  .sheet { box-sizing:border-box; max-width:100%; }
   textarea, input, select, pre, table { max-width:100%; }
-  * { overflow-wrap:anywhere; }
+  p, li, dd, td, th, .a { overflow-wrap:anywhere; }
 
 
   /* 어떤 경우에도 본문 상자가 폭을 다 쓰게 못박는다 */
@@ -201,13 +204,13 @@
 </style>
 </head>
 <body>
-<div class="top"><div class="top-in"><a class="brandmark" href="/"><span class="sq">두두</span>두두자격지원센터</a><nav class="menu"><a href="/">접수 신청</a><a href="/check">접수 확인</a><a href="/chat" class="here">물어보기</a></nav><a class="staff-btn" href="/admin">직원용</a></div></div>
+<div class="top"><div class="top-in"><a class="brandmark" href="/"><span class="sq">두두</span>두두자격지원센터</a><nav class="menu"><a href="/">접수 신청</a><a href="/check">접수 확인</a><a href="/chat" class="here">물어보기</a></nav><a class="staff-btn" href="/admin" title="센터 직원만 쓰는 화면입니다">직원용</a></div></div>
 
 <div class="wrap">
  <div class="sheet">
   <h1>궁금한 점을 물어보세요</h1>
-  <p class="lead">응시료, 접수 일정, 준비물을 안내합니다.
-     안내 문서에서 확인되지 않는 것은 모른다고 말씀드립니다.</p>
+  <p class="lead">응시료, 접수 일정, 준비물을 안내해 드립니다.
+     저희가 확인하지 못한 것은 모른다고 솔직하게 말씀드립니다.</p>
 
   <div class="pane chips-pane">
     <p class="pane-t">이런 질문을 해보세요 — 눌러 보시면 바로 답해 드립니다</p>
@@ -217,7 +220,7 @@
   <div class="talk">
       <div class="talk-top">
         <span class="av">두두</span>
-        <span><b>두두 안내 도우미</b><span>필기 접수 문서에서만 답변합니다</span></span>
+        <span><b>두두 안내 도우미</b><span>안내 문서에 있는 것만 답해 드립니다</span></span>
       </div>
       <div class="log" id="log">
         <div class="empty" id="empty">
@@ -329,13 +332,14 @@ async function ask(question) {
   const found=search(question), best=found[0];
 
   if(best && best.s>=CFG.MIN_SCORE){
-    fillTurn(box,best.doc.body,
-      "출처: "+(best.doc.source||best.doc.title)+" · 규칙 답변 ("+best.s.toFixed(2)+")");
+    fillTurn(box, best.doc.body, "안내 문서 · " + best.doc.title);
+    console.log("[챗봇] 규칙 " + best.s.toFixed(2) + " · " + (best.doc.source||""));
     logQ(question,true,best.s,best.doc,"규칙");
     busy=false; $("send").disabled=false; $("q").focus(); return;
   }
   if(!CFG.USE_AI){
-    fillTurn(box,CFG.FALLBACK,"찾은 문서 없음 (최고 "+(best?best.s.toFixed(2):"0.00")+")");
+    fillTurn(box, CFG.FALLBACK, "");
+    console.log("[챗봇] 못 찾음 (최고 "+(best?best.s.toFixed(2):"0.00")+")");
     logQ(question,false,best?best.s:0,null,"못찾음");
     busy=false; $("send").disabled=false; return;
   }
@@ -347,8 +351,7 @@ async function ask(question) {
     const data=await r.json();
     if(data.error) fillTurn(box,data.error,"AI 호출 단계",true);
     else {
-      fillTurn(box,data.answer,"AI 답변 · 문서 전체 참고 (검색 최고 "+
-        (best?best.s.toFixed(2):"0.00")+")");
+      fillTurn(box, data.answer, "안내 문서를 보고 답해 드렸습니다");
       logQ(question,true,best?best.s:0,null,"AI");
     }
   } catch(e){ fillTurn(box,"연결 실패: "+e.message,"AI 호출 단계",true); }
@@ -390,27 +393,6 @@ if (window.self !== window.top) {
 boot();
 </script>
 
-<div id="__probe" style="position:fixed;left:0;bottom:0;z-index:9999;
-  background:#111;color:#0f0;font:12px monospace;padding:6px 10px;
-  white-space:pre;line-height:1.5;pointer-events:none"></div>
-<script>
-(function(){
-  function px(el){ return el ? Math.round(el.getBoundingClientRect().width) : "-"; }
-  function draw(){
-    var w=document.querySelector(".wrap"), s=document.querySelector(".sheet"),
-        t=document.querySelector(".top-in"), b=document.body;
-    document.getElementById("__probe").textContent =
-      "창 " + window.innerWidth + "  body " + px(b) +
-      "\n머리 " + px(t) + "  wrap " + px(w) + "  흰상자 " + px(s) +
-      "\nwrap max-width " + (w ? getComputedStyle(w).maxWidth : "-") +
-      "\n" + location.pathname;
-  }
-  draw();
-  addEventListener("resize", draw);
-  new ResizeObserver(draw).observe(document.documentElement);
-  setInterval(draw, 400);
-})();
-</script>
 
 </body>
 </html>
