@@ -305,8 +305,13 @@
             white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .lcount b { color:var(--ink); font-size:1.1em; }
   .lhint { flex:none; font-size:0.82em; color:var(--ok); font-weight:700; white-space:nowrap; }
-  .listbar .btn { flex:none; padding:9px 18px; font-size:0.84em; white-space:nowrap; }
-  .listbar .btn:disabled { background:#c8cdd1; border-color:#c8cdd1; cursor:default; }
+  /* 한꺼번에 처리 — 주황. 줄별 처리(초록 테두리)와 확실히 구분한다 */
+  .bulkbtn { flex:none; padding:10px 20px; font-size:0.84em; font-weight:700;
+             white-space:nowrap; background:var(--hot); color:#fff;
+             border:2px solid var(--hot); border-radius:9px; cursor:pointer; }
+  .bulkbtn:hover { background:#c25a08; border-color:#c25a08; }
+  .bulkbtn:disabled { background:var(--card); border-color:var(--line);
+                      color:#b4b9bd; cursor:default; }
   table { margin-top:0 !important; border:2px solid var(--line); border-top:0;
           border-radius:0 0 12px 12px; }
   @media (max-width:700px) {
@@ -322,7 +327,7 @@
   th.sortable.up::after   { content:"\2191"; opacity:1; color:var(--key); }
   th.sortable.down::after { content:"\2193"; opacity:1; color:var(--key); }
   .dash { color:#c2c8cd; }
-  .step { font:inherit; font-size:0.82em; padding:7px 13px; white-space:nowrap;
+  .step { font:inherit; font-size:0.8em; padding:7px 15px; white-space:nowrap;
           border:2px solid var(--key); border-radius:7px;
           background:var(--card); color:var(--key-d); cursor:pointer; font-weight:700; }
   .step:hover { background:var(--key); color:#fff; }
@@ -522,7 +527,7 @@
   <div class="listbar">
     <span class="lcount" id="status">불러오는 중…</span>
     <span class="lhint" id="bulk-hint"></span>
-    <button type="button" class="btn key" id="bulk-go">확인 처리</button>
+    <button type="button" class="btn bulkbtn" id="bulk-go">한꺼번에 확인</button>
   </div>
 
   <table>
@@ -541,7 +546,7 @@
         <th class="sortable" data-k="cert_name">자격증</th>
         <th class="num sortable" data-k="fee_final">결제금액</th>
         <th class="sortable" data-k="status">상태</th>
-        <th>처리</th>
+        <th>이 줄 처리</th>
       </tr>
     </thead>
     <tbody id="rows"></tbody>
@@ -565,10 +570,14 @@
           그 기준으로 다시 늘어놓습니다. 한 번 더 누르면 반대 순서가 됩니다.
           맨 왼쪽 번호는 지금 늘어놓은 순서대로 매겨집니다.</dd>
 
-      <dt>여러 건을 한 번에 처리하려면</dt>
-      <dd>위에서 기간과 상태를 고르면, 아래 <b>지금 보이는 ○건 전부 확인 처리</b> 버튼이
-          그 조건에 맞는 것만 한 번에 바꿉니다.
-          예를 들어 기간 <b>전체</b> · 상태 <b>처리할 것만</b>으로 두면 쌓인 것이 한 번에 정리됩니다.</dd>
+      <dt>한 건씩 처리하려면</dt>
+      <dd>표 오른쪽 <b>이 줄 처리</b> 칸의 초록 테두리 버튼을 누르십시오.
+          그 줄 하나만 다음 단계로 넘어갑니다.</dd>
+
+      <dt>여러 건을 한꺼번에 처리하려면</dt>
+      <dd>목록 위 주황색 <b>목록 ○건 한꺼번에 확인</b> 버튼입니다.
+          지금 걸린 기간·상태·자격증 조건에 맞는 것만 바뀝니다.
+          기간 <b>전체</b> · 상태 <b>처리할 것만</b>으로 두면 쌓인 것이 한 번에 정리됩니다.</dd>
 
       <dt>확인 · 완료 처리는 무엇인가요</dt>
       <dd>발주 문서(01_사업현황_발주서.md 3절)상 3 확인 · 4 완료는 직원이 손으로 하는 단계입니다.
@@ -859,13 +868,13 @@ function nextBtn(r) {
   const n = NEXT[r.status];
   if (!n) return '<span class="dash">-</span>';
   return '<button type="button" class="step" data-id="' + r.id +
-         '" data-to="' + n + '">' + n + ' 처리</button>';
+         '" data-to="' + n + '">' + n + '</button>';
 }
 
 async function stepTo(id, to, btn) {
-  btn.disabled = true; btn.textContent = "저장 중…";
+  btn.disabled = true; btn.textContent = "…";
   const res = await db.from("applications").update({ status: to }).eq("id", id);
-  if (res.error) { btn.disabled = false; btn.textContent = to + " 처리";
+  if (res.error) { btn.disabled = false; btn.textContent = to;
     alert("바꾸지 못했습니다: " + res.error.message); return; }
   const row = all.find(function (x) { return x.id === id; });
   if (row) row.status = to;
@@ -1170,8 +1179,8 @@ function drawBulk() {
   const todo = shownList.filter(function (r) { return NEXT[r.status]; });
   $("bulk-go").disabled = todo.length === 0;
   $("bulk-go").textContent = todo.length
-    ? todo.length + "건 확인 처리"
-    : "처리할 것 없음";
+    ? "목록 " + todo.length + "건 한꺼번에 확인"
+    : "한꺼번에 처리할 것 없음";
 }
 
 $("bulk-go").addEventListener("click", async function () {
@@ -1180,8 +1189,9 @@ $("bulk-go").addEventListener("click", async function () {
 
   const when = $("f-when").value === "today" ? "오늘 들어온 " :
                $("f-when").value === "week" ? "최근 7일 " : "";
-  if (!confirm("지금 목록에 있는 " + when + todo.length + "건을\n" +
-      "'확인'으로 바꿉니다.\n\n" +
+  if (!confirm("지금 목록에 보이는 " + when + todo.length + "건을\n" +
+      "한꺼번에 '확인'으로 바꿉니다.\n\n" +
+      "한 건씩 하시려면 표의 '이 줄 처리' 칸을 쓰십시오.\n" +
       "상태만 바뀝니다. 두두넷 원서접수는 따로 하셔야 합니다.")) return;
 
   const btn = this, ids = todo.map(function (r) { return r.id; });
