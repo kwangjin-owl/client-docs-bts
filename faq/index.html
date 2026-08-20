@@ -378,9 +378,10 @@
 .fgrp.right { margin-left:auto; }
 .flb { font-size:0.76em; font-weight:700; color:var(--muted); white-space:nowrap; }
 .fseg { display:flex; border:2px solid var(--line); border-radius:10px; overflow:hidden; }
-.fseg button { font:inherit; font-size:0.8em; padding:8px 12px; cursor:pointer;
+.fseg button { font:inherit; font-size:0.8em; padding:8px 14px; cursor:pointer;
                  border:0; border-left:1px solid var(--line);
                  background:var(--card); color:var(--muted); white-space:nowrap; }
+.fseg button span { margin-left:4px; opacity:.75; }
 .fseg button:first-child { border-left:0; }
 .fseg button:hover { background:var(--soft); color:var(--key-d); }
 .fseg button.on { background:var(--key); color:#fff; font-weight:700; }
@@ -541,7 +542,8 @@
 
 <div class="tab" id="tab-ask">
   <h2 class="sec2" style="margin-top:0">받은 질문</h2>
-  <p class="lead">손님이 무엇을 물어보셨는지 봅니다. 못 찾은 것은 옆 탭에서 넣어 주세요.</p>
+  <p class="lead">손님이 무엇을 물어보셨는지 봅니다.
+     챗봇이 <b>답 못 한 질문</b>은 옆 탭에서 안내를 넣어 주세요.</p>
 
   <div class="filters" id="qwhen">
     <div class="fgrp">
@@ -557,9 +559,9 @@
       <span class="flb">구분</span>
       <div class="fseg" id="qkind">
         <button type="button" data-q="" class="on">전체</button>
-        <button type="button" data-q="miss">몰라서 못 함 <span id="qn-miss"></span></button>
-        <button type="button" data-q="ask">어느 자격증? <span id="qn-ask"></span></button>
-        <button type="button" data-q="hit">답해 드림 <span id="qn-hit"></span></button>
+        <button type="button" data-q="miss">답 못 한 질문 <span id="qn-miss"></span></button>
+        <button type="button" data-q="ask">자격증 되물은 질문 <span id="qn-ask"></span></button>
+        <button type="button" data-q="hit">답한 질문 <span id="qn-hit"></span></button>
       </div>
     </div>
 
@@ -575,14 +577,14 @@
 
   <table>
     <colgroup>
-      <col style="width:58px"><col style="width:116px"><col style="width:104px">
+      <col style="width:58px"><col style="width:116px"><col style="width:96px">
       <col style="width:auto"><col style="width:92px">
     </colgroup>
     <thead>
       <tr>
         <th class="num sortable" data-qk="seq">순번</th>
         <th class="sortable" data-qk="last">마지막</th>
-        <th class="sortable" data-qk="kind">챗봇 답</th>
+        <th class="sortable" data-qk="kind">챗봇이</th>
         <th class="sortable" data-qk="q">손님이 물어본 말</th>
         <th class="num sortable" data-qk="cnt">횟수</th>
       </tr>
@@ -1265,9 +1267,9 @@ const QPER = 20;
 // 직원이 바로 알아듣게 적는다. "되물음" 같은 말은 무슨 뜻인지 모른다.
 // 직원이 바로 알아듣게 적는다.
 const QKIND = {
-  miss: { lb: "몰라서 못 함", cls: "k-miss", ord: 0 },
-  ask:  { lb: "어느 자격증?", cls: "k-ask",  ord: 1 },
-  hit:  { lb: "답해 드림",    cls: "k-hit",  ord: 2 }
+  miss: { lb: "답 못 함",  cls: "k-miss", ord: 0 },
+  ask:  { lb: "되물음",    cls: "k-ask",  ord: 1 },
+  hit:  { lb: "답함",      cls: "k-hit",  ord: 2 }
 };
 
 let qSort = "seq", qDown = true;   // 기본은 순번 (최근 것이 위)
