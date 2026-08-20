@@ -354,6 +354,35 @@
      .undo 의 display:flex 가 .hide 의 display:none 을 덮어써서
      지운 적도 없는데 되돌리기 띠가 계속 떠 있었다. */
   .hide, .hide.hide { display:none !important; }
+
+  /* ===== 받은 질문 ===== */
+.qtable thead th { font-size:0.82em; font-weight:700; color:var(--muted);
+                     text-align:left; padding:10px 14px; background:var(--soft);
+                     border-bottom:2px solid var(--line); }
+.qk { width:86px; }
+.kbadge { display:inline-block; font-size:0.78em; font-weight:700;
+            padding:4px 10px; border-radius:6px; white-space:nowrap; }
+.k-miss { background:var(--bad-bg);  color:var(--bad); }
+.k-ask  { background:var(--warn-bg); color:var(--warn); }
+.k-hit  { background:var(--ok-bg);   color:var(--ok); }
+.qh { display:flex; align-items:baseline; gap:8px; flex-wrap:wrap;
+        font-size:0.92em; font-weight:700; margin:20px 0 8px; }
+.qh.bad { color:var(--bad); }
+.qh.warn { color:var(--warn); }
+.qmix { font-size:0.85em; font-weight:400; color:#9aa4ac; }
+.qh b { font-weight:800; }
+.qh span { font-size:0.82em; font-weight:400; color:var(--muted); }
+.qtable { width:100%; border-collapse:collapse; table-layout:fixed;
+            border:2px solid var(--line); border-radius:12px; overflow:hidden; }
+.qtable td { padding:11px 14px; border-bottom:1px solid var(--line); font-size:0.86em;
+               vertical-align:middle; word-break:keep-all; overflow-wrap:anywhere; }
+.qtable tr:last-child td { border-bottom:0; }
+.qtable tr:hover td { background:var(--soft); }
+.qq { width:auto; }
+.qn { width:132px; text-align:right; font-weight:700; white-space:nowrap; }
+.qn .qmix { display:block; margin-top:2px; }
+.qd { width:120px; text-align:right; color:var(--muted); font-size:0.8em; white-space:nowrap; }
+#by-question .pager { margin-top:12px; margin-bottom:22px; }
 </style>
 </head>
 <body>
@@ -373,11 +402,12 @@
 <div class="wrap">
   <div class="sheet">
   <h1>챗봇 답변 관리</h1>
-  <p class="lead">챗봇이 어떻게 답할지 여기서 정합니다. 고치면 바로 바뀝니다.</p>
+  <p class="lead">챗봇이 어떻게 답할지 정하고, 손님이 무엇을 물어보셨는지 봅니다.</p>
 
   <div class="tabs" id="tabs">
     <button type="button" data-t="doc" class="on">챗봇이 답하는 내용 <span id="doc-n"></span></button>
     <button type="button" data-t="syn">어르신 말 바꾸기 <span id="syn-n"></span></button>
+    <button type="button" data-t="ask">받은 질문 <span id="q-n"></span></button>
   </div>
 
   <div class="tab on" id="tab-doc">
@@ -448,6 +478,35 @@
   <p class="note tip">고친 뒤에는 챗봇을 열어 실제로 답이 바뀌었는지 확인하세요. 저장했다는 표시만 보고 넘어가면 안 됩니다.</p>
   </div>
 
+<div class="tab" id="tab-ask">
+  <h2 class="sec2" style="margin-top:0">챗봇이 받은 질문</h2>
+  <p class="lead">손님이 무엇을 물어보셨는지 봅니다. 못 찾은 것은 옆 탭에서 넣어 주세요.</p>
+
+  <div class="filters" id="qwhen">
+    <div class="fgrp">
+      <span class="flb">기간</span>
+      <div class="fseg">
+        <button type="button" data-w="" class="on">전체</button>
+        <button type="button" data-w="today">오늘</button>
+        <button type="button" data-w="week">최근 7일</button>
+      </div>
+    </div>
+
+    <div class="fgrp">
+      <span class="flb">구분</span>
+      <div class="fseg" id="qkind">
+        <button type="button" data-q="" class="on">전체</button>
+        <button type="button" data-q="miss">못 찾음 <span id="qn-miss"></span></button>
+        <button type="button" data-q="ask">되물음 <span id="qn-ask"></span></button>
+        <button type="button" data-q="hit">답함 <span id="qn-hit"></span></button>
+      </div>
+    </div>
+  </div>
+  <p class="note" id="q-note">불러오는 중…</p>
+  <div id="by-question"></div>
+  <div class="pager" id="q-pager"></div>
+  </div>
+
   <div class="tab" id="tab-syn">
   <h2 class="sec2" style="margin-top:0">어르신 말 바꾸기</h2>
   <p class="lead">어르신이 "포크레인"이라고 물으셔도 굴착기 안내가 나오게 합니다.
@@ -505,9 +564,14 @@
       <dt>비슷한말을 넣었는데 답이 안 바뀔 때</dt>
       <dd>챗봇 화면을 새로고침해 주십시오. 챗봇은 열 때 한 번 사전을 읽습니다.</dd>
 
+      <dt>받은 질문이 세 갈래인 이유</dt>
+      <dd><b>못 찾음</b>은 자료에 없어서 답을 못 드린 것입니다.
+          여기에 안내를 보태거나 어르신 말을 넣어 주십시오.<br>
+          <b>되물음</b>은 손님이 자격증을 안 말씀하셔서 여쭤본 것입니다. 잘못된 것이 아닙니다.<br>
+          <b>답함</b>은 제대로 답해 드린 것입니다.</dd>
+
       <dt>어떤 질문이 답을 못 받았는지 보려면</dt>
-      <dd><a href="/admin">접수 내역</a> 화면 아래쪽
-          <b>챗봇이 받은 질문</b>에서 보실 수 있습니다.</dd>
+      <dd>위 <b>받은 질문</b> 탭에서 구분을 <b>못 찾음</b>으로 놓고 보십시오.</dd>
 
       <dt>실수로 지웠을 때</dt>
       <dd>지운 직후 위에 뜨는 <b>되돌리기</b>를 누르면 살아납니다.
@@ -1013,6 +1077,190 @@ async function delSyn(id, btn) {
 }
 
 
+let qWhen = "";        // 기간
+
+// 기간 하나로 판정한다. "" 전체 / today 오늘 / week 최근 7일
+function inWhen(iso, w) {
+  if (!w) return true;
+  const d = new Date(iso), n = new Date();
+  if (w === "today") {
+    return d.getFullYear() === n.getFullYear() && d.getMonth() === n.getMonth()
+        && d.getDate() === n.getDate();
+  }
+  return (n - d) / 86400000 <= 7;
+}
+
+// 발주서 4절: 어떤 질문이 제일 많이 들어오는지 알고 싶다는 요청.
+// 답한 것 · 되물은 것 · 못 찾은 것을 갈라서 한 번에 하나만 보여 준다.
+let QROWS = [];
+let qPage = 1;
+let qKind = "";        // "" 전체 / miss / ask / hit
+
+async function loadQuestions() {
+  try {
+    const res = await db.from("questions").select("*").order("created_at", { ascending:false });
+    if (res.error) { $("q-note").textContent = "질문 기록을 못 읽었습니다: " + res.error.message; return; }
+    QRAW = res.data || [];
+    drawQAll();
+  } catch (e) {
+    $("q-note").textContent = "질문 기록을 못 읽었습니다: " + e.message;
+  }
+}
+
+let QRAW = [];
+
+function drawQAll() {
+    const qs = QRAW.filter(function (q) { return inWhen(q.created_at, qWhen); });
+    if (!qs.length) {
+      $("q-note").innerHTML = "";
+      $("by-question").innerHTML =
+        '<div class="empty"><b>' +
+        (qWhen ? "그 기간에 들어온 질문이 없습니다" : "아직 들어온 질문이 없습니다") + '</b>' +
+        '<span>챗봇에 질문이 들어오면 여기에 쌓입니다.<br>' +
+        '어떤 질문이 많은지, 무엇을 못 찾았는지 볼 수 있습니다.</span></div>';
+      return;
+    }
+
+    // 답한 것 · 되물은 것 · 못 찾은 것을 따로 센다.
+    // 되물은 것은 잘못 답한 게 아니라 자격증을 여쭤본 것이다.
+    const agg = {};
+    qs.forEach(function (q) {
+      const k = (q.question || "").trim();
+      if (!k) return;
+      if (!agg[k]) agg[k] = { q:k, n:0, ok:0, ask:0, miss:0, last:q.created_at };
+      agg[k].n++;
+      if (q.route === "되물음") agg[k].ask++;
+      else if (q.answered) agg[k].ok++;
+      else agg[k].miss++;
+      if (q.created_at > agg[k].last) agg[k].last = q.created_at;
+    });
+    const rows = Object.values(agg);
+
+    // 한 표에 섞되 구분 값을 맨 앞에 둔다. 손봐야 할 것이 위로 온다.
+    rows.forEach(function (r) {
+      r.kind = r.miss > 0 ? "miss" : (r.ask > 0 ? "ask" : "hit");
+      r.cnt  = r.kind === "miss" ? r.miss : (r.kind === "ask" ? r.ask : r.ok);
+    });
+    // 접수 목록과 같은 방식. 오래된 것이 1번이고, 최근 것이 맨 위로 온다.
+    rows.slice().sort(function (a,b) {
+      return String(a.last).localeCompare(String(b.last));
+    }).forEach(function (r, i) { r.seq = i + 1; });
+
+    QROWS = rows.sort(function (a,b) {
+      return String(b.last).localeCompare(String(a.last));
+    });
+
+    let okN = 0, askN = 0, missN = 0;
+    qs.forEach(function (q) {
+      if (q.route === "되물음") askN++;
+      else if (q.answered) okN++;
+      else missN++;
+    });
+    const qLb = { "": "전체", "today": "오늘", "week": "최근 7일" }[qWhen];
+    $("q-note").textContent = qLb + " " + qs.length + "건 · 답한 것 " + okN +
+      "건 · 자격증 되물은 것 " + askN + "건 · 못 찾은 것 " + missN +
+      "건 · 서로 다른 질문 " + rows.length + "가지";
+
+    drawQ();
+}
+
+// 한 표에 다 보여 주고 맨 앞에 구분 값을 둔다. 쪽 나누기는 접수 목록과 같다.
+const QPER = 20;
+function countKind(k) {
+  const n = QROWS.filter(function (r) { return r.kind === k; }).length;
+  return n ? "(" + n + ")" : "";
+}
+
+const QKIND = {
+  miss: { lb: "못 찾음", cls: "k-miss" },
+  ask:  { lb: "되물음",  cls: "k-ask"  },
+  hit:  { lb: "답함",    cls: "k-hit"  }
+};
+
+function drawQ() {
+  $("qn-miss").textContent = countKind("miss");
+  $("qn-ask").textContent  = countKind("ask");
+  $("qn-hit").textContent  = countKind("hit");
+
+  const list = qKind
+    ? QROWS.filter(function (r) { return r.kind === qKind; })
+    : QROWS;
+  if (!list.length) {
+    $("by-question").innerHTML =
+      '<div class="empty"><b>' +
+      (qKind ? "그 구분에 해당하는 질문이 없습니다" : "들어온 질문이 없습니다") + '</b>' +
+      '<span>챗봇에 질문이 들어오면 여기에 쌓입니다.</span></div>';
+    $("q-pager").innerHTML = "";
+    return;
+  }
+
+  const pages = Math.max(1, Math.ceil(list.length / QPER));
+  if (qPage > pages) qPage = pages;
+  if (qPage < 1) qPage = 1;
+  const from = (qPage - 1) * QPER;
+  const shown = list.slice(from, from + QPER);
+
+  $("by-question").innerHTML =
+    '<table class="qtable"><thead><tr>' +
+      '<th class="qs">순번</th><th class="qd">마지막 질문</th>' +
+      '<th class="qk">구분</th><th>질문</th><th class="qn">건수</th>' +
+    '</tr></thead><tbody>' +
+    shown.map(function (r) {
+      const k = QKIND[r.kind];
+      const mix = (r.n !== r.cnt) ? '<span class="qmix">전체 ' + r.n + '건 중</span>' : "";
+      return '<tr><td class="qs">' + r.seq + '</td>' +
+             '<td class="qd">' + fmtWhen(r.last) + '</td>' +
+             '<td class="qk"><span class="kbadge ' + k.cls + '">' + k.lb + '</span></td>' +
+             '<td class="qq">' + esc(r.q) + '</td>' +
+             '<td class="qn">' + r.cnt + '건' + mix + '</td></tr>';
+    }).join("") +
+    '</tbody></table>';
+
+  const first = qPage === 1, last = qPage === pages;
+  $("q-pager").innerHTML =
+    '<button data-p="1"' + (first ? " disabled" : "") + '>&laquo; 처음</button>' +
+    '<button data-p="' + (qPage-1) + '"' + (first ? " disabled" : "") + '>&larr; 이전</button>' +
+    '<span>' + (from + 1) + '&ndash;' + (from + shown.length) + ' / ' + list.length + '가지 · ' +
+    qPage + ' / ' + pages + '쪽</span>' +
+    '<button data-p="' + (qPage+1) + '"' + (last ? " disabled" : "") + '>다음 &rarr;</button>' +
+    '<button data-p="' + pages + '"' + (last ? " disabled" : "") + '>끝 &raquo;</button>';
+
+  document.querySelectorAll("#q-pager button").forEach(function (b) {
+    if (b.disabled) return;
+    b.addEventListener("click", function () {
+      qPage = Number(b.dataset.p);
+      drawQ();
+      $("by-question").scrollIntoView({ behavior:"smooth", block:"start" });
+    });
+  });
+}
+
+
+// ---------- 챗봇 질문 구분 ----------
+document.querySelectorAll("#qkind button").forEach(function (b) {
+  b.addEventListener("click", function () {
+    qKind = b.dataset.q;
+    qPage = 1;
+    document.querySelectorAll("#qkind button").forEach(function (x) {
+      x.classList.toggle("on", x === b); });
+    drawQ();
+  });
+});
+
+// ---------- 챗봇 질문 기간 ----------
+// data-w 가 있는 버튼만 잡는다. 같은 상자 안의 구분 버튼까지 잡으면
+// qWhen 이 undefined 가 되어 화면에 "undefined 29건" 이 나온다.
+document.querySelectorAll("#qwhen button[data-w]").forEach(function (b) {
+  b.addEventListener("click", function () {
+    qWhen = b.dataset.w;
+    qPage = 1;
+    document.querySelectorAll("#qwhen button[data-w]").forEach(function (x) {
+      x.classList.toggle("on", x === b); });
+    drawQAll();
+  });
+});
+
+
 // ---------- 탭 전환 ----------
 document.querySelectorAll("#tabs button").forEach(function (b) {
   b.addEventListener("click", function () {
@@ -1021,6 +1269,7 @@ document.querySelectorAll("#tabs button").forEach(function (b) {
     document.querySelectorAll(".tab").forEach(function (t) {
       t.classList.toggle("on", t.id === "tab-" + b.dataset.t); });
     if (b.dataset.t === "syn" && !SYN.length) loadSyn();
+    if (b.dataset.t === "ask" && !QROWS.length) loadQuestions();
     window.scrollTo({ top: 0, behavior: "smooth" });
   });
 });
@@ -1043,8 +1292,8 @@ $("f-src").addEventListener("change", resetView);
 
 $("reload").addEventListener("click", function () { load(); loadSyn(); });
 
-// 문서를 먼저 읽어 db 연결을 만든 뒤 비슷한말을 읽는다
-load().then(loadSyn);
+// 문서를 먼저 읽어 db 연결을 만든 뒤 나머지를 읽는다
+load().then(function () { loadSyn(); loadQuestions(); });
 </script>
 
 
