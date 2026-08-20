@@ -392,7 +392,7 @@
                                       accent-color:var(--key); }
   table { width:100%; border-collapse:collapse; font-size:16px; table-layout:fixed; }
   th.num, td.num { text-align:right; }
-  th, td { text-align:left; padding:12px 8px; border-bottom:1px solid var(--line);
+  th, td { text-align:left; padding:12px 12px; border-bottom:1px solid var(--line);
            vertical-align:middle; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
            font-size:0.85em; }
   td.cert { font-weight:600; }
@@ -424,11 +424,7 @@
   .k-miss { background:var(--bad-bg);  color:var(--bad); }
   .k-ask  { background:var(--warn-bg); color:var(--warn); }
   .k-hit  { background:var(--ok-bg);   color:var(--ok); }
-  /* 받은 질문 표 — 횟수 칸은 오른쪽에 여백을 둬서 질문 글과 붙지 않게 한다 */
-  th.qcnt, td.qcnt { padding-right:22px; }
 
-  .qmix { display:block; margin-top:3px; font-size:0.82em;
-          font-weight:400; color:#9aa4ac; }
 
   /* 이 화면 쓰는 법 — 접수 관리와 같은 모양 */
   .guide { margin-top:16px; border:2px solid var(--line); border-radius:16px;
@@ -441,8 +437,6 @@
   /* 빈 칸 예시 글씨. 다섯 화면이 같은 흐림으로 보이게 한다. */
   input::placeholder, textarea::placeholder, select::placeholder {
     color:#a7b1b9; font-weight:400; opacity:1; }
-  /* 표 머리에 붙는 단위. 칸마다 '원' '건' 을 붙이면 자릿수가 안 맞는다. */
-  th .unit { font-weight:400; font-size:0.88em; color:#9aa4ac; margin-left:2px; }
 </style>
 </head>
 <body>
@@ -584,15 +578,15 @@
 
   <table>
     <colgroup>
-      <col style="width:58px"><col style="width:118px"><col style="width:114px">
-      <col style="width:92px"><col style="width:auto">
+      <col style="width:62px"><col style="width:110px"><col style="width:122px">
+      <col style="width:70px"><col style="width:auto">
     </colgroup>
     <thead>
       <tr>
         <th class="num sortable" data-qk="seq">순번</th>
         <th class="sortable" data-qk="last">마지막</th>
         <th class="sortable" data-qk="kind">구분</th>
-        <th class="num qcnt sortable" data-qk="cnt">횟수<span class="unit">(건)</span></th>
+        <th class="num qcnt sortable" data-qk="cnt">횟수</th>
         <th class="sortable" data-qk="q">손님이 물어본 말</th>
       </tr>
     </thead>
@@ -1301,7 +1295,8 @@ function drawQ() {
 
   list.sort(function (a, b) {
     let r = 0;
-    if (qSort === "seq" || qSort === "cnt") r = (a[qSort] || 0) - (b[qSort] || 0);
+    if (qSort === "seq") r = (a.seq || 0) - (b.seq || 0);
+    else if (qSort === "cnt") r = (a.n || 0) - (b.n || 0);
     else if (qSort === "kind") r = QKIND[a.kind].ord - QKIND[b.kind].ord;
     else r = String(a[qSort] || "").localeCompare(String(b[qSort] || ""), "ko");
     return qDown ? -r : r;
@@ -1316,11 +1311,10 @@ function drawQ() {
   $("q-rows").innerHTML = shown.length
     ? shown.map(function (r) {
         const k = QKIND[r.kind];
-        const mix = (r.n !== r.cnt) ? '<span class="qmix">전체 ' + r.n + '건 중</span>' : "";
         return '<tr><td class="num">' + r.seq + '</td>' +
                '<td>' + fmtWhen(r.last) + '</td>' +
                '<td><span class="kbadge ' + k.cls + '">' + k.lb + '</span></td>' +
-               '<td class="num qcnt">' + r.cnt + mix + '</td>' +
+               '<td class="num qcnt">' + r.n + '건</td>' +
                '<td>' + esc(r.q) + '</td></tr>';
       }).join("")
     : '<tr><td colspan="5"><div class="empty"><b>' +
