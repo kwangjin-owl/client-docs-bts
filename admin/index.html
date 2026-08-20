@@ -55,7 +55,7 @@
   .subtop .lead-bar { margin-left:auto; font-size:0.82em; color:var(--muted); }
 
   /* ===== 뼈대 ===== */
-  .wrap { max-width:1200px; margin:0 auto; padding:22px 24px 40px; }
+  .wrap { max-width:1200px; margin:0 auto; padding:22px 24px 32px; }
   .sheet { background:var(--card); border-radius:16px; padding:26px 28px 28px;
            box-shadow:0 1px 3px rgba(0,0,0,.06); margin-bottom:16px; }
   .eyebrow { display:flex; align-items:center; gap:8px; font-size:0.78em;
@@ -209,7 +209,7 @@
   td input.pick, th input#pick-all { width:20px; height:20px; cursor:pointer;
                                       accent-color:var(--key); }
 
-  .tools { display:grid; grid-template-columns:1fr 210px auto;
+  .tools { display:grid; grid-template-columns:1fr 200px auto;
            gap:10px; align-items:center; margin:12px 0 0; }
   @media (max-width:760px) { .tools { grid-template-columns:1fr; } }
   .tools input, .tools select { margin:0; }
@@ -296,6 +296,24 @@
                  font-size:0.95em; }
   .pager button { padding:10px 16px; font-size:0.95em; }
   .pager button:disabled { color:#b4b9bd; border-color:var(--line); cursor:default; }
+  /* 목록 머리 — 건수와 처리 버튼을 한 줄에, 표와 붙여서 */
+  .listbar { display:flex; align-items:center; gap:14px; flex-wrap:nowrap;
+             padding:12px 16px; margin:14px 0 0;
+             background:var(--soft); border:2px solid var(--line); border-bottom:0;
+             border-radius:12px 12px 0 0; }
+  .lcount { flex:1; min-width:0; font-size:0.85em; color:var(--muted);
+            white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .lcount b { color:var(--ink); font-size:1.1em; }
+  .lhint { flex:none; font-size:0.82em; color:var(--ok); font-weight:700; white-space:nowrap; }
+  .listbar .btn { flex:none; padding:9px 18px; font-size:0.84em; white-space:nowrap; }
+  .listbar .btn:disabled { background:#c8cdd1; border-color:#c8cdd1; cursor:default; }
+  table { margin-top:0 !important; border:2px solid var(--line); border-top:0;
+          border-radius:0 0 12px 12px; }
+  @media (max-width:700px) {
+    .listbar { flex-wrap:wrap; }
+    .lcount { flex:1 0 100%; white-space:normal; }
+  }
+
   .rno { font-variant-numeric:tabular-nums; letter-spacing:.3px; }
   .seq { color:var(--muted); font-variant-numeric:tabular-nums; }
   th.sortable { cursor:pointer; user-select:none; white-space:nowrap; }
@@ -502,11 +520,10 @@
   </div>
 
   <div class="listbar">
-    <p class="lcount" id="status">불러오는 중…</p>
+    <span class="lcount" id="status">불러오는 중…</span>
     <span class="lhint" id="bulk-hint"></span>
     <button type="button" class="btn key" id="bulk-go">확인 처리</button>
   </div>
-  <p class="sorthint" id="sorthint"></p>
 
   <table>
     <colgroup>
@@ -798,11 +815,9 @@ function render() {
   const todoN = list.filter(function (r) { return NEXT[r.status]; }).length;
   $("status").innerHTML = list.length
     ? "<b>" + list.length + "</b>건" +
-      (todoN ? " · 처리 안 한 것 <b>" + todoN + "</b>건" : " · 모두 처리했습니다") +
-      " · 줄을 누르면 자세히 보입니다"
+      (todoN ? " · 안 한 것 <b>" + todoN + "</b>건" : " · 모두 처리")
     : "조건에 맞는 접수가 없습니다";
-  $("sorthint").textContent =
-    "표 머리(접수일시 · 성함 · 자격증 · 결제금액 · 상태)를 누르면 그 기준으로 다시 늘어놓습니다";
+
 
   document.querySelectorAll("tr.row").forEach(function (tr) {
     tr.addEventListener("click", function () {
