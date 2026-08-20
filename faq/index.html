@@ -224,7 +224,7 @@
   body { align-items:stretch; }
 
 
-  /* ===== 안내 자료 화면 ===== */
+  /* ===== 챗봇 답변 관리 화면 ===== */
 
   /* 탭 */
   .tabs { display:flex; gap:6px; margin:18px 0 0; border-bottom:2px solid var(--line); }
@@ -341,7 +341,7 @@
 </head>
 <body>
 <div class="top"><div class="top-in"><a class="brandmark" href="/"><span class="sq">두두</span>두두자격지원센터</a><nav class="menu"><a href="/">접수 신청</a><a href="/check">접수 확인</a><a href="/chat">궁금한 것 물어보기</a></nav><a class="staff-btn here" href="/admin">직원용</a></div></div>
-<div class="subtop"><div class="subtop-in"><span class="stitle">직원용</span><a href="/admin">접수 관리</a><a href="/faq" class="here">안내 자료</a><button type="button" class="lock" id="lock">잠그기</button></div></div>
+<div class="subtop"><div class="subtop-in"><span class="stitle">직원용</span><a href="/admin">접수 관리</a><a href="/faq" class="here">챗봇 답변 관리</a><button type="button" class="lock" id="lock">잠그기</button></div></div>
 <div class="gate" id="gate">
   <div class="gate-box">
     <h2>직원용 화면</h2>
@@ -355,8 +355,8 @@
 
 <div class="wrap">
   <div class="sheet">
-  <h1>안내 자료</h1>
-  <p class="lead">챗봇이 답할 때 보는 자료입니다. 여기서 고치면 챗봇 답이 바로 바뀝니다.</p>
+  <h1>챗봇 답변 관리</h1>
+  <p class="lead">챗봇이 어떻게 답할지 여기서 정합니다. 고치면 바로 바뀝니다.</p>
 
   <div class="tabs" id="tabs">
     <button type="button" data-t="doc" class="on">챗봇이 답하는 내용 <span id="doc-n"></span></button>

@@ -378,10 +378,16 @@ function search(question) {
   ranked.sort(function (a, b) { return b.s - a.s; });
   if (!ranked.length) return { s: 0, doc: null, ask: null };
 
+  // 점수가 기준에 못 미치면 되묻지 않는다. 모르는 것은 모른다고 해야 한다.
+  // 발주서 7절 : "문서에 없는 것을 물으면 모른다고 답한다"
+  if (ranked[0].s < CFG.MIN_SCORE) return { s: ranked[0].s, doc: ranked[0].doc, ask: null };
+
   // 자격증을 안 말씀하셨는데 상위 답이 여러 자격증에 걸쳐 있으면 되묻는다.
   // 아무거나 답하면 "직원마다 다른 금액을 말한다"는 문제가 그대로 생긴다.
   if (!want) {
     const top = ranked.filter(function (r) { return r.s >= ranked[0].s - 0.08; }).slice(0, 12);
+    // 자격증이 안 적힌 문서(모든 자격증에 해당)는 되묻기 판단에서 뺀다
+    if (!ranked[0].doc.cert) return { s: ranked[0].s, doc: ranked[0].doc, ask: null };
     const certs = Array.from(new Set(top.map(function (r) { return r.doc.cert; })
                                         .filter(function (c) { return c; })));
     if (certs.length >= 2) return { s: ranked[0].s, doc: ranked[0].doc, ask: certs };
@@ -399,12 +405,10 @@ function showTurn(box) {
   l.scrollTop = Math.max(0, box.offsetTop - l.offsetTop - 8);
 }
 
-// 답이 올 때는 아래에 붙어 계실 때만 따라 내린다.
-// 위를 읽고 계시는데 끌어내리면 안 된다.
+// 답이 오면 아래로 내린다. 새 답을 놓치지 않게.
 function toBottom() {
   const l = $("log");
-  const near = l.scrollHeight - l.scrollTop - l.clientHeight < 120;
-  if (near) l.scrollTop = l.scrollHeight;
+  l.scrollTop = l.scrollHeight;
 }
 
 function addTurn(question) {
@@ -425,6 +429,18 @@ function fillTurn(box,text,meta,isErr) {
   toBottom();
 }
 
+// 화면을 옮겼다 와도 조금 전 대화는 남겨 둔다.
+// 어르신이 답을 보시다가 접수 화면에 갔다 오면 다 사라져 당황하신다.
+function saveLog() {
+  try { sessionStorage.setItem("chatlog", $("log").innerHTML); } catch (e) {}
+}
+function loadLog() {
+  try {
+    const v = sessionStorage.getItem("chatlog");
+    if (v && v.indexOf("turn") >= 0) { $("log").innerHTML = v; toBottom(); }
+  } catch (e) {}
+}
+
 async function ask(question) {
   if(busy||!question.trim()||!CFG) return;
   busy=true; $("send").disabled=true; $("q").value="";
@@ -434,11 +450,13 @@ async function ask(question) {
   // 자격증을 안 말씀하셨는데 답이 여럿이면 아무거나 답하지 않고 되묻는다
   if (best.ask) {
     fillTurn(box,
-      "어느 자격증을 말씀하시는지 알려 주시면 정확히 답해 드리겠습니다.\n\n" +
-      best.ask.join(" · ") + "\n\n예를 들어 \"" + best.ask[0] + " " + question + "\" 처럼 물어봐 주세요.",
-      "자격증마다 답이 다릅니다");
+      "자격증마다 답이 달라서 하나만 알려 주시면 정확히 말씀드리겠습니다.\n\n" +
+      "아래 자격증 중에 어느 것인가요?\n" + best.ask.join(" · ") + "\n\n" +
+      "자격증 이름을 앞에 붙여서 다시 물어봐 주세요.",
+      "자격증을 알려 주세요");
     logQ(question, false, best.s, null, "되물음");
-    busy=false; $("send").disabled=false; $("q").focus(); return;
+    saveLog();
+  busy=false; $("send").disabled=false; $("q").focus(); return;
   }
 
   if(best.doc && best.s>=CFG.MIN_SCORE){
@@ -446,12 +464,14 @@ async function ask(question) {
       "안내 문서 · " + (best.doc.cert ? best.doc.cert + " " : "") + best.doc.title);
     console.log("[챗봇] " + best.s.toFixed(2) + " · " + (best.doc.source||""));
     logQ(question,true,best.s,best.doc,"규칙");
+    saveLog();
     busy=false; $("send").disabled=false; $("q").focus(); return;
   }
   if(!CFG.USE_AI){
     fillTurn(box, CFG.FALLBACK, "");
     console.log("[챗봇] 못 찾음 (최고 "+best.s.toFixed(2)+")");
     logQ(question,false,best.s,null,"못찾음");
+    saveLog();
     busy=false; $("send").disabled=false; return;
   }
   try {
@@ -507,6 +527,8 @@ async function boot() {
     return '<button class="chip" type="button">'+s+'</button>'; }).join("");
   document.querySelectorAll(".chip").forEach(function(b){
     b.addEventListener("click", function(){ ask(b.textContent); }); });
+
+  loadLog();
 
   // 예시 질문이 그려지면서 높이가 바뀌므로 다시 잰다
   setTimeout(function () { window.dispatchEvent(new Event("resize")); }, 0);

@@ -146,10 +146,13 @@
            gap:14px; margin-top:16px; }
   .item2 { background:var(--card); border:2px solid var(--line); border-radius:14px;
            padding:20px 22px; box-shadow:0 1px 3px rgba(0,0,0,.06); }
-  .item2 .rno { font-size:0.8em; color:var(--muted); margin:0 0 2px; }
-  .item2 .rno b { font-size:1.35em; color:var(--ink); letter-spacing:.5px; }
-  .item2 .cert { font-size:1.15em; font-weight:700; margin:8px 0 2px; }
-  .item2 .when { font-size:0.82em; color:var(--muted); margin:0 0 14px; }
+  .item2 .ihead { display:flex; align-items:flex-start; justify-content:space-between;
+                  gap:14px; flex-wrap:wrap; margin-bottom:16px;
+                  padding-bottom:14px; border-bottom:1px solid var(--line); }
+  .item2 .cert { font-size:1.15em; font-weight:700; margin:0 0 4px; }
+  .item2 .when { font-size:0.8em; color:var(--muted); margin:0; }
+  .item2 .when b { color:var(--ink); font-size:1.15em; letter-spacing:.4px; }
+  .item2 .pills { display:flex; gap:6px; flex-wrap:wrap; }
   .item2 dl { margin:0; display:grid; grid-template-columns:auto 1fr;
               gap:5px 16px; font-size:0.86em; }
   .item2 dt { color:var(--muted); }
@@ -314,19 +317,20 @@ async function run(btn, apply) {
     $("result").innerHTML = '<div class="items">' + rows.map(function (a) {
       const x = a.extra || {};
       const rs = [
-        ["진행", pill(a.status)],
-        ["결제", payPill(a.pay_status)],
-        ["기관", a.agency || "-"],
-        ["결제하실 금액", (a.fee_final==null?0:a.fee_final).toLocaleString() + "원"]
+        ["응시료", (a.fee_final==null?0:a.fee_final).toLocaleString() + "원"],
+        ["접수하는 곳", a.agency || "-"]
       ];
       if (a.exam_region) rs.push([a.track==="보건"?"시험 센터":"시험 지역", a.exam_region]);
       if (a.exam_date) rs.push(["희망 시험일", a.exam_date]);
       if (x.exam_stage) rs.push(["차수", x.exam_stage]);
       if (x.training_org) rs.push(["교육기관", x.training_org]);
       return '<div class="item2">' +
-        (a.receipt_no ? '<p class="rno">접수번호 <b>'+a.receipt_no+'</b></p>' : "") +
-        '<p class="cert">'+a.cert_name+'</p>' +
-        '<p class="when">'+fmt(a.created_at)+' 접수</p><dl>' +
+        '<div class="ihead">' +
+          '<div><p class="cert">'+a.cert_name+'</p>' +
+          '<p class="when">'+fmt(a.created_at)+' 접수' +
+          (a.receipt_no ? ' · 접수번호 <b>'+a.receipt_no+'</b>' : "") + '</p></div>' +
+          '<div class="pills">'+pill(a.status)+payPill(a.pay_status)+'</div>' +
+        '</div><dl>' +
         rs.map(function(p){ return "<dt>"+p[0]+"</dt><dd>"+p[1]+"</dd>"; }).join("") +
         '</dl>' + (guide(a.status) ? '<p class="guide2">'+guide(a.status)+'</p>' : "") +
         '</div>';
