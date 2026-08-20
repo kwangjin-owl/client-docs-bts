@@ -1141,6 +1141,42 @@ $("q-save").addEventListener("click", async function () {
   load(true);
 });
 
+
+// ---------- 탭 전환 ----------
+document.querySelectorAll("#tabs button").forEach(function (b) {
+  b.addEventListener("click", function () {
+    document.querySelectorAll("#tabs button").forEach(function (x) {
+      x.classList.toggle("on", x === b); });
+    document.querySelectorAll(".tab").forEach(function (t) {
+      t.classList.toggle("on", t.id === "tab-" + b.dataset.t); });
+    window.scrollTo({ top:0, behavior:"smooth" });
+  });
+});
+
+// ---------- 기간 · 처리 · 경로 · 보기 ----------
+document.querySelectorAll("#quicks button").forEach(function (b) {
+  b.addEventListener("click", function () {
+    if (b.dataset.p !== undefined) {                    // 보기
+      perPage = b.dataset.p === "all" ? 1e9 : 50;
+      document.querySelectorAll("#quicks button[data-p]").forEach(function (x) {
+        x.classList.toggle("on", x === b); });
+    } else if (b.dataset.c !== undefined) {             // 경로
+      onlyChan = b.dataset.c;
+      document.querySelectorAll("#quicks button[data-c]").forEach(function (x) {
+        x.classList.toggle("on", x === b); });
+    } else if (b.dataset.w !== undefined) {             // 기간
+      $("f-when").value = b.dataset.w;
+      document.querySelectorAll("#quicks button[data-w]").forEach(function (x) {
+        x.classList.toggle("on", x === b); });
+    } else {                                            // 처리
+      onlyStatus = b.dataset.s;
+      document.querySelectorAll("#quicks button[data-s]").forEach(function (x) {
+        x.classList.toggle("on", x === b); });
+    }
+    reset();
+  });
+});
+
 $("q").addEventListener("input", reset);
 $("f-cert").addEventListener("change", reset);
 $("f-when").addEventListener("change", reset);
