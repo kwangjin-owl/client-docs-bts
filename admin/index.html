@@ -165,12 +165,14 @@
   .tabs button:hover { color:var(--key-d); }
   .tabs button.on { color:var(--key-d); font-weight:700; border-bottom-color:var(--key); }
   .tabs button span { font-size:0.85em; color:var(--bad); font-weight:700; }
-  .tabs .add { margin-left:auto; margin-bottom:6px; align-self:center;
+  .tabs .add, .tabs button.add.on { margin-left:auto; margin-bottom:6px; align-self:center;
                background:var(--key); color:#fff; font-weight:700;
-               border-radius:9px; padding:11px 20px; border-bottom:0; }
+               border-radius:9px; padding:11px 20px; border-bottom:0;
+               box-shadow:0 2px 6px rgba(15,123,108,.3); }
   .tabs .add::before { content:"+ "; }
   .tabs .add:hover { background:var(--key-d); color:#fff; }
-  .tabs .add.on { background:var(--key-d); }
+  .tabs button.add.on { background:var(--key-d); color:#fff;
+                        box-shadow:inset 0 2px 5px rgba(0,0,0,.25); }
   .tab { display:none; }
   .tab.on { display:block; }
 
@@ -347,7 +349,8 @@
   .rno { font-variant-numeric:tabular-nums; letter-spacing:.3px; }
   .seq { color:var(--muted); font-variant-numeric:tabular-nums; }
   th.sortable { cursor:pointer; user-select:none; white-space:nowrap; }
-  th.sortable:hover { color:var(--key-d); }
+  th.sortable:hover { color:var(--key-d); background:#e8edf0; }
+  th.sortable.up, th.sortable.down { color:var(--key-d); background:var(--key-bg); }
   th.sortable::after { content:"\2195"; margin-left:3px; opacity:.35; font-size:0.8em; }
   th.sortable.up::after   { content:"\2191"; opacity:1; color:var(--key); }
   th.sortable.down::after { content:"\2193"; opacity:1; color:var(--key); }
@@ -839,7 +842,7 @@ function render() {
     const why = (q || cert || when)
       ? '<b>찾으시는 접수가 없습니다</b><span>검색어를 지우거나 자격증·기간을 전체로 바꿔 보세요.</span>'
       : '<b>아직 접수가 없습니다</b><span>접수 화면에서 신청서가 들어오면 여기에 쌓입니다.</span>';
-    $("rows").innerHTML = '<tr><td colspan="8"><div class="empty">' + why + '</div></td></tr>';
+    $("rows").innerHTML = '<tr><td colspan="10"><div class="empty">' + why + '</div></td></tr>';
     $("status").textContent = "전체 " + all.length + "건";
     return;
   }
@@ -996,6 +999,11 @@ async function setStatus(id, to, sel, before) {
 }
 
 
+
+// 발주서 4절: 어떤 질문이 제일 많이 들어오는지 알고 싶다는 요청.
+// 질문이 쌓이면 세로로 끝없이 길어지므로 표로 묶고 10개씩만 보여 준다.
+let QALL = { miss: [], hit: [] };
+let qShow = { miss: 10, hit: 10 };
 
 async function loadQuestions() {
   try {

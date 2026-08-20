@@ -158,7 +158,7 @@
 ## 제출 요약
 
 ```
-Must:      ___/6 PASS
-Should:    ___/3 PASS
+Must:      6/6 PASS
+Should:    3/3 PASS
 Could:     ___/2 PASS (선택)
 ```
