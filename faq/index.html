@@ -229,8 +229,9 @@
   .sec2 { font-size:1.2em; font-weight:700; margin:24px 0 6px; }
 
   /* 거르는 칸 — 접수 내역 화면과 같은 모양 */
-  .dfilters { display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+  .dfilters { display:flex; align-items:center; gap:10px; flex-wrap:nowrap;
               background:var(--soft); border-radius:12px; padding:12px 16px; margin:16px 0 0; }
+  @media (max-width:760px) { .dfilters { flex-wrap:wrap; } }
   .dfilters .flb { font-size:0.8em; font-weight:700; color:var(--muted); white-space:nowrap; }
   .dfilters select { font:inherit; font-size:0.88em; padding:9px 12px; min-width:150px;
                      border:2px solid var(--line); border-radius:9px; background:var(--card); }
@@ -242,12 +243,20 @@
          padding:2px 9px; border-radius:5px; margin-right:6px; }
   .tag.k { background:#eef0f2; color:var(--muted); }
 
-  .more-wrap { text-align:center; margin-top:16px; }
-  .more { font:inherit; font-size:0.92em; padding:14px 30px; cursor:pointer;
-          border:2px solid var(--line); border-radius:10px;
-          background:var(--card); color:var(--muted); }
-  .more:hover { border-color:var(--key); color:var(--key-d); }
-  .more.hide { display:none; }
+  /* 쪽 나누기 — 접수 관리 화면과 같은 모양 */
+  .pager { display:flex; align-items:center; justify-content:center; gap:8px;
+           flex-wrap:wrap; margin-top:18px; }
+  .pager button { font:inherit; font-size:0.88em; padding:10px 16px; cursor:pointer;
+                  border:2px solid var(--line); border-radius:9px;
+                  background:var(--card); color:var(--muted); }
+  .pager button:hover:not(:disabled) { border-color:var(--key); color:var(--key-d); }
+  .pager button:disabled { color:#c2c8cd; cursor:default; }
+  .pager span { font-size:0.88em; color:var(--muted); }
+  .pager input { width:64px; font:inherit; font-size:0.88em; text-align:center;
+                 padding:8px 6px; border:2px solid var(--line); border-radius:8px; }
+
+  /* 거르는 칸을 한 줄로 */
+  .dfilters select { flex:1 1 170px; min-width:0; }
 
   /* 비슷한말 넣는 칸 */
   .synadd { display:grid; grid-template-columns:1fr auto 1fr auto; gap:14px;
@@ -370,7 +379,7 @@
   </div>
 
   <div id="list"></div>
-  <div class="more-wrap"><button type="button" class="more hide" id="more"></button></div>
+  <div class="pager" id="pager"></div>
 
   <p class="note" id="status">불러오는 중…</p>
   <p class="note tip">고친 뒤에는 챗봇을 열어 실제로 답이 바뀌었는지 확인하세요. 저장했다는 표시만 보고 넘어가면 안 됩니다.</p>
@@ -516,7 +525,7 @@ function fmtWhen(iso) {
   return (d.getMonth()+1) + "/" + d.getDate() + " " + p(d.getHours()) + ":" + p(d.getMinutes());
 }
 
-let showN = 50;          // 한 번에 보여 주는 건수. 다 그리면 화면이 멈춘다.
+let page = 1, perPage = 50;   // 접수 관리 화면과 같은 방식으로 쪽을 나눈다
 
 function fillPicks() {
   const certs = Array.from(new Set(docs.map(function (d) { return d.cert; })
@@ -564,7 +573,11 @@ function render() {
     return String(b.updated_at || "").localeCompare(String(a.updated_at || ""));
   });
 
-  const shown = list.slice(0, showN);
+  const pages = Math.max(1, Math.ceil(list.length / perPage));
+  if (page > pages) page = pages;
+  if (page < 1) page = 1;
+  const from = (page - 1) * perPage;
+  const shown = list.slice(from, from + perPage);
 
   $("list").innerHTML = shown.map(function (d) {
     return '' +
@@ -608,20 +621,38 @@ function render() {
       : '<b>안내 문서가 없습니다</b><span>문서 추가를 눌러 첫 문서를 만드세요.<br>여기에 적은 내용만 챗봇이 답합니다.</span>')
       + '</div>';
     $("status").textContent = "전체 " + docs.length + "건 · 조건에 맞는 것이 없습니다";
-    $("more").classList.add("hide");
+    $("pager").innerHTML = "";
     return;
   }
 
   $("doc-n").textContent = docs.length ? "(" + docs.length + ")" : "";
-  const rest = list.length - shown.length;
-  $("more").classList.toggle("hide", rest <= 0);
-  $("more").textContent = rest > 0
-    ? (rest > 50 ? "50건 더 보기 (남은 " + rest + "건)" : rest + "건 더 보기") : "";
+
+  const first = page === 1, last = page === pages;
+  $("pager").innerHTML = pages > 1
+    ? '<button id="p-first"' + (first ? " disabled" : "") + '>&laquo; 처음</button>' +
+      '<button id="prev"'    + (first ? " disabled" : "") + '>&larr; 이전</button>' +
+      '<span>' + (from + 1) + '&ndash;' + (from + shown.length) + ' / ' + list.length + '건 · ' +
+      '<input id="p-go" type="number" min="1" max="' + pages + '" value="' + page + '"> / ' +
+      pages + '쪽</span>' +
+      '<button id="next"'    + (last ? " disabled" : "") + '>다음 &rarr;</button>' +
+      '<button id="p-last"'  + (last ? " disabled" : "") + '>끝 &raquo;</button>'
+    : "";
 
   $("status").textContent =
     "전체 " + docs.length + "건" +
-    (list.length !== docs.length ? " 중 " + list.length + "건 걸러짐" : "") +
-    " · 지금 " + shown.length + "건 보는 중 · 제목을 누르면 펼쳐집니다";
+    (list.length !== docs.length ? " 중 " + list.length + "건" : "") +
+    " · " + (from + 1) + "\u2013" + (from + shown.length) + "번째 보는 중 · 제목을 누르면 펼쳐집니다";
+
+  if ($("p-first")) $("p-first").onclick = function () { goPage(1); };
+  if ($("prev"))    $("prev").onclick    = function () { goPage(page - 1); };
+  if ($("next"))    $("next").onclick    = function () { goPage(page + 1); };
+  if ($("p-last"))  $("p-last").onclick  = function () { goPage(pages); };
+  if ($("p-go")) {
+    $("p-go").onchange = function () { goPage(Number(this.value) || 1); };
+    $("p-go").onkeydown = function (e) {
+      if (e.key === "Enter") goPage(Number(this.value) || 1);
+    };
+  }
 
   bind();
 }
@@ -786,7 +817,7 @@ $("n-save").addEventListener("click", async function () {
 
   // 목록 탭으로 돌아가 방금 넣은 것을 보여 준다
   $("q").value = ""; $("f-cert").value = ""; $("f-cat").value = ""; $("f-src").value = "";
-  showN = 50;
+  page = 1;
   await load();
   const goDoc = document.querySelector('#tabs button[data-t="doc"]');
   if (goDoc) goDoc.click();
@@ -905,14 +936,40 @@ async function delSyn(id, btn) {
   await loadSyn();
 }
 
+
+// ---------- 탭 전환 ----------
+document.querySelectorAll("#tabs button").forEach(function (b) {
+  b.addEventListener("click", function () {
+    // 이미 켜져 있는 '새로 넣기'를 다시 누르면 목록으로 돌아간다
+    if (b.dataset.t === "new" && b.classList.contains("on")) {
+      const doc = document.querySelector('#tabs button[data-t="doc"]');
+      if (doc) { doc.click(); return; }
+    }
+    document.querySelectorAll("#tabs button").forEach(function (x) {
+      x.classList.toggle("on", x === b); });
+    document.querySelectorAll(".tab").forEach(function (t) {
+      t.classList.toggle("on", t.id === "tab-" + b.dataset.t); });
+    if (b.dataset.t === "syn" && !SYN.length) loadSyn();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+});
+
 // 거르는 칸을 바꾸면 처음 50건부터 다시 본다
-function resetView() { showN = 50; render(); }
+function resetView() { page = 1; render(); }
+
+function goPage(n) {
+  const list = docs.length;
+  page = Math.max(1, n);
+  render();
+  const t = $("list");
+  if (t) t.scrollIntoView({ behavior: "smooth", block: "start" });
+}
 
 $("q").addEventListener("input", resetView);
 $("f-cert").addEventListener("change", resetView);
 $("f-cat").addEventListener("change", resetView);
 $("f-src").addEventListener("change", resetView);
-$("more").addEventListener("click", function () { showN += 50; render(); });
+
 $("reload").addEventListener("click", function () { load(); loadSyn(); });
 
 // 문서를 먼저 읽어 db 연결을 만든 뒤 비슷한말을 읽는다

@@ -278,9 +278,17 @@ if (window.self !== window.top) document.documentElement.classList.add("embed");
 const $ = function (id) { return document.getElementById(id); };
 let CFG = null, DOCS = [], busy = false, db = null;
 
-const SAMPLES = ["한식조리 접수비가 얼마예요", "전기기능사 언제 접수해요",
-                 "요양보호사는 어디서 신청해요", "시험 볼 때 뭘 가져가나요",
-                 "취소하면 돈 돌려받나요"];
+// 실제 상담기록 4,705건에서 많이 들어온 순서로 골랐다.
+// 접수방법 11.6% · 환불 11.4% · 시험장 11.2% · 시험과목 10.8% · 응시료 10.4%
+// 자격증마다 답이 다른 것은 자격증을 붙여 두었다. 안 붙이면 챗봇이 되묻는다.
+const SAMPLES = [
+  "지게차 가족이 대신 접수해도 되나요",   // 접수방법 (1위)
+  "한식조리 취소하면 환불 되나요",        // 환불 (2위)
+  "시험장에 주차장이 있나요",            // 시험장 (3위)
+  "한식조리 시험에 뭐가 나와요",          // 시험과목 (4위)
+  "굴착기 접수비가 얼마예요",            // 응시료 (5위)
+  "한식조리 신분증 뭐 필요해요"          // 신분증
+];
 
 async function logQ(question, answered, score, doc, route) {
   if (!db) return;
