@@ -441,6 +441,8 @@
   /* 빈 칸 예시 글씨. 다섯 화면이 같은 흐림으로 보이게 한다. */
   input::placeholder, textarea::placeholder, select::placeholder {
     color:#a7b1b9; font-weight:400; opacity:1; }
+  /* 표 머리에 붙는 단위. 칸마다 '원' '건' 을 붙이면 자릿수가 안 맞는다. */
+  th .unit { font-weight:400; font-size:0.88em; color:#9aa4ac; margin-left:2px; }
 </style>
 </head>
 <body>
@@ -590,7 +592,7 @@
         <th class="num sortable" data-qk="seq">순번</th>
         <th class="sortable" data-qk="last">마지막</th>
         <th class="sortable" data-qk="kind">구분</th>
-        <th class="num qcnt sortable" data-qk="cnt">횟수</th>
+        <th class="num qcnt sortable" data-qk="cnt">횟수<span class="unit">(건)</span></th>
         <th class="sortable" data-qk="q">손님이 물어본 말</th>
       </tr>
     </thead>
@@ -1318,7 +1320,7 @@ function drawQ() {
         return '<tr><td class="num">' + r.seq + '</td>' +
                '<td>' + fmtWhen(r.last) + '</td>' +
                '<td><span class="kbadge ' + k.cls + '">' + k.lb + '</span></td>' +
-               '<td class="num qcnt">' + r.cnt + '건' + mix + '</td>' +
+               '<td class="num qcnt">' + r.cnt + mix + '</td>' +
                '<td>' + esc(r.q) + '</td></tr>';
       }).join("")
     : '<tr><td colspan="5"><div class="empty"><b>' +
