@@ -251,8 +251,6 @@
   .tools .btn.key.open::before { content:"\2212"; }
   /* 넣기 칸이 열려 있으면 남색으로. 빨강은 지우는 버튼 같아서 쓰지 않는다. */
   .tools .btn.on { background:var(--warn); color:#fff; border-color:var(--warn); }
-  tr.row.gone td { background:#fdf7ec; color:#8a7a5a; }
-  tr.row.gone:hover td { background:#faf0dd; }
 
   .tools .btn.key.open { background:var(--navy); color:#fff;
                          border-color:var(--navy); box-shadow:none; }
@@ -598,8 +596,6 @@
   </div>
 
   <div class="tools">
-    <button type="button" class="btn ghost" id="del-toggle"><span
-      class="dl">지운 접수 보기</span> <span id="del-n"></span></button>
     <input id="q" type="text" placeholder="성함, 연락처, 접수번호로 찾기">
     <select id="f-cert"><option value="">자격증 전체</option></select>
     <select id="f-when" class="hide">
@@ -666,7 +662,7 @@
     </colgroup>
     <thead>
       <tr>
-        <th class="num sortable" data-k="seq">번호</th>
+        <th class="num sortable" data-k="seq">순번</th>
         <th class="sortable" data-k="created_at">접수일</th>
         <th class="sortable" data-k="name">이름</th>
         <th>연락처</th>
@@ -730,17 +726,10 @@
           어제 처리한 건을 오늘 다시 찾는 일을 줄이려고 넣었습니다.</dd>
 
       <dt>안내 내용을 고치려면</dt>
-      <dt>잘못 넣은 접수를 없애려면</dt>
-      <dd>그 줄을 눌러 펼치고 <b>이 접수 지우기</b>를 누르십시오.
-          목록에서는 사라지지만 기록은 남습니다.
-          왜 지우셨는지도 같이 남아서 나중에 확인하실 수 있고,
-          찾기 줄의 <b>지운 접수 보기</b>에서 되살리실 수 있습니다.</dd>
-
-      <dt>번호가 중간에 비어 있는 이유</dt>
-      <dd>지운 접수가 있어서입니다. 이 번호는 접수 한 건마다 하나씩 붙고
-          한 번 쓴 번호는 다시 쓰지 않습니다.
-          그래야 어제 500번이던 분이 오늘도 500번입니다.
-          Supabase에서 보시는 번호와 같습니다.</dd>
+      <dt>잘못 넣은 접수는 어떻게 하나</dt>
+      <dd>지우지 않고 처리를 <b>취소</b>로 바꿔 주십시오.
+          접수는 돈이 오간 기록이라, 나중에 손님이 물으시면
+          확인할 수 있어야 합니다.</dd>
 
       <dd><a href="/faq">챗봇 답변 관리</a> 화면에서 고치시면 챗봇 답이 바로 바뀝니다.
           손님이 무엇을 물어보셨는지도 그 화면 <b>받은 질문</b>에서 보실 수 있습니다.</dd>
@@ -881,17 +870,12 @@ function detailRow(r) {
     pairs.map(function (p) { return '<dt>' + p[0] + '</dt><dd>' + p[1] + '</dd>'; }).join("") +
     '</dl>' +
     '<div class="dacts">' +
-      (r.deleted_at
-        ? '<button type="button" class="btn undelrow" data-id="' + r.id + '">되살리기</button>' +
-          '<span class="dhint">' + fmtWhen(r.deleted_at) + ' 에 지웠습니다' +
-          (r.deleted_why ? ' — ' + esc(r.deleted_why) : '') + '</span>'
-        : '<button type="button" class="btn bad delrow" data-id="' + r.id + '">이 접수 지우기</button>' +
-          '<span class="dhint">기록은 남습니다. 나중에 되살리실 수 있습니다.</span>') +
+      '<span class="dhint">잘못 넣으셨으면 위에서 처리를 <b>취소</b>로 바꿔 주세요. ' +
+      '접수 기록은 지우지 않습니다.</span>' +
     '</div></td></tr>';
 }
 
 let onlyStatus = "", onlyChan = "";
-let showDeleted = false;      // 목록에서 뺀 접수만 보기
 let statWhen = "", qWhen = "";        // 현황 보기 · 챗봇 질문의 기간
 
 // 기간 하나로 판정한다. "" 전체 / today 오늘 / week 최근 7일
@@ -912,8 +896,6 @@ function render() {
   const when = $("f-when").value;
 
   const list = all.filter(function (r) {
-    // 지운 접수는 목록에 안 나온다. "지운 접수 보기"를 켜면 그것만 나온다.
-    if (showDeleted ? !r.deleted_at : !!r.deleted_at) return false;
     if (cert && r.cert_name !== cert) return false;
     if (when === "today" && !isToday(r.created_at)) return false;
     if (when === "week" && !withinDays(r.created_at, 7)) return false;
@@ -1059,11 +1041,8 @@ function render() {
     };
   }
 
-  // 탭 배지는 목록에 보이는 건수. 뺀 것은 빼고 센다.
-  const liveN = all.filter(function (r) { return !r.deleted_at; }).length;
-  const delN  = all.length - liveN;
-  $("tab-n").textContent = liveN ? "(" + liveN + ")" : "";
-  $("del-n").textContent = "(" + delN + ")";
+  // 탭 배지는 전체 건수
+  $("tab-n").textContent = all.length ? "(" + all.length + ")" : "";
 }
 
 // 줄이 많아지면 줄마다 이벤트를 붙이는 것이 느리다.
@@ -1081,11 +1060,6 @@ function bindTableOnce() {
       page = 1; render();
       return;
     }
-    // 지우기 · 되살리기
-    const del = e.target.closest(".delrow");
-    if (del) { e.stopPropagation(); delRow(Number(del.dataset.id), del); return; }
-    const undel = e.target.closest(".undelrow");
-    if (undel) { e.stopPropagation(); undelRow(Number(undel.dataset.id), undel); return; }
     if (e.target.closest(".stsel")) return;      // 상태 고르기는 줄 펼치기와 겹치지 않게
 
     const tr = e.target.closest("tr.row");
@@ -1103,46 +1077,6 @@ function bindTableOnce() {
     const row = all.find(function (r) { return String(r.id) === sel.dataset.id; });
     setStatus(Number(sel.dataset.id), sel.value, sel, row ? row.status : "");
   });
-}
-
-// 잘못 넣은 접수를 목록에서 감춘다. 진짜로 지우지는 않는다.
-// 접수는 돈이 오가는 기록이라 나중에 확인할 길이 있어야 하고,
-// 진짜 지우면 뒤에 있는 사람들 순번이 당겨져 기록이 어긋난다.
-async function delRow(id, btn) {
-  const row = all.find(function (r) { return r.id === id; });
-  if (!row) return;
-
-  const why = prompt(
-    row.name + " 님 접수를 지우시겠습니까?\n" +
-    (row.receipt_no ? "접수번호 " + row.receipt_no + "\n" : "") +
-    row.cert_name + "\n\n" +
-    "왜 지우시는지 적어 주세요. 기록에 남습니다.", "잘못 넣음");
-  if (why === null) return;
-
-  btn.disabled = true; btn.textContent = "지우는 중…";
-  const res = await db.from("applications")
-    .update({ deleted_at: new Date().toISOString(),
-              deleted_why: (why || "").trim() || "적지 않음" })
-    .eq("id", id).select();
-  btn.disabled = false; btn.textContent = "이 접수 지우기";
-
-  if (res.error) { alert("지우지 못했습니다: " + res.error.message); return; }
-  load();
-}
-
-// 뺐던 접수를 되살린다
-async function undelRow(id, btn) {
-  const row = all.find(function (r) { return r.id === id; });
-  if (!row) return;
-  if (!confirm(row.name + " 님 접수를 되살리시겠습니까?")) return;
-
-  btn.disabled = true; btn.textContent = "되살리는 중…";
-  const res = await db.from("applications")
-    .update({ deleted_at: null, deleted_why: null }).eq("id", id).select();
-  btn.disabled = false; btn.textContent = "되살리기";
-
-  if (res.error) { alert("되살리지 못했습니다: " + res.error.message); return; }
-  load();
 }
 
 function goPage(n) {
@@ -1175,9 +1109,8 @@ async function load() {
       all = all.concat(part);
       if (part.length < 1000) break;
     }
-    // 순번은 Supabase 가 붙인 번호를 그대로 쓴다.
-    // 화면에서 다시 세면 한 건만 빼도 뒤에 있는 사람 번호가 다 당겨져
-    // "500번 확인해 주세요"가 다른 사람을 가리키게 된다.
+    // 순번은 Supabase 번호를 그대로 쓴다. 접수는 지우지 않으므로 빈칸이 생기지 않는다.
+    // 화면에서 다시 세지 않아야 Supabase에서 찾으실 때 같은 번호로 보인다.
     all.forEach(function (r) { r._seq = r.id; });
 
     // 버튼에 켜져 있는 기간을 그리기 전에 맞춘다.

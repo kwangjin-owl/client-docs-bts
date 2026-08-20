@@ -67,9 +67,9 @@ drop policy if exists "anon read" on applications;
 create policy "anon read"   on applications for select to anon using (true);
 drop policy if exists "anon update" on applications;
 create policy "anon update" on applications for update to anon using (true) with check (true);
--- 직원이 잘못 넣은 접수를 지울 수 있어야 한다
+-- 접수는 지우지 않는다. 돈이 오간 기록이라 남겨야 한다.
+-- 잘못 넣었으면 처리를 '취소'로 바꾼다.
 drop policy if exists "anon delete" on applications;
-create policy "anon delete" on applications for delete to anon using (true);
 
 
 -- ------------------------------------------------------------
@@ -508,17 +508,39 @@ on conflict (word) do nothing;
 
 
 -- ============================================================
--- 지운 접수를 진짜 지우지 않고 표시만 한다
--- 접수는 돈이 오가는 기록이라 "내가 접수했는데 왜 없냐"고 하실 때
--- 확인할 길이 있어야 한다. 번호가 당겨지는 문제도 같이 없어진다.
+-- 접수 번호를 1번부터 다시 매기기
+--
+-- 지우기 기능을 없앴으니 지금 한 번 정리하면 그 뒤로는 안 어긋납니다.
+-- 접수한 순서대로 1, 2, 3... 이 됩니다.
+-- 손님께 알려 드리는 접수번호(receipt_no)는 안 건드립니다.
+--
+-- 한 번만 돌리십시오. 여러 번 돌려도 결과는 같습니다.
 -- ============================================================
 
-alter table applications add column if not exists deleted_at timestamptz;
-alter table applications add column if not exists deleted_by text;
-alter table applications add column if not exists deleted_why text;
+-- 0) id 를 손댈 수 있게 잠깐 풀어 준다
+alter table applications alter column id drop identity if exists;
 
-create index if not exists applications_deleted_idx
-  on applications (deleted_at) where deleted_at is not null;
+-- 1) 접수한 순서대로 새 번호를 매긴다
+with 새번호 as (
+  select id, row_number() over (order by created_at, id) as n
+  from applications
+)
+update applications a set id = -새번호.n     -- 겹치지 않게 음수로 먼저 옮긴다
+from 새번호 where a.id = 새번호.id;
+
+-- 2) 음수를 양수로 되돌린다
+update applications set id = -id where id < 0;
+
+-- 3) 다시 자동 번호로 만들고, 다음 접수가 이어지게 맞춘다
+alter table applications alter column id add generated always as identity;
+select setval(
+  pg_get_serial_sequence('applications', 'id'),
+  coalesce((select max(id) from applications), 0),
+  true
+);
+
+-- 확인용
+select min(id) as 첫번호, max(id) as 끝번호, count(*) as 건수 from applications;
 
 
 -- ============================================================
