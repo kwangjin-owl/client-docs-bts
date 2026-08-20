@@ -98,9 +98,12 @@
   .fldmsg.bad::before { content:"\26A0"; }
   .opt { font-size:0.78em; font-weight:400; color:var(--muted);
          background:var(--soft); padding:3px 9px; border-radius:5px; }
-  .badge-must { display:inline-block; font-size:0.66em; font-weight:800;
-                background:var(--bad); color:#fff; padding:3px 8px;
-                border-radius:5px; vertical-align:2px; margin-left:2px; }
+  .badge-must { display:inline-block; font-size:0.64em; font-weight:800; letter-spacing:.02em;
+                background:var(--bad-bg); color:var(--bad); padding:3px 8px;
+                border-radius:5px; vertical-align:2px; margin-left:3px; }
+  .badge-opt  { display:inline-block; font-size:0.64em; font-weight:800; letter-spacing:.02em;
+                background:#e9edef; color:var(--muted); padding:3px 8px;
+                border-radius:5px; vertical-align:2px; margin-left:3px; }
   input:focus, select:focus, textarea:focus { outline:3px solid var(--key); outline-offset:1px; }
   input[readonly] { background:var(--soft); color:var(--muted); }
   textarea { resize:vertical; line-height:1.6; width:100%; max-width:100%; }

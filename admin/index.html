@@ -93,9 +93,12 @@
   .hint { font-size:0.8em; color:#7b8892; margin:6px 0 0; }
   .hint.good { color:var(--ok); font-weight:700; }
   .req { display:inline-block; color:var(--bad); font-weight:800; }
-  .badge-must { display:inline-block; font-size:0.62em; font-weight:800; letter-spacing:.02em;
+  .badge-must { display:inline-block; font-size:0.64em; font-weight:800; letter-spacing:.02em;
                 background:var(--bad-bg); color:var(--bad); padding:3px 8px;
-                border-radius:5px; vertical-align:2px; }
+                border-radius:5px; vertical-align:2px; margin-left:3px; }
+  .badge-opt  { display:inline-block; font-size:0.64em; font-weight:800; letter-spacing:.02em;
+                background:#e9edef; color:var(--muted); padding:3px 8px;
+                border-radius:5px; vertical-align:2px; margin-left:3px; }
   .bad-field { border-color:var(--bad) !important; background:var(--bad-bg) !important; }
 
   /* ===== 알림 ===== */
@@ -238,9 +241,10 @@
   .tools .btn.key::before { content:"+"; display:inline-block;
                             width:1em; margin-right:5px; text-align:center; }
   .tools .btn.key.open::before { content:"\2715"; }
-  .tools .btn.key.open { background:var(--card); color:var(--bad);
-                         border-color:var(--bad); }
-  .tools .btn.key.open:hover { background:var(--bad); color:#fff; }
+  .tools .btn.key.open { background:var(--soft); color:var(--muted);
+                         border-color:var(--line); box-shadow:none; }
+  .tools .btn.key.open:hover { background:#e6e9eb; color:var(--ink);
+                               border-color:#c2c8cd; }
 
   button { cursor:pointer; }
   button.go { background:var(--key); color:#fff; border-color:var(--key); }
@@ -280,8 +284,7 @@
   /* 잘못 넣으신 칸을 그 자리에서 알려 준다 */
   .qf input.wrong, .qf select.wrong { border-color:var(--bad) !important;
                                       background:var(--bad-bg) !important; }
-  .qf label em { font-style:normal; font-size:0.85em; font-weight:600;
-                 color:var(--bad); margin-left:4px; }
+  /* 필수 배지는 손님 화면과 같은 모양을 쓴다 (위에 이미 있음) */
   .quick input, .quick select { width:100%; font:inherit; padding:10px 12px;
     border:2px solid var(--line); border-radius:8px; background:#fff; }
   .quick .go2 { width:100%; margin-top:14px; font:inherit; font-size:1.02em;
@@ -616,17 +619,17 @@
   <p class="newtitle">전화·방문 접수 넣기</p>
   <p class="newlead">손님이 전화나 방문으로 신청하신 것을 직원이 대신 넣습니다.</p>
       <div class="qrow">
-        <div class="qf"><label for="q-cert">신청 자격증</label><select id="q-cert"></select></div>
-        <div class="qf"><label for="q-name">이름</label><input id="q-name" placeholder="홍길동"></div>
-        <div class="qf"><label for="q-phone">연락처 <em>꼭 필요합니다</em></label>
+        <div class="qf"><label for="q-cert">신청 자격증 <span class="badge-must">필수</span></label><select id="q-cert"></select></div>
+        <div class="qf"><label for="q-name">이름 <span class="badge-must">필수</span></label><input id="q-name" placeholder="홍길동"></div>
+        <div class="qf"><label for="q-phone">연락처 <span class="badge-must">필수</span></label>
           <input id="q-phone" inputmode="tel" placeholder="010-1234-5678">
           <p class="qh2">직원이 연락드릴 때 씁니다. 못 받으셨으면 대신 받으신 분 번호라도 적어 주세요</p></div>
-        <div class="qf"><label for="q-channel">접수경로</label>
+        <div class="qf"><label for="q-channel">접수경로 <span class="badge-must">필수</span></label>
           <select id="q-channel"><option>전화</option><option>방문</option></select></div>
       </div>
 
       <div class="qf" style="margin-top:12px">
-        <label for="q-memo">비고</label>
+        <label for="q-memo">비고 <span class="badge-opt">선택</span></label>
         <input id="q-memo" placeholder="예: 딸이 대신 문의 · 연락처 못 받음">
       </div>
 
@@ -1324,6 +1327,18 @@ $("q-phone").addEventListener("input", function () {
     : d.length <= 10 ? d.slice(0,3) + "-" + d.slice(3,6) + "-" + d.slice(6)
     : d.slice(0,3) + "-" + d.slice(3,7) + "-" + d.slice(7);
 });
+
+// 잘못된 칸에 빨간 테두리를 두르고 그 칸으로 옮겨 준다
+function qmark() {
+  ["q-cert","q-name","q-phone","q-channel","q-memo"].forEach(function (id) {
+    if ($(id)) $(id).classList.remove("wrong");
+  });
+}
+function qbad(id, msg) {
+  const el = $(id);
+  if (el) { el.classList.add("wrong"); el.focus(); }
+  qsay(msg, "bad");
+}
 
 function qsay(t, k) { $("q-said").textContent = t; $("q-said").className = "said2 " + (k || ""); }
 
