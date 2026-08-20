@@ -93,12 +93,14 @@
   .hint { font-size:0.8em; color:#7b8892; margin:6px 0 0; }
   .hint.good { color:var(--ok); font-weight:700; }
   .req { display:inline-block; color:var(--bad); font-weight:800; }
-  .badge-must { display:inline-block; font-size:0.64em; font-weight:800; letter-spacing:.02em;
-                background:var(--bad-bg); color:var(--bad); padding:3px 8px;
-                border-radius:5px; vertical-align:2px; margin-left:3px; }
-  .badge-opt  { display:inline-block; font-size:0.64em; font-weight:800; letter-spacing:.02em;
-                background:#e9edef; color:var(--muted); padding:3px 8px;
-                border-radius:5px; vertical-align:2px; margin-left:3px; }
+  .badge-must { display:inline-block; font-size:0.72em; font-weight:800; letter-spacing:.02em;
+                background:var(--bad-bg); color:var(--bad); padding:2px 7px;
+                border-radius:5px; margin-left:4px; vertical-align:baseline;
+                line-height:1.5; }
+  .badge-opt  { display:inline-block; font-size:0.72em; font-weight:800; letter-spacing:.02em;
+                background:#e9edef; color:var(--muted); padding:2px 7px;
+                border-radius:5px; margin-left:4px; vertical-align:baseline;
+                line-height:1.5; }
   .bad-field { border-color:var(--bad) !important; background:var(--bad-bg) !important; }
 
   /* ===== 알림 ===== */
@@ -144,23 +146,23 @@
   .back { font-size:16px; color:var(--key); text-decoration:none; }
 
   .cards { display:grid; grid-template-columns:repeat(4, minmax(0,1fr));
-           gap:12px; margin:16px 0 10px; }
+           gap:10px; margin:14px 0 6px; }
   @media (max-width:900px) { .cards { grid-template-columns:repeat(2,1fr); } }
   @media (max-width:560px) { .cards { grid-template-columns:1fr; } }
   .stat.todo { background:var(--key-bg); }
   .stat.todo .k, .stat.todo .v { color:var(--key-d); }
-  .stat { background:var(--soft); border-radius:12px; padding:18px 22px; }
-  .stat .k { font-size:0.8em; color:var(--muted); margin:0; }
-  .stat .v { font-size:1.9em; font-weight:700; margin:2px 0 0; line-height:1.2; }
+  .stat { background:var(--soft); border-radius:12px; padding:13px 16px; }
+  .stat .k { font-size:0.76em; color:var(--muted); margin:0; }
+  .stat .v { font-size:1.45em; font-weight:700; margin:2px 0 0; line-height:1.2; }
   .stat .u { font-size:0.55em; font-weight:400; color:var(--muted); margin-left:2px; }
 
-  h2 { font-size:1.1em; font-weight:700; margin:30px 0 12px; }
+  h2 { font-size:0.95em; font-weight:700; margin:22px 0 9px; }
 
   .bar { display:flex; align-items:center; gap:14px; margin-bottom:7px; font-size:0.88em; }
-  .bar .nm { width:160px; flex:none; }
-  .bar .track { flex:1; background:#eef0f2; border-radius:6px; height:22px; overflow:hidden; }
-  .bar .fill { display:block; background:var(--key); height:22px; border-radius:6px; }
-  .bar .ct { width:120px; flex:none; text-align:right; color:var(--muted); white-space:nowrap; }
+  .bar .nm { width:132px; flex:none; }
+  .bar .track { flex:1; background:#eef0f2; border-radius:5px; height:18px; overflow:hidden; }
+  .bar .fill { display:block; background:var(--key); height:18px; border-radius:5px; }
+  .bar .ct { width:104px; flex:none; text-align:right; color:var(--muted); white-space:nowrap; }
   /* 0건도 목록에 남긴다. 흐리게 하되 읽을 수는 있게. */
   .bar.zero .nm { color:#9aa4ac; }
   .bar.zero .track { background:#f2f4f5; }
@@ -191,6 +193,7 @@
              padding:12px 16px; margin:14px 0 0; }
   .fgrp { display:flex; align-items:center; gap:7px; }
   .fgrp.right { margin-left:auto; }
+  .filters .btn { font-size:0.8em; padding:7px 14px; border-radius:9px; }
   .flb { font-size:0.76em; font-weight:700; color:var(--muted); white-space:nowrap; }
 
   /* 고르는 것 — 이어 붙인 칸 */
@@ -226,16 +229,16 @@
   .tools { display:flex; align-items:center; gap:8px; flex-wrap:wrap;
            margin:10px 0 18px; padding-bottom:18px;
            border-bottom:1px solid var(--line); }
-  .tools input[type="text"] { flex:1 1 260px; min-width:0; margin:0;
-                              font:inherit; font-size:0.9em; padding:11px 14px;
-                              border:2px solid var(--line); border-radius:10px;
+  .tools input[type="text"] { flex:1 1 240px; min-width:0; margin:0;
+                              font:inherit; font-size:0.85em; padding:9px 13px;
+                              border:2px solid var(--line); border-radius:9px;
                               background:var(--card); }
   .tools input[type="text"]:focus { outline:0; border-color:var(--key); }
-  .tools select { flex:0 0 auto; width:170px; margin:0;
-                  font:inherit; font-size:0.9em; padding:11px 12px;
-                  border:2px solid var(--line); border-radius:10px; background:var(--card); }
+  .tools select { flex:0 0 auto; width:158px; margin:0;
+                  font:inherit; font-size:0.85em; padding:9px 11px;
+                  border:2px solid var(--line); border-radius:9px; background:var(--card); }
   .tools .btn { flex:0 0 auto; white-space:nowrap;
-                font-size:0.88em; padding:11px 18px; border-radius:10px; }
+                font-size:0.82em; padding:9px 15px; border-radius:9px; }
   /* 넣기 칸이 열려 있으면 색과 기호만 바꾼다.
      글자까지 바꾸면 버튼 크기가 들쭉날쭉해진다. */
   .tools .btn.key::before { content:"+"; display:inline-block;
@@ -279,18 +282,23 @@
   .quick .qrow { display:grid; grid-template-columns:repeat(5, 1fr); gap:10px; }
   @media (max-width:1100px) { .quick .qrow { grid-template-columns:repeat(3,1fr); } }
   @media (max-width:640px)  { .quick .qrow { grid-template-columns:1fr; } }
-  .quick .qf { background:var(--card); border-radius:9px; padding:9px 11px; }
-  .quick .qf label { margin-bottom:4px; font-size:0.82em; }
-  .quick .qrow { gap:10px; }
-  .quick .qh2 { font-size:0.74em; margin:4px 0 0; }
-  .quick .qnote { font-size:0.76em; margin:10px 0 0; }
+  /* 새 안내 넣기 화면과 같은 모양 */
+  .quick .qf { background:none; padding:0; }
+  .quick .qf label { display:block; font-size:0.82em; font-weight:700;
+                     color:var(--muted); margin:0 0 7px; line-height:1.5; }
+  .quick .qrow { gap:14px; }
+  .quick .qh2 { font-size:0.74em; color:var(--muted); margin:6px 0 0; line-height:1.5; }
+  .quick .qnote { font-size:0.76em; color:var(--muted); margin:14px 0 0; }
 
   /* 잘못 넣으신 칸을 그 자리에서 알려 준다 */
   .qf input.wrong, .qf select.wrong { border-color:var(--bad) !important;
                                       background:var(--bad-bg) !important; }
   /* 필수 배지는 손님 화면과 같은 모양을 쓴다 (위에 이미 있음) */
-  .quick input, .quick select { width:100%; font:inherit; padding:10px 12px;
-    border:2px solid var(--line); border-radius:8px; background:#fff; }
+  .quick input, .quick select { width:100%; margin:0; font:inherit; font-size:0.95em;
+    padding:11px 13px; border:2px solid var(--line); border-radius:10px;
+    background:var(--card); }
+  .quick input:focus, .quick select:focus { outline:0; border-color:var(--key); }
+  .quick input::placeholder { color:#b4b9bd; }
   .quick .go2 { width:100%; margin-top:14px; font:inherit; font-size:1.02em;
     font-weight:600; padding:14px; background:var(--key); color:#fff;
     border:2px solid var(--key); border-radius:10px; cursor:pointer; }

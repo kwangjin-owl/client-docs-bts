@@ -143,16 +143,16 @@
   .tools { display:flex; align-items:center; gap:8px; flex-wrap:wrap;
            margin:10px 0 18px; padding-bottom:18px;
            border-bottom:1px solid var(--line); }
-  .tools input[type="text"] { flex:1 1 260px; min-width:0; margin:0;
-                              font:inherit; font-size:0.9em; padding:11px 14px;
-                              border:2px solid var(--line); border-radius:10px;
+  .tools input[type="text"] { flex:1 1 240px; min-width:0; margin:0;
+                              font:inherit; font-size:0.85em; padding:9px 13px;
+                              border:2px solid var(--line); border-radius:9px;
                               background:var(--card); }
   .tools input[type="text"]:focus { outline:0; border-color:var(--key); }
-  .tools select { flex:0 0 auto; width:170px; margin:0;
-                  font:inherit; font-size:0.9em; padding:11px 12px;
-                  border:2px solid var(--line); border-radius:10px; background:var(--card); }
+  .tools select { flex:0 0 auto; width:158px; margin:0;
+                  font:inherit; font-size:0.85em; padding:9px 11px;
+                  border:2px solid var(--line); border-radius:9px; background:var(--card); }
   .tools .btn { flex:0 0 auto; white-space:nowrap;
-                font-size:0.88em; padding:11px 18px; border-radius:10px; }
+                font-size:0.82em; padding:9px 15px; border-radius:9px; }
   /* 넣기 칸이 열려 있으면 색과 기호만 바꾼다.
      글자까지 바꾸면 버튼 크기가 들쭉날쭉해진다. */
   .tools .btn.key::before { content:"+"; display:inline-block;
@@ -261,7 +261,7 @@
               background:var(--soft); border-radius:12px; padding:12px 16px; margin:16px 0 0; }
   @media (max-width:760px) { .dfilters { flex-wrap:wrap; } }
   .dfilters .flb { font-size:0.8em; font-weight:700; color:var(--muted); white-space:nowrap; }
-  .dfilters select { font:inherit; font-size:0.88em; padding:9px 12px; min-width:150px;
+  .dfilters select { font:inherit; font-size:0.84em; padding:8px 11px; min-width:140px;
                      border:2px solid var(--line); border-radius:9px; background:var(--card); }
   .dfilters select:focus { outline:0; border-color:var(--key); }
 
@@ -535,9 +535,9 @@
       <span class="flb">구분</span>
       <div class="fseg" id="qkind">
         <button type="button" data-q="" class="on">전체</button>
-        <button type="button" data-q="miss">답 못 함 <span id="qn-miss"></span></button>
-        <button type="button" data-q="ask">자격증 물음 <span id="qn-ask"></span></button>
-        <button type="button" data-q="hit">답함 <span id="qn-hit"></span></button>
+        <button type="button" data-q="miss">몰라서 못 함 <span id="qn-miss"></span></button>
+        <button type="button" data-q="ask">어느 자격증? <span id="qn-ask"></span></button>
+        <button type="button" data-q="hit">답해 드림 <span id="qn-hit"></span></button>
       </div>
     </div>
 
@@ -551,16 +551,16 @@
 
   <table>
     <colgroup>
-      <col style="width:62px"><col style="width:150px"><col style="width:108px">
-      <col style="width:auto"><col style="width:110px">
+      <col style="width:58px"><col style="width:116px"><col style="width:104px">
+      <col style="width:auto"><col style="width:92px">
     </colgroup>
     <thead>
       <tr>
         <th class="num sortable" data-qk="seq">순번</th>
-        <th class="sortable" data-qk="last">마지막으로 물어본 때</th>
-        <th class="sortable" data-qk="kind">챗봇이</th>
+        <th class="sortable" data-qk="last">마지막</th>
+        <th class="sortable" data-qk="kind">챗봇 답</th>
         <th class="sortable" data-qk="q">손님이 물어본 말</th>
-        <th class="num sortable" data-qk="cnt">물어본 횟수</th>
+        <th class="num sortable" data-qk="cnt">횟수</th>
       </tr>
     </thead>
     <tbody id="q-rows"></tbody>
@@ -1226,10 +1226,11 @@ function drawQAll() {
 // 접수 목록과 같은 표. 정렬도 같은 방식으로 한다.
 const QPER = 20;
 // 직원이 바로 알아듣게 적는다. "되물음" 같은 말은 무슨 뜻인지 모른다.
+// 직원이 바로 알아듣게 적는다.
 const QKIND = {
-  miss: { lb: "답 못 함",    cls: "k-miss", ord: 0 },
-  ask:  { lb: "자격증 물음", cls: "k-ask",  ord: 1 },
-  hit:  { lb: "답함",        cls: "k-hit",  ord: 2 }
+  miss: { lb: "몰라서 못 함", cls: "k-miss", ord: 0 },
+  ask:  { lb: "어느 자격증?", cls: "k-ask",  ord: 1 },
+  hit:  { lb: "답해 드림",    cls: "k-hit",  ord: 2 }
 };
 
 let qSort = "seq", qDown = true;   // 기본은 순번 (최근 것이 위)

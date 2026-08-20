@@ -125,17 +125,6 @@
   .foot .help a { color:#7fd4c4; }
   .hide { display:none; }
 
-  .pane { flex:none; background:var(--soft); border-radius:14px;
-          padding:0; margin-bottom:12px; }
-  .pane > summary { padding:11px 16px; cursor:pointer; font-size:0.85em;
-                    font-weight:700; color:var(--key-d); list-style:none; }
-  .pane > summary::-webkit-details-marker { display:none; }
-  .pane > summary::before { content:"\25B8  "; }
-  .pane[open] > summary::before { content:"\25BE  "; }
-  .pane > summary:hover { color:var(--key-d); }
-  .pane[open] > summary { padding-bottom:8px; }
-  .pane .chips { padding:0 16px 14px; }
-  .chips { display:flex; flex-wrap:wrap; gap:8px; }
   .chip { flex:0 1 auto; }
 
   /* 대화 칸 높이를 고정한다. 입력칸은 늘 같은 자리에 있고 대화만 안에서 흐른다. */
@@ -224,10 +213,10 @@
   html.embed .talk-top { display:none; }
   html.embed .clrbar { padding:6px 12px 0; }
 
-  .chips.inbox { display:flex; flex-wrap:wrap; gap:7px; justify-content:center;
-                 margin-top:14px; }
-  .chips.inbox .chip { font-size:0.86em; padding:9px 13px; }
-  html.embed .pane { margin-bottom:10px; }
+  /* 대화 칸 안 예시. 위 상자가 있는 넓은 화면에서는 감춘다. */
+  .chips.inbox { display:flex; flex-wrap:wrap; gap:8px; justify-content:center;
+                 margin-top:16px; }
+  .chips.inbox .chip { font-size:0.88em; padding:10px 14px; }
 
   /* 숨기기는 어떤 규칙보다 뒤에 와야 이긴다.
      클래스 하나짜리끼리는 나중에 나온 것이 이겨서,
@@ -243,11 +232,6 @@
   <h1>궁금한 것 물어보기</h1>
   <p class="lead">응시료, 접수 일정, 준비물을 안내해 드립니다.
      확인하지 못한 것은 모른다고 말씀드립니다.</p>
-
-  <details class="pane chips-pane" id="chips-pane">
-    <summary>이런 질문을 해보세요</summary>
-    <div class="chips" id="chips"></div>
-  </details>
 
   <div class="talk">
       <div class="talk-top">
@@ -458,6 +442,24 @@ function saveLog() {
   showClr();
 }
 // 대화가 쌓이면 지울 수 있게 한다
+// 처음 화면. 겹쳐 뜬 창에는 예시 상자가 없으므로 여기에 같이 넣는다.
+function emptyHTML() {
+  const chips = SAMPLES.map(function (t) {
+    return '<button class="chip" type="button">' + t + '</button>'; }).join("");
+  return '<div class="empty" id="empty">' +
+    '<span>궁금한 것을 아래 칸에 적어 주세요.<br>' +
+    '아래 질문을 눌러 보셔도 됩니다.</span>' +
+    '<div class="chips inbox">' + chips + '</div></div>';
+}
+
+function bindChips() {
+  document.querySelectorAll(".chip").forEach(function (b) {
+    if (b.dataset.on) return;
+    b.dataset.on = "1";
+    b.addEventListener("click", function () { ask(b.textContent); });
+  });
+}
+
 function showClr() {
   const has = $("log").innerHTML.indexOf("turn") >= 0;
   $("clr").classList.toggle("hide", !has);
@@ -467,9 +469,8 @@ function showClr() {
 
 $("clr").addEventListener("click", function () {
   if (!confirm("지금까지 주고받은 내용을 지우시겠습니까?")) return;
-  $("log").innerHTML =
-    '<div class="empty" id="empty"><span>아래 칸에 궁금한 것을 적어 주세요.<br>' +
-    '위 <b>이런 질문을 해보세요</b>를 눌러 보셔도 됩니다.</span></div>';
+  $("log").innerHTML = emptyHTML();
+  bindChips();
   try { sessionStorage.removeItem("chatlog"); } catch (e) {}
   showClr();
   $("q").focus();
@@ -568,19 +569,9 @@ async function boot() {
     console.log("문서 " + DOCS.length + "건 · 기준값 " + CFG.MIN_SCORE);
   } catch(e){ console.log("문서 실패: "+e.message); return; }
 
-  const chipHTML = SAMPLES.map(function(s){
-    return '<button class="chip" type="button">'+s+'</button>'; }).join("");
-  $("chips").innerHTML = chipHTML;
-
-  // 겹쳐 뜬 창에서는 대화 칸 안에 예시를 넣는다
-  if (EMBED && $("empty")) {
-    $("empty").innerHTML =
-      '<span>아래 칸에 궁금한 것을 적어 주세요.</span>' +
-      '<div class="chips inbox">' + chipHTML + '</div>';
-  }
-
-  document.querySelectorAll(".chip").forEach(function(b){
-    b.addEventListener("click", function(){ ask(b.textContent); }); });
+  // 예시 질문은 대화 칸 안에만 둔다
+  if ($("empty")) $("log").innerHTML = emptyHTML();
+  bindChips();
 
   loadLog();
 
@@ -599,7 +590,7 @@ const EMBED = document.documentElement.classList.contains("embed");
 if (EMBED) {
   // 겹쳐 뜬 창은 좁다. 머리·꼬리와 예시 질문 상자를 숨기고
   // 예시는 대화 칸 안에 넣어 같이 흐르게 한다.
-  [".top", ".foot", "h1", ".lead", ".warnbox", ".pane", ".talk-top"].forEach(function (sel) {
+  [".top", ".foot", "h1", ".lead", ".warnbox", ".talk-top"].forEach(function (sel) {
     document.querySelectorAll(sel).forEach(function (e) { e.style.display = "none"; });
   });
 }
@@ -617,13 +608,6 @@ function fit() {
   if (warn && warn.offsetHeight) reserve += warn.offsetHeight + 12;
 
   talk.style.height = Math.max(340, window.innerHeight - top - reserve) + "px";
-}
-
-// 예시 질문을 폈다 접으면 높이가 바뀐다
-const pane = document.getElementById("chips-pane");
-if (pane) {
-  if (EMBED) pane.open = false;
-  pane.addEventListener("toggle", fit);
 }
 
 fit();
