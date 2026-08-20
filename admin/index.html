@@ -404,9 +404,14 @@
   .memo { color:var(--muted); font-size:0.82em; }
 
   /* 상태 고르기 — 지금 상태를 보여 주면서 그 자리에서 바꿀 수 있다 */
+  /* 브라우저가 그리는 화살표가 글자와 겹친다. 직접 그리고 그만큼 자리를 비운다. */
   .stsel { width:100%; font:inherit; font-size:0.8em; font-weight:700;
-           padding:7px 8px; border-radius:8px; cursor:pointer;
-           border:2px solid var(--line); background:var(--card); }
+           padding:7px 24px 7px 9px; border-radius:8px; cursor:pointer;
+           border:2px solid var(--line); background:var(--card);
+           -webkit-appearance:none; -moz-appearance:none; appearance:none;
+           background-image:url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23667' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E");
+           background-repeat:no-repeat;
+           background-position:right 8px center; }
   .stsel:hover { border-color:var(--muted); }
   .stsel:disabled { opacity:.5; }
   .stsel.s-문의 { border-color:var(--warn); background:var(--warn-bg); color:var(--warn); }
@@ -488,6 +493,8 @@
   /* 빈 칸 예시 글씨. 다섯 화면이 같은 흐림으로 보이게 한다. */
   input::placeholder, textarea::placeholder, select::placeholder {
     color:#a7b1b9; font-weight:400; opacity:1; }
+  /* 표 머리는 잘리면 안 된다. 이름과 정렬 화살표가 늘 다 보이게 한다. */
+  th { white-space:nowrap; overflow:visible; text-overflow:clip; }
 </style>
 </head>
 <body>
@@ -653,10 +660,10 @@
 
   <table>
     <colgroup>
-      <col style="width:62px"><col style="width:104px"><col style="width:76px">
-      <col style="width:132px"><col style="width:134px"><col style="width:72px">
-      <col style="width:auto"><col style="width:92px"><col style="width:74px">
-      <col style="width:74px">
+      <col style="width:70px"><col style="width:108px"><col style="width:78px">
+      <col style="width:134px"><col style="width:128px"><col style="width:76px">
+      <col style="width:auto"><col style="width:92px"><col style="width:90px">
+      <col style="width:90px">
     </colgroup>
     <thead>
       <tr>

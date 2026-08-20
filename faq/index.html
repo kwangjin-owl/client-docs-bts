@@ -437,6 +437,8 @@
   /* 빈 칸 예시 글씨. 다섯 화면이 같은 흐림으로 보이게 한다. */
   input::placeholder, textarea::placeholder, select::placeholder {
     color:#a7b1b9; font-weight:400; opacity:1; }
+  /* 표 머리는 잘리면 안 된다. 이름과 정렬 화살표가 늘 다 보이게 한다. */
+  th { white-space:nowrap; overflow:visible; text-overflow:clip; }
 </style>
 </head>
 <body>
@@ -578,8 +580,8 @@
 
   <table>
     <colgroup>
-      <col style="width:62px"><col style="width:110px"><col style="width:122px">
-      <col style="width:70px"><col style="width:auto">
+      <col style="width:70px"><col style="width:108px"><col style="width:122px">
+      <col style="width:74px"><col style="width:auto">
     </colgroup>
     <thead>
       <tr>
