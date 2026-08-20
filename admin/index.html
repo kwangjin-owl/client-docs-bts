@@ -782,7 +782,7 @@ function render() {
     return;
   }
 
-  $("rows").innerHTML = shown.map(function (r) {
+  $("rows").innerHTML = shown.map(function (r, i) {
     return '<tr class="row" data-id="' + r.id + '">' +
       '<td class="num seq">' + (from + i + 1) + '</td>' +
       '<td>' + fmtWhen(r.created_at) + '</td>' +
