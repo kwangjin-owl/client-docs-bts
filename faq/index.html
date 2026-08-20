@@ -424,6 +424,9 @@
   .k-miss { background:var(--bad-bg);  color:var(--bad); }
   .k-ask  { background:var(--warn-bg); color:var(--warn); }
   .k-hit  { background:var(--ok-bg);   color:var(--ok); }
+  /* 받은 질문 표 — 횟수 칸은 오른쪽에 여백을 둬서 질문 글과 붙지 않게 한다 */
+  th.qcnt, td.qcnt { padding-right:22px; }
+
   .qmix { display:block; margin-top:3px; font-size:0.82em;
           font-weight:400; color:#9aa4ac; }
 
@@ -579,15 +582,15 @@
 
   <table>
     <colgroup>
-      <col style="width:58px"><col style="width:116px"><col style="width:112px">
-      <col style="width:auto"><col style="width:92px">
+      <col style="width:58px"><col style="width:118px"><col style="width:114px">
+      <col style="width:92px"><col style="width:auto">
     </colgroup>
     <thead>
       <tr>
         <th class="num sortable" data-qk="seq">순번</th>
         <th class="sortable" data-qk="last">마지막</th>
         <th class="sortable" data-qk="kind">구분</th>
-        <th class="num sortable" data-qk="cnt">횟수</th>
+        <th class="num qcnt sortable" data-qk="cnt">횟수</th>
         <th class="sortable" data-qk="q">손님이 물어본 말</th>
       </tr>
     </thead>
@@ -1315,7 +1318,7 @@ function drawQ() {
         return '<tr><td class="num">' + r.seq + '</td>' +
                '<td>' + fmtWhen(r.last) + '</td>' +
                '<td><span class="kbadge ' + k.cls + '">' + k.lb + '</span></td>' +
-               '<td class="num">' + r.cnt + '건' + mix + '</td>' +
+               '<td class="num qcnt">' + r.cnt + '건' + mix + '</td>' +
                '<td>' + esc(r.q) + '</td></tr>';
       }).join("")
     : '<tr><td colspan="5"><div class="empty"><b>' +
