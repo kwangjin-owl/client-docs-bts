@@ -25,7 +25,7 @@
   .top { background:var(--navy); }
   .top-in { max-width:1200px; margin:0 auto; padding:0 24px;
             display:flex; align-items:center; gap:18px; }
-  .brandmark { display:flex; align-items:center; gap:10px; padding:13px 0;
+  .brandmark { display:flex; align-items:center; gap:10px; padding:10px 0;
                color:#fff; font-weight:700; font-size:1em;
                white-space:nowrap; text-decoration:none; }
   .brandmark .sq { width:34px; height:34px; border-radius:9px; background:var(--key);
@@ -46,7 +46,7 @@
   .subtop-in { max-width:1200px; margin:0 auto; padding:0 24px;
                display:flex; align-items:center; gap:4px; }
   .subtop .stitle { font-size:0.82em; color:var(--muted); margin-right:10px; }
-  .subtop a { font-size:0.9em; padding:12px 15px; color:var(--muted);
+  .subtop a { font-size:0.9em; padding:10px 14px; color:var(--muted);
               text-decoration:none; border-bottom:3px solid transparent; }
   .subtop a:hover { color:var(--key-d); }
   .subtop a.here { color:var(--key-d); font-weight:700; border-bottom-color:var(--key); }
@@ -56,15 +56,15 @@
   .subtop .lead-bar { margin-left:auto; font-size:0.82em; color:var(--muted); }
 
   /* ===== 뼈대 ===== */
-  .wrap { max-width:1200px; margin:0 auto; padding:22px 24px 32px; }
+  .wrap { max-width:1200px; margin:0 auto; padding:16px 24px 28px; }
   .sheet { background:var(--card); border-radius:16px; padding:26px 28px 28px;
            box-shadow:0 1px 3px rgba(0,0,0,.06); margin-bottom:16px; }
   .eyebrow { display:flex; align-items:center; gap:8px; font-size:0.78em;
              font-weight:700; color:var(--key-d); margin:0 0 6px; letter-spacing:.02em; }
   .eyebrow::before { content:""; width:18px; height:3px; border-radius:2px; background:var(--key); }
-  h1 { font-size:1.65em; font-weight:700; margin:0 0 6px; letter-spacing:-.01em; }
+  h1 { font-size:1.32em; font-weight:700; margin:0 0 5px; letter-spacing:-.01em; }
   h2.sec { font-size:1.15em; font-weight:700; margin:0 0 4px; }
-  .lead { font-size:0.92em; color:var(--muted); margin:0 0 18px; }
+  .lead { font-size:0.86em; color:var(--muted); margin:0 0 12px; }
 
   /* ===== 버튼 ===== */
   .btn { font:inherit; font-weight:700; padding:15px 22px; border-radius:10px;
@@ -111,7 +111,7 @@
 
   /* ===== 꼬리 ===== */
   .foot { background:var(--navy-d); color:#a9c3d1; margin-top:36px; }
-  .foot-in { max-width:1200px; margin:0 auto; padding:26px 24px 34px;
+  .foot-in { max-width:1200px; margin:0 auto; padding:20px 24px 24px;
              display:flex; gap:32px; flex-wrap:wrap; align-items:center; }
   .foot .call { display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; }
   .foot .call .lb { font-size:0.82em; }
@@ -186,6 +186,11 @@
   .sheet { width:100%; }
   body { align-items:stretch; }
 
+
+  /* 숨기기는 어떤 규칙보다 뒤에 와야 이긴다.
+     클래스 하나짜리끼리는 나중에 나온 것이 이겨서,
+     .undo { display:flex } 같은 규칙이 .hide 를 덮어썼다. */
+  .hide, .hide.hide { display:none !important; }
 </style>
 </head>
 <body>

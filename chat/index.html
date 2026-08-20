@@ -25,7 +25,7 @@
   .top { background:var(--navy); }
   .top-in { max-width:1200px; margin:0 auto; padding:0 24px;
             display:flex; align-items:center; gap:18px; }
-  .brandmark { display:flex; align-items:center; gap:10px; padding:13px 0;
+  .brandmark { display:flex; align-items:center; gap:10px; padding:10px 0;
                color:#fff; font-weight:700; font-size:1em;
                white-space:nowrap; text-decoration:none; }
   .brandmark .sq { width:34px; height:34px; border-radius:9px; background:var(--key);
@@ -46,7 +46,7 @@
   .subtop-in { max-width:1200px; margin:0 auto; padding:0 24px;
                display:flex; align-items:center; gap:4px; }
   .subtop .stitle { font-size:0.82em; color:var(--muted); margin-right:10px; }
-  .subtop a { font-size:0.9em; padding:12px 15px; color:var(--muted);
+  .subtop a { font-size:0.9em; padding:10px 14px; color:var(--muted);
               text-decoration:none; border-bottom:3px solid transparent; }
   .subtop a:hover { color:var(--key-d); }
   .subtop a.here { color:var(--key-d); font-weight:700; border-bottom-color:var(--key); }
@@ -56,15 +56,15 @@
   .subtop .lead-bar { margin-left:auto; font-size:0.82em; color:var(--muted); }
 
   /* ===== 뼈대 ===== */
-  .wrap { max-width:1200px; margin:0 auto; padding:22px 24px 32px; }
+  .wrap { max-width:1200px; margin:0 auto; padding:16px 24px 28px; }
   .sheet { background:var(--card); border-radius:16px; padding:26px 28px 28px;
            box-shadow:0 1px 3px rgba(0,0,0,.06); margin-bottom:16px; }
   .eyebrow { display:flex; align-items:center; gap:8px; font-size:0.78em;
              font-weight:700; color:var(--key-d); margin:0 0 6px; letter-spacing:.02em; }
   .eyebrow::before { content:""; width:18px; height:3px; border-radius:2px; background:var(--key); }
-  h1 { font-size:1.45em; font-weight:700; margin:0 0 4px; letter-spacing:-.01em; }
+  h1 { font-size:1.32em; font-weight:700; margin:0 0 5px; letter-spacing:-.01em; }
   h2.sec { font-size:1.15em; font-weight:700; margin:0 0 4px; }
-  .lead { font-size:0.88em; color:var(--muted); margin:0 0 14px; }
+  .lead { font-size:0.86em; color:var(--muted); margin:0 0 12px; }
 
   /* ===== 버튼 ===== */
   .btn { font:inherit; font-weight:700; padding:15px 22px; border-radius:10px;
@@ -111,7 +111,7 @@
 
   /* ===== 꼬리 ===== */
   .foot { background:var(--navy-d); color:#a9c3d1; margin-top:36px; }
-  .foot-in { max-width:1200px; margin:0 auto; padding:26px 24px 34px;
+  .foot-in { max-width:1200px; margin:0 auto; padding:20px 24px 24px;
              display:flex; gap:32px; flex-wrap:wrap; align-items:center; }
   .foot .call { display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; }
   .foot .call .lb { font-size:0.82em; }
@@ -120,23 +120,6 @@
   .foot .help { flex:1; min-width:260px; font-size:0.82em; line-height:1.8; }
   .foot .help a { color:#7fd4c4; }
   .hide { display:none; }
-
-  /* 좁거나 낮은 화면에서는 페이지가 흐르게 한다.
-     다만 접수 화면 안에 겹쳐 뜬 경우(html.embed)는 제외한다.
-     겹쳐 뜬 창은 폭이 540px라 이 규칙에 걸려 입력칸이 밀려났다. */
-  @media (max-height:620px), (max-width:640px) {
-    html:not(.embed) body { overflow:auto; }
-    html:not(.embed) .wrap { overflow:visible; }
-    html:not(.embed) .talk { min-height:380px; }
-  }
-  @media (max-width:820px) {
-    .top-in { flex-wrap:wrap; padding:0 16px; }
-    .menu { margin-left:0; width:100%; overflow-x:auto; }
-    .staff-btn { margin:0 0 10px; }
-    .wrap { padding:16px 16px 32px; }
-    .sheet { padding:20px 18px 22px; }
-    .subtop-in, .foot-in { padding-left:16px; padding-right:16px; }
-  }
 
   .pane { flex:none; background:var(--soft); border-radius:14px;
           padding:0; margin-bottom:12px; }
@@ -149,12 +132,10 @@
   .chip { flex:0 1 auto; }
 
   /* 대화 칸 높이를 고정한다. 입력칸은 늘 같은 자리에 있고 대화만 안에서 흐른다. */
-  /* 화면 높이에 맞춘다. 페이지는 안 흐르고 대화 칸만 안에서 흐른다. */
-  .wrap { display:flex; flex-direction:column; min-height:0; overflow:hidden; }
-  .sheet { flex:1; display:flex; flex-direction:column; min-height:0; }
-  .talk { flex:1; min-height:240px; background:var(--card);
-          border:2px solid var(--line); border-radius:14px;
-          overflow:hidden; display:flex; flex-direction:column; }
+  /* 대화 칸 높이는 자바스크립트가 잰다.
+     CSS 로 잡으면 뒤에 나오는 .wrap 규칙에 밀려서 입력칸이 화면 밖으로 나갔다. */
+  .talk { background:var(--card); border:2px solid var(--line); border-radius:14px;
+          overflow:hidden; display:flex; flex-direction:column; min-height:260px; }
   .talk-top { background:var(--navy); color:#fff; padding:16px 20px;
               display:flex; align-items:center; gap:12px; }
   .talk-top .av { width:38px; height:38px; border-radius:10px; background:var(--key);
@@ -195,8 +176,7 @@
 
   /* 내용 길이와 상관없이 스크롤바 자리를 늘 잡아 둔다.
      안 그러면 화면을 옮길 때마다 가운데 정렬이 스크롤바 폭만큼 밀린다. */
-  html { scrollbar-gutter:stable; }
-  body { overflow:hidden; }
+  html { scrollbar-gutter:stable; overflow-y:scroll; }
   html, body { height:100%; }
   body { display:flex; flex-direction:column; min-height:100%; }
   .wrap { flex-grow:1; flex-shrink:0; flex-basis:auto; min-width:0; }
@@ -218,13 +198,17 @@
   body { align-items:stretch; }
 
 
-  /* 겹쳐 뜬 창 — 높이를 꽉 채우고 대화 칸만 흐른다 */
+  /* 겹쳐 뜬 창 */
   html.embed, html.embed body { height:100%; overflow:hidden; }
-  html.embed .wrap { flex:1; min-height:0; overflow:hidden; padding:12px 14px 14px; }
-  html.embed .sheet { flex:1; min-height:0; padding:0; margin:0;
-                      background:none; box-shadow:none; }
-  html.embed .talk { flex:1; min-height:0; border:0; border-radius:0; }
+  html.embed .wrap { padding:12px 14px 14px; max-width:none; }
+  html.embed .sheet { padding:0; margin:0; background:none; box-shadow:none; }
+  html.embed .talk { border:0; border-radius:0; min-height:0; }
   html.embed .pane { margin-bottom:10px; }
+
+  /* 숨기기는 어떤 규칙보다 뒤에 와야 이긴다.
+     클래스 하나짜리끼리는 나중에 나온 것이 이겨서,
+     .undo { display:flex } 같은 규칙이 .hide 를 덮어썼다. */
+  .hide, .hide.hide { display:none !important; }
 </style>
 </head>
 <body>
@@ -522,49 +506,50 @@ async function boot() {
     b.addEventListener("click", function(){ ask(b.textContent); }); });
 
   // 예시 질문이 그려지면서 높이가 바뀌므로 다시 잰다
-  window.dispatchEvent(new Event("resize"));
+  setTimeout(function () { window.dispatchEvent(new Event("resize")); }, 0);
 }
 
 $("send").addEventListener("click", function(){ ask($("q").value); });
 $("q").addEventListener("keydown", function(e){ if(e.key==="Enter") ask($("q").value); });
 
-// 겹쳐 뜬 창에서는 머리·꼬리를 숨기고 대화 칸 높이를 직접 잰다.
-// CSS 만으로는 뒤에 나오는 .wrap 규칙에 밀려 입력칸이 창 밖으로 나갔다.
-if (document.documentElement.classList.contains("embed")) {
+// ---------- 대화 칸 높이 ----------
+// 화면에 남는 자리를 그대로 쓴다. 그래야 입력칸이 늘 보이고,
+// 대화가 쌓여도 페이지가 길어지지 않는다.
+const EMBED = document.documentElement.classList.contains("embed");
+
+if (EMBED) {
   [".top", ".foot", "h1", ".lead", ".talk-top", ".warnbox"].forEach(function (sel) {
     document.querySelectorAll(sel).forEach(function (e) { e.style.display = "none"; });
   });
-
-  const fit = function () {
-    const wrap = document.querySelector(".wrap");
-    const sheet = document.querySelector(".sheet");
-    const talk = document.querySelector(".talk");
-    const pane = document.querySelector(".pane");
-    if (!wrap || !talk) return;
-
-    wrap.style.cssText = "display:block; max-width:none; margin:0;" +
-                         "padding:12px 14px 14px; overflow:hidden;";
-    if (sheet) sheet.style.cssText = "display:block; padding:0; margin:0;" +
-                                     "background:none; box-shadow:none;";
-    const used = (pane ? pane.offsetHeight + 10 : 0) + 26;
-    talk.style.height = Math.max(220, window.innerHeight - used) + "px";
-    talk.style.minHeight = "0";
-    talk.style.border = "0";
-    talk.style.borderRadius = "0";
-  };
-
-  // 창이 좁으니 예시 질문은 접어 둔다. 눌러서 펼 수 있다.
-  const pane = document.getElementById("chips-pane");
-  if (pane) {
-    pane.open = false;
-    pane.addEventListener("toggle", fit);
-  }
-
-  fit();
-  window.addEventListener("resize", fit);
-  window.addEventListener("load", fit);
-  setTimeout(fit, 300);
 }
+
+function fit() {
+  const talk = document.querySelector(".talk");
+  if (!talk) return;
+
+  talk.style.height = "0px";                 // 잠깐 접어서 남는 자리를 잰다
+  const top = talk.getBoundingClientRect().top;
+
+  let reserve = EMBED ? 16 : 28;
+  const warn = document.querySelector(".warnbox");
+  const foot = document.querySelector(".foot");
+  if (warn && warn.offsetHeight) reserve += warn.offsetHeight + 12;
+  if (foot && foot.offsetHeight) reserve += foot.offsetHeight + 12;
+
+  talk.style.height = Math.max(260, window.innerHeight - top - reserve) + "px";
+}
+
+// 예시 질문을 폈다 접으면 높이가 바뀐다
+const pane = document.getElementById("chips-pane");
+if (pane) {
+  if (EMBED) pane.open = false;
+  pane.addEventListener("toggle", fit);
+}
+
+fit();
+window.addEventListener("resize", fit);
+window.addEventListener("load", fit);
+setTimeout(fit, 300);
 
 boot();
 </script>
