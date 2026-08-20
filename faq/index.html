@@ -374,20 +374,54 @@ function fmtWhen(iso) {
   return (d.getMonth()+1) + "/" + d.getDate() + " " + p(d.getHours()) + ":" + p(d.getMinutes());
 }
 
+let showN = 50;          // 한 번에 보여 주는 건수. 다 그리면 화면이 멈춘다.
+
+function fillPicks() {
+  const certs = Array.from(new Set(docs.map(function (d) { return d.cert; })
+                          .filter(function (c) { return c; })))
+                     .sort(function (a, b) { return a.localeCompare(b, "ko"); });
+  const cats = Array.from(new Set(docs.map(function (d) { return d.category; })
+                         .filter(function (c) { return c; })))
+                    .sort(function (a, b) { return a.localeCompare(b, "ko"); });
+
+  const keepC = $("f-cert").value, keepK = $("f-cat").value;
+  $("f-cert").innerHTML = '<option value="">자격증 전체</option>' +
+    certs.map(function (c) { return '<option>' + esc(c) + '</option>'; }).join("");
+  $("f-cat").innerHTML = '<option value="">분류 전체</option>' +
+    cats.map(function (c) { return '<option>' + esc(c) + '</option>'; }).join("");
+  $("f-cert").value = keepC; $("f-cat").value = keepK;
+}
+
+function srcKind(d) {
+  const src = d.source || "";
+  if (src.indexOf("상담") >= 0) return "상담";
+  if (src.indexOf(".md") >= 0) return "문서";
+  return "직원";
+}
+
 function render() {
   const q = $("q").value.trim();
+  const fc = $("f-cert").value, fk = $("f-cat").value, fs = $("f-src").value;
+
   const list = docs.filter(function (d) {
+    if (fc && d.cert !== fc) return false;
+    if (fk && d.category !== fk) return false;
+    if (fs && srcKind(d) !== fs) return false;
     if (!q) return true;
-    return (d.title + " " + d.body).indexOf(q) >= 0;
+    return (d.title + " " + d.body + " " + (d.question || "")).indexOf(q) >= 0;
   });
 
-  $("list").innerHTML = list.map(function (d) {
+  const shown = list.slice(0, showN);
+
+  $("list").innerHTML = shown.map(function (d) {
     return '' +
     '<div class="item" data-id="' + d.id + '">' +
       '<div class="head">' +
         '<div>' +
           '<p class="t">' + esc(d.title) + '</p>' +
-          '<p class="s">' + (d.cert ? esc(d.cert) + " · " : "") +
+          '<p class="s">' +
+            (d.cert ? '<span class="tag">' + esc(d.cert) + '</span>' : "") +
+            (d.category ? '<span class="tag k">' + esc(d.category) + '</span>' : "") +
             (d.source ? esc(d.source) : "출처 없음") +
             (d.updated_at ? " · " + fmtWhen(d.updated_at) + " 수정" : "") + '</p>' +
         '</div>' +
@@ -400,6 +434,10 @@ function render() {
         '</div>' +
         '<label>내용</label>' +
         '<textarea class="f-body">' + esc(d.body) + '</textarea>' +
+        '<label>분류 (예: 응시료, 환불, 시험장)</label>' +
+        '<input class="f-cat" type="text" value="' + esc(d.category || "") + '">' +
+        '<label>어르신이 쓰신 말 (여러 개는 / 로 나눠 적습니다)</label>' +
+        '<textarea class="f-question" rows="2">' + esc(d.question || "") + '</textarea>' +
         '<label>출처</label>' +
         '<input class="f-source" type="text" value="' + esc(d.source) + '">' +
         '<div class="acts">' +
@@ -416,12 +454,20 @@ function render() {
       ? '<b>찾으시는 문서가 없습니다</b><span>검색어를 지우고 다시 보세요.</span>'
       : '<b>안내 문서가 없습니다</b><span>문서 추가를 눌러 첫 문서를 만드세요.<br>여기에 적은 내용만 챗봇이 답합니다.</span>')
       + '</div>';
-    $("status").textContent = "문서 " + docs.length + "건";
+    $("status").textContent = "전체 " + docs.length + "건 · 조건에 맞는 것이 없습니다";
+    $("more").classList.add("hide");
     return;
   }
 
-  $("status").textContent = "문서 " + docs.length + "건" +
-    (q ? " 중 " + list.length + "건 표시" : "") + " · 제목을 누르면 펼쳐집니다";
+  const rest = list.length - shown.length;
+  $("more").classList.toggle("hide", rest <= 0);
+  $("more").textContent = rest > 0
+    ? (rest > 50 ? "50건 더 보기 (남은 " + rest + "건)" : rest + "건 더 보기") : "";
+
+  $("status").textContent =
+    "전체 " + docs.length + "건" +
+    (list.length !== docs.length ? " 중 " + list.length + "건 걸러짐" : "") +
+    " · 지금 " + shown.length + "건 보는 중 · 제목을 누르면 펼쳐집니다";
 
   bind();
 }
@@ -449,6 +495,8 @@ function bind() {
         title: title,
         body: body,
         cert: item.querySelector(".f-cert").value.trim() || null,
+        category: item.querySelector(".f-cat").value.trim() || null,
+        question: item.querySelector(".f-question").value.trim() || null,
         source: item.querySelector(".f-source").value.trim() || null,
         updated_at: new Date().toISOString()
       }).eq("id", id);
@@ -514,9 +562,16 @@ async function loadInner(keepOpen, savedId, savedMsg) {
       if (!conf.url || !conf.key) { $("status").textContent = "서버에 환경변수가 설정되어 있지 않습니다"; return; }
       db = supabase.createClient(conf.url, conf.key);
     }
-    const res = await db.from("docs").select("*").order("id");
-    if (res.error) { $("status").textContent = "불러오기 실패: " + res.error.message; return; }
-    docs = res.data || [];
+    // Supabase 는 한 번에 1000건까지만 준다. 나눠서 다 받아 온다.
+    docs = [];
+    for (let from = 0; ; from += 1000) {
+      const res = await db.from("docs").select("*").order("id").range(from, from + 999);
+      if (res.error) { $("status").textContent = "불러오기 실패: " + res.error.message; return; }
+      const part = res.data || [];
+      docs = docs.concat(part);
+      if (part.length < 1000) break;
+    }
+    fillPicks();
     render();
     opened.forEach(function (id) {
       const el = document.querySelector('.item[data-id="' + id + '"]');
@@ -683,7 +738,14 @@ document.querySelectorAll("#tabs button").forEach(function (b) {
   });
 });
 
-$("q").addEventListener("input", render);
+// 거르는 칸을 바꾸면 처음 50건부터 다시 본다
+function resetView() { showN = 50; render(); }
+
+$("q").addEventListener("input", resetView);
+$("f-cert").addEventListener("change", resetView);
+$("f-cat").addEventListener("change", resetView);
+$("f-src").addEventListener("change", resetView);
+$("more").addEventListener("click", function () { showN += 50; render(); });
 $("reload").addEventListener("click", function () { load(); loadSyn(); });
 
 // 문서를 먼저 읽어 db 연결을 만든 뒤 비슷한말을 읽는다

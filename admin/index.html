@@ -179,11 +179,11 @@
   .tabs .add::before { content:"+ "; }
   .tabs .add:hover { background:var(--key-d); border-color:var(--key-d); color:#fff; }
 
-  /* 켜졌을 때 = 지금 이 화면을 보고 있다 */
-  .tabs button.add.on { background:#fff; color:var(--key-d);
-                        border-color:var(--key-d); box-shadow:none; }
-  .tabs button.add.on::before { content:"\2715  "; font-size:0.9em; }
-  .tabs button.add.on:hover { background:var(--soft); color:var(--key-d); }
+  /* 켜졌을 때 = 지금 이 화면을 보고 있다. 색은 그대로 두고 진하게만 한다. */
+  .tabs button.add.on { background:var(--key-d); border-color:var(--key-d); color:#fff;
+                        box-shadow:inset 0 2px 5px rgba(0,0,0,.22); }
+  .tabs button.add.on::before { content:"\2715  "; }
+  .tabs button.add.on:hover { background:var(--key-d); color:#fff; }
   .tab { display:none; }
   .tab.on { display:block; }
 
@@ -479,9 +479,20 @@
   </div>
 
   <div class="tab" id="tab-stat">
+  <div class="filters" id="swhen">
+    <div class="fgrp">
+      <span class="flb">기간</span>
+      <div class="fseg">
+        <button type="button" data-w="" class="on">전체</button>
+        <button type="button" data-w="today">오늘</button>
+        <button type="button" data-w="week">최근 7일</button>
+      </div>
+    </div>
+  </div>
+
   <div class="cards">
     <div class="stat"><p class="k">오늘 접수</p><p class="v" id="s-today">-<span class="u">건</span></p></div>
-    <div class="stat"><p class="k">전체 접수</p><p class="v" id="s-all">-<span class="u">건</span></p></div>
+    <div class="stat"><p class="k" id="s-all-lb">전체 접수</p><p class="v" id="s-all">-<span class="u">건</span></p></div>
     <div class="stat"><p class="k">오늘 결제 금액</p><p class="v" id="s-fee">-<span class="u">원</span></p></div>
     <div class="stat todo"><p class="k">처리 기다리는 건</p><p class="v" id="s-todo">-</p></div>
   </div>
@@ -499,6 +510,16 @@
 
   <div class="tab" id="tab-ask">
   <h2 style="margin-top:0">챗봇이 받은 질문</h2>
+  <div class="filters" id="qwhen">
+    <div class="fgrp">
+      <span class="flb">기간</span>
+      <div class="fseg">
+        <button type="button" data-w="" class="on">전체</button>
+        <button type="button" data-w="today">오늘</button>
+        <button type="button" data-w="week">최근 7일</button>
+      </div>
+    </div>
+  </div>
   <p class="note" id="q-note" style="margin-top:0">불러오는 중…</p>
   <div id="by-question"></div>
   </div>
@@ -511,9 +532,9 @@
     <div class="fgrp">
       <span class="flb">기간</span>
       <div class="fseg">
+        <button type="button" data-w="" class="on">전체</button>
         <button type="button" data-w="today">오늘</button>
         <button type="button" data-w="week">최근 7일</button>
-        <button type="button" data-w="" class="on">전체</button>
       </div>
     </div>
 
@@ -767,6 +788,14 @@ function detailRow(r) {
 }
 
 let onlyStatus = "", onlyChan = "";
+let statWhen = "", qWhen = "";        // 현황 보기 · 챗봇 질문의 기간
+
+// 기간 하나로 판정한다. "" 전체 / today 오늘 / week 최근 7일
+function inWhen(iso, w) {
+  if (!w) return true;
+  if (w === "today") return isToday(iso);
+  return withinDays(iso, 7);
+}
 // 기본: 접수순 큰 것(가장 최근)이 맨 위
 let sortKey = "seq", sortDown = true;
 let perPage = 50;            // 50건씩 / 한 쪽에 다
@@ -795,23 +824,22 @@ function render() {
     return true;
   });
 
+  // 현황은 위 '현황 보기' 탭의 기간 버튼을 따른다
+  const stat = all.filter(function (r) { return inWhen(r.created_at, statWhen); });
   const todayRows = all.filter(function (r) { return isToday(r.created_at); });
-  $("s-today").innerHTML = todayRows.length + '<span class="u">건</span>';
-  $("s-all").innerHTML = all.length + '<span class="u">건</span>';
-  $("s-fee").innerHTML = won(todayRows.reduce(function (s, r) { return s + (r.fee_final || 0); }, 0)) + '<span class="u">원</span>';
-  const waiting = all.filter(function (r) { return NEXT[r.status]; });
-  $("s-todo").innerHTML = waiting.length + '<span class="u">건</span>';
 
-  const byCert = {}, byCtx = {};
-  all.forEach(function (r) {
+  $("s-today").innerHTML = todayRows.length + '<span class="u">건</span>';
+  $("s-all").innerHTML = stat.length + '<span class="u">건</span>';
+  $("s-fee").innerHTML = won(todayRows.reduce(function (s, r) { return s + (r.fee_final || 0); }, 0)) + '<span class="u">원</span>';
+  $("s-todo").innerHTML = stat.filter(function (r) { return NEXT[r.status]; }).length +
+    '<span class="u">건</span>';
+  $("s-all-lb").textContent = { "": "전체 접수", "today": "오늘 접수", "week": "최근 7일 접수" }[statWhen];
+
+  const byCert = {}, byCtx = {}, byCh = {};
+  stat.forEach(function (r) {
     byCert[r.cert_name] = (byCert[r.cert_name] || 0) + 1;
-    const c = r.usage_context || "미기재";
-    byCtx[c] = (byCtx[c] || 0) + 1;
-  });
-  const byCh = {};
-  all.forEach(function (r) {
-    const c = r.channel || "미기재";
-    byCh[c] = (byCh[c] || 0) + 1;
+    byCtx[r.usage_context || "미기재"] = (byCtx[r.usage_context || "미기재"] || 0) + 1;
+    byCh[r.channel || "미기재"] = (byCh[r.channel || "미기재"] || 0) + 1;
   });
   drawBars("by-cert", byCert);
   drawBars("by-context", byCtx);
@@ -1061,7 +1089,17 @@ async function loadQuestions() {
   try {
     const res = await db.from("questions").select("*").order("created_at", { ascending:false });
     if (res.error) { $("q-note").textContent = "질문 기록을 못 읽었습니다: " + res.error.message; return; }
-    const qs = res.data || [];
+    QRAW = res.data || [];
+    drawQAll();
+  } catch (e) {
+    $("q-note").textContent = "질문 기록을 못 읽었습니다: " + e.message;
+  }
+}
+
+let QRAW = [];
+
+function drawQAll() {
+    const qs = QRAW.filter(function (q) { return inWhen(q.created_at, qWhen); });
     if (!qs.length) {
       $("q-note").innerHTML = "";
       $("by-question").innerHTML =
@@ -1091,9 +1129,6 @@ async function loadQuestions() {
       (qs.length - missN) + "건 · 못 답한 것 " + missN + "건 · 서로 다른 질문 " + rows.length + "가지";
 
     drawQ();
-  } catch (e) {
-    $("q-note").textContent = "질문 기록을 못 읽었습니다: " + e.message;
-  }
 }
 
 function qTable(list, shown, kind) {
