@@ -405,28 +405,35 @@
   .memo { color:var(--muted); font-size:0.82em; }
 
   /* 상태 고르기 — 지금 상태를 보여 주면서 그 자리에서 바꿀 수 있다 */
-  /* 알약 자체가 눌러 보이는 버튼이 되게 한다.
-     브라우저 화살표는 글자를 덮으므로 끄고 직접 그린다. */
+  /* 고르는 칸처럼 보이게 한다.
+     색깔 알약은 어디서나 '표시'라는 뜻이라, 화살표를 붙여도 표시로 읽힌다.
+     흰 바탕 + 테두리 + 세로선으로 나눈 화살표라야 눌러서 고르는 것으로 보인다.
+     상태 색은 왼쪽 점으로만 남긴다. */
+  .stcell { position:relative; }
   .stsel { width:100%; font:inherit; font-size:0.8em; font-weight:700;
-           padding:7px 22px 7px 10px; border-radius:999px; cursor:pointer;
-           border:2px solid var(--line); background:var(--card);
-           box-shadow:0 1px 0 rgba(20,40,60,.10);
+           padding:7px 30px 7px 24px; border-radius:8px; cursor:pointer;
+           border:2px solid var(--line); background:var(--card); color:var(--ink);
            -webkit-appearance:none; -moz-appearance:none; appearance:none;
-           background-image:url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='7'%3E%3Cpath d='M1.2 1.5l4.3 4.3 4.3-4.3' fill='none' stroke='%23445' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E");
-           background-repeat:no-repeat;
-           background-position:right 7px center;
-           transition:box-shadow .12s, transform .12s; }
-  .stsel:hover { border-color:var(--ink); box-shadow:0 3px 8px rgba(20,40,60,.20);
-                 transform:translateY(-1px); }
+           background-repeat:no-repeat, no-repeat, no-repeat;
+           /* 왼쪽 점 · 세로선 · 화살표 */
+           background-image:
+             radial-gradient(circle, var(--dot) 0 4px, transparent 4px),
+             linear-gradient(var(--line) 0 0),
+             url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='7'%3E%3Cpath d='M1.2 1.5l4.3 4.3 4.3-4.3' fill='none' stroke='%23445' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E");
+           background-size: 9px 9px, 2px 60%, 11px 7px;
+           background-position: left 9px center, right 22px center, right 6px center;
+           transition:border-color .12s, background-color .12s; }
+  .stsel:hover { border-color:var(--ink); background-color:#f2f5f7; }
   .stsel:focus { outline:3px solid var(--key-bg); outline-offset:1px;
                  border-color:var(--key); }
-  .stsel:active { transform:translateY(0); box-shadow:none; }
-  .stsel:disabled { opacity:.5; }
-  .stsel.s-문의 { border-color:var(--warn); background:var(--warn-bg); color:var(--warn); }
-  .stsel.s-접수 { border-color:var(--ok);   background:var(--ok-bg);   color:var(--ok); }
-  .stsel.s-확인 { border-color:var(--key);  background:var(--key-bg);  color:var(--key-d); }
-  .stsel.s-완료 { border-color:#c2c8cd;     background:#eef0f2;        color:#5c6a75; }
-  .stsel.s-취소 { border-color:var(--bad);  background:var(--bad-bg);  color:var(--bad); }
+  .stsel:disabled { opacity:.5; cursor:default; }
+
+  /* 상태별 점 색 */
+  .stsel.s-문의 { --dot:var(--warn); }
+  .stsel.s-접수 { --dot:var(--ok); }
+  .stsel.s-확인 { --dot:var(--key); }
+  .stsel.s-완료 { --dot:#8b96a0; }
+  .stsel.s-취소 { --dot:var(--bad); }
   table { margin-top:0 !important; border:2px solid var(--line); border-top:0;
           border-radius:0 0 12px 12px; }
   @media (max-width:700px) {
@@ -669,9 +676,9 @@
   <table>
     <colgroup>
       <col style="width:70px"><col style="width:108px"><col style="width:78px">
-      <col style="width:134px"><col style="width:128px"><col style="width:76px">
+      <col style="width:134px"><col style="width:124px"><col style="width:76px">
       <col style="width:auto"><col style="width:92px"><col style="width:70px">
-      <col style="width:90px">
+      <col style="width:112px">
     </colgroup>
     <thead>
       <tr>
