@@ -349,7 +349,7 @@
   }
 
   .rno { font-variant-numeric:tabular-nums; letter-spacing:.3px; }
-  .seq { color:var(--muted); font-variant-numeric:tabular-nums; }
+  .seq { color:var(--muted); font-variant-numeric:tabular-nums; letter-spacing:-.2px; }
   th.sortable { cursor:pointer; user-select:none; white-space:nowrap; }
   th.sortable:hover { color:var(--key-d); background:#e8edf0; }
   th.sortable.up, th.sortable.down { color:var(--key-d); background:var(--key-bg); }
@@ -550,14 +550,14 @@
 
   <table>
     <colgroup>
-      <col style="width:44px"><col style="width:96px"><col style="width:74px">
-      <col style="width:126px"><col style="width:96px"><col style="width:72px">
-      <col style="width:auto"><col style="width:88px">
-      <col style="width:64px"><col style="width:106px">
+      <col style="width:74px"><col style="width:96px"><col style="width:74px">
+      <col style="width:126px"><col style="width:92px"><col style="width:70px">
+      <col style="width:auto"><col style="width:86px">
+      <col style="width:62px"><col style="width:104px">
     </colgroup>
     <thead>
       <tr>
-        <th class="num sortable" data-k="seq">접수순</th>
+        <th class="num sortable" data-k="seq">순번</th>
         <th class="sortable" data-k="created_at">접수일</th>
         <th class="sortable" data-k="name">이름</th>
         <th>연락처</th>
@@ -816,12 +816,17 @@ function render() {
     if (sortKey === "pay_status") { x = PAYORDER[x] ?? 9; y = PAYORDER[y] ?? 9; }
     if (sortKey === "fee_final") { x = x || 0; y = y || 0; }
     if (sortKey === "seq") { x = a._seq || 0; y = b._seq || 0; }
+
+    let r;
     if (typeof x === "string" || typeof y === "string") {
-      x = String(x || ""); y = String(y || "");
-      const r = x.localeCompare(y, "ko");
-      return sortDown ? -r : r;
+      r = String(x || "").localeCompare(String(y || ""), "ko");
+      r = sortDown ? -r : r;
+    } else {
+      r = sortDown ? y - x : x - y;
     }
-    return sortDown ? y - x : x - y;
+    // 값이 같으면 접수순으로 갈라 준다. 안 그러면 줄 순서가 들쭉날쭉해진다.
+    if (r === 0) return (b._seq || 0) - (a._seq || 0);
+    return r;
   });
 
   shownList = list;
@@ -939,9 +944,9 @@ async function load() {
     const res = await db.from("applications").select("*").order("created_at", { ascending:false });
     if (res.error) { $("status").textContent = "불러오기 실패: " + res.error.message; return; }
     all = res.data || [];
-    // 접수한 순서대로 고정 번호를 매긴다. 정렬을 바꿔도 이 번호는 그 사람 것이다.
+    // 최근 접수가 1번. 정렬을 바꿔도 이 번호는 그 사람 것으로 따라간다.
     all.slice().sort(function (a, b) {
-      return String(a.created_at).localeCompare(String(b.created_at));
+      return String(b.created_at).localeCompare(String(a.created_at));
     }).forEach(function (r, i) { r._seq = i + 1; });
     render();
     if (!$("f-when").value) $("f-when").value = "today";
