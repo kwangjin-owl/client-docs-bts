@@ -890,52 +890,65 @@ function render() {
       th.classList.add(sortDown ? "down" : "up");
       marked = true;
     }
-    th.onclick = function () {
-      if (sortKey === th.dataset.k) sortDown = !sortDown;
-      else { sortKey = th.dataset.k; sortDown = true; }
-      page = 1; render();
-    };
-  });
-
-  // 상태 고르기 — 줄 펼치기와 겹치지 않게 막는다
-  document.querySelectorAll(".stsel").forEach(function (sel) {
-    const before = sel.value;
-    sel.addEventListener("click", function (e) { e.stopPropagation(); });
-    sel.addEventListener("change", function (e) {
-      e.stopPropagation();
-      setStatus(Number(sel.dataset.id), sel.value, sel, before);
-    });
   });
 
   // 쪽 이동
-  function goPage(n) {
-    page = Math.min(Math.max(1, n), pages);
-    render();
-    document.querySelector("table").scrollIntoView({ behavior:"smooth", block:"start" });
-  }
-  if ($("p-first")) $("p-first").addEventListener("click", function () { goPage(1); });
-  if ($("prev"))    $("prev").addEventListener("click",    function () { goPage(page - 1); });
-  if ($("next"))    $("next").addEventListener("click",    function () { goPage(page + 1); });
-  if ($("p-last"))  $("p-last").addEventListener("click",  function () { goPage(pages); });
+  if ($("p-first")) $("p-first").onclick = function () { goPage(1); };
+  if ($("prev"))    $("prev").onclick    = function () { goPage(page - 1); };
+  if ($("next"))    $("next").onclick    = function () { goPage(page + 1); };
+  if ($("p-last"))  $("p-last").onclick  = function () { goPage(pages); };
   if ($("p-go")) {
-    $("p-go").addEventListener("change", function () { goPage(Number(this.value) || 1); });
-    $("p-go").addEventListener("keydown", function (e) {
+    $("p-go").onchange = function () { goPage(Number(this.value) || 1); };
+    $("p-go").onkeydown = function (e) {
       if (e.key === "Enter") goPage(Number(this.value) || 1);
-    });
+    };
   }
 
   const waitN = all.filter(function (r) { return NEXT[r.status]; }).length;
   $("tab-n").textContent = waitN ? "(" + waitN + ")" : "";
+}
 
-  document.querySelectorAll("tr.row").forEach(function (tr) {
-    tr.addEventListener("click", function () {
-      const next = tr.nextElementSibling;
-      if (next && next.classList.contains("detail")) { next.remove(); return; }
-      document.querySelectorAll("tr.detail").forEach(function (d) { d.remove(); });
-      const row = all.find(function (r) { return String(r.id) === tr.dataset.id; });
-      tr.insertAdjacentHTML("afterend", detailRow(row));
-    });
+// 줄이 많아지면 줄마다 이벤트를 붙이는 것이 느리다.
+// 표에 한 번만 붙이고 어느 줄을 눌렀는지 찾아서 처리한다.
+function bindTableOnce() {
+  const table = document.querySelector("#tab-work table");
+  if (!table || table.dataset.bound) return;
+  table.dataset.bound = "1";
+
+  table.addEventListener("click", function (e) {
+    const th = e.target.closest("th.sortable");
+    if (th) {
+      if (sortKey === th.dataset.k) sortDown = !sortDown;
+      else { sortKey = th.dataset.k; sortDown = true; }
+      page = 1; render();
+      return;
+    }
+    if (e.target.closest(".stsel")) return;      // 상태 고르기는 줄 펼치기와 겹치지 않게
+
+    const tr = e.target.closest("tr.row");
+    if (!tr) return;
+    const next = tr.nextElementSibling;
+    if (next && next.classList.contains("detail")) { next.remove(); return; }
+    document.querySelectorAll("tr.detail").forEach(function (d) { d.remove(); });
+    const row = all.find(function (r) { return String(r.id) === tr.dataset.id; });
+    tr.insertAdjacentHTML("afterend", detailRow(row));
   });
+
+  table.addEventListener("change", function (e) {
+    const sel = e.target.closest(".stsel");
+    if (!sel) return;
+    const row = all.find(function (r) { return String(r.id) === sel.dataset.id; });
+    setStatus(Number(sel.dataset.id), sel.value, sel, row ? row.status : "");
+  });
+}
+
+function goPage(n) {
+  const per = Math.max(1, perPage);
+  const pages = Math.max(1, Math.ceil(shownList.length / per));
+  page = Math.min(Math.max(1, n), pages);
+  render();
+  const t = document.querySelector("#tab-work table");
+  if (t) t.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
 async function load() {
@@ -951,13 +964,20 @@ async function load() {
     const res = await db.from("applications").select("*").order("created_at", { ascending:false });
     if (res.error) { $("status").textContent = "불러오기 실패: " + res.error.message; return; }
     all = res.data || [];
-    // 최근 접수가 1번. 정렬을 바꿔도 이 번호는 그 사람 것으로 따라간다.
+    // 접수한 순서대로 번호를 매긴다. 오래된 것이 1번.
+    // 정렬을 어떻게 바꿔도 이 번호는 그 사람 것으로 따라간다.
     all.slice().sort(function (a, b) {
-      return String(b.created_at).localeCompare(String(a.created_at));
+      return String(a.created_at).localeCompare(String(b.created_at));
     }).forEach(function (r, i) { r._seq = i + 1; });
+
+    // 버튼에 켜져 있는 기간을 그리기 전에 맞춘다.
+    // render() 뒤에 있으면 버튼은 '오늘'인데 실제로는 전체가 걸린다.
+    const onBtn = document.querySelector("#quicks button[data-w].on");
+    $("f-when").value = onBtn ? onBtn.dataset.w : "today";
+
+    bindTableOnce();
     render();
-    if (!$("f-when").value) $("f-when").value = "today";
-  loadQuestions();
+    loadQuestions();
   } catch (e) {
     $("status").textContent = "불러오기 실패: " + e.message;
   }
