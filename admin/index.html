@@ -233,6 +233,14 @@
                   border:2px solid var(--line); border-radius:10px; background:var(--card); }
   .tools .btn { flex:0 0 auto; white-space:nowrap;
                 font-size:0.88em; padding:11px 18px; border-radius:10px; }
+  /* 넣기 칸이 열려 있으면 색과 기호만 바꾼다.
+     글자까지 바꾸면 버튼 크기가 들쭉날쭉해진다. */
+  .tools .btn.key::before { content:"+"; display:inline-block;
+                            width:1em; margin-right:5px; text-align:center; }
+  .tools .btn.key.open::before { content:"\2715"; }
+  .tools .btn.key.open { background:var(--card); color:var(--bad);
+                         border-color:var(--bad); }
+  .tools .btn.key.open:hover { background:var(--bad); color:#fff; }
 
   button { cursor:pointer; }
   button.go { background:var(--key); color:#fff; border-color:var(--key); }
@@ -268,6 +276,12 @@
   @media (max-width:1000px) { .quick .qrow { grid-template-columns:repeat(2,1fr); } }
   @media (max-width:640px)  { .quick .qrow { grid-template-columns:1fr; } }
   .quick .qf { background:var(--soft); border-radius:10px; padding:12px 14px; }
+
+  /* 잘못 넣으신 칸을 그 자리에서 알려 준다 */
+  .qf input.wrong, .qf select.wrong { border-color:var(--bad) !important;
+                                      background:var(--bad-bg) !important; }
+  .qf label em { font-style:normal; font-size:0.85em; font-weight:600;
+                 color:var(--bad); margin-left:4px; }
   .quick input, .quick select { width:100%; font:inherit; padding:10px 12px;
     border:2px solid var(--line); border-radius:8px; background:#fff; }
   .quick .go2 { width:100%; margin-top:14px; font:inherit; font-size:1.02em;
@@ -527,6 +541,16 @@
         <button type="button" data-w="week">최근 7일</button>
       </div>
     </div>
+
+    <div class="fgrp">
+      <span class="flb">구분</span>
+      <div class="fseg" id="qkind">
+        <button type="button" data-q="" class="on">전체</button>
+        <button type="button" data-q="miss">못 찾음 <span id="qn-miss"></span></button>
+        <button type="button" data-q="ask">되물음 <span id="qn-ask"></span></button>
+        <button type="button" data-q="hit">답함 <span id="qn-hit"></span></button>
+      </div>
+    </div>
   </div>
   <p class="note" id="q-note">불러오는 중…</p>
   <div id="by-question"></div>
@@ -584,7 +608,7 @@
       <option value="today">오늘</option>
       <option value="week">최근 7일</option>
     </select>
-    <button type="button" class="btn key" id="new-open">+ 전화·방문 접수 넣기</button>
+    <button type="button" class="btn key" id="new-open">전화·방문 접수 넣기</button>
     <button type="button" class="btn ghost" id="reload">새로고침</button>
   </div>
 
@@ -594,9 +618,9 @@
       <div class="qrow">
         <div class="qf"><label for="q-cert">신청 자격증</label><select id="q-cert"></select></div>
         <div class="qf"><label for="q-name">이름</label><input id="q-name" placeholder="홍길동"></div>
-        <div class="qf"><label for="q-phone">연락처</label>
+        <div class="qf"><label for="q-phone">연락처 <em>꼭 필요합니다</em></label>
           <input id="q-phone" inputmode="tel" placeholder="010-1234-5678">
-          <p class="qh2">못 받으셨으면 비워 두셔도 됩니다</p></div>
+          <p class="qh2">직원이 연락드릴 때 씁니다. 못 받으셨으면 대신 받으신 분 번호라도 적어 주세요</p></div>
         <div class="qf"><label for="q-channel">접수경로</label>
           <select id="q-channel"><option>전화</option><option>방문</option></select></div>
       </div>
@@ -1139,6 +1163,7 @@ async function setStatus(id, to, sel, before) {
 // 답한 것 · 되물은 것 · 못 찾은 것을 갈라서 한 번에 하나만 보여 준다.
 let QROWS = [];
 let qPage = 1;
+let qKind = "";        // "" 전체 / miss / ask / hit
 
 async function loadQuestions() {
   try {
@@ -1206,6 +1231,11 @@ function drawQAll() {
 
 // 한 표에 다 보여 주고 맨 앞에 구분 값을 둔다. 쪽 나누기는 접수 목록과 같다.
 const QPER = 20;
+function countKind(k) {
+  const n = QROWS.filter(function (r) { return r.kind === k; }).length;
+  return n ? "(" + n + ")" : "";
+}
+
 const QKIND = {
   miss: { lb: "못 찾음", cls: "k-miss" },
   ask:  { lb: "되물음",  cls: "k-ask"  },
@@ -1213,10 +1243,17 @@ const QKIND = {
 };
 
 function drawQ() {
-  const list = QROWS;
+  $("qn-miss").textContent = countKind("miss");
+  $("qn-ask").textContent  = countKind("ask");
+  $("qn-hit").textContent  = countKind("hit");
+
+  const list = qKind
+    ? QROWS.filter(function (r) { return r.kind === qKind; })
+    : QROWS;
   if (!list.length) {
     $("by-question").innerHTML =
-      '<div class="empty"><b>들어온 질문이 없습니다</b>' +
+      '<div class="empty"><b>' +
+      (qKind ? "그 구분에 해당하는 질문이 없습니다" : "들어온 질문이 없습니다") + '</b>' +
       '<span>챗봇에 질문이 들어오면 여기에 쌓입니다.</span></div>';
     $("q-pager").innerHTML = "";
     return;
@@ -1302,9 +1339,12 @@ $("q-save").addEventListener("click", async function () {
   const name = $("q-name").value.trim();
   const phone = $("q-phone").value.trim();
 
-  if (!name) return qsay("이름을 넣어 주세요.", "bad");
-  if (phone && qdig(phone, 11).length < 9)
-    return qsay("연락처를 다시 확인해 주세요. 못 받으셨으면 비워 두셔도 됩니다.", "bad");
+  // 어느 칸이 잘못됐는지 그 칸에 표시한다. 저장까지 가서 실패하면 안 된다.
+  qmark();
+  if (!name)  return qbad("q-name", "이름을 넣어 주세요.");
+  if (!phone) return qbad("q-phone", "연락처를 넣어 주세요. 직원이 연락드릴 때 씁니다.");
+  if (qdig(phone, 11).length < 9)
+    return qbad("q-phone", "연락처가 짧습니다. 010-1234-5678 처럼 적어 주세요.");
   if (!db) return qsay("데이터베이스에 연결되지 않았습니다.", "bad");
 
   const head = c.track === "국가기술" ? "1" : c.track === "전문" ? "2" : "3";
@@ -1332,12 +1372,17 @@ $("q-save").addEventListener("click", async function () {
   });
 
   btn.disabled = false; btn.textContent = "이 내용으로 접수 넣기";
-  if (res.error) return qsay("저장 실패: " + res.error.message, "bad");
+  if (res.error) {
+    const m = res.error.message || "";
+    if (m.indexOf("phone") >= 0)  return qbad("q-phone", "연락처를 넣어 주세요.");
+    if (m.indexOf("name") >= 0)   return qbad("q-name", "이름을 넣어 주세요.");
+    return qsay("저장하지 못했습니다: " + m, "bad");
+  }
 
   qsay(name + " 님 접수 완료. 접수번호 " + rno, "ok");
   ["q-name","q-phone","q-memo"].forEach(function (id) { $(id).value = ""; });
   $("newbox").classList.add("hide");
-  $("new-open").textContent = "+ 전화·방문 접수 넣기";
+  $("new-open").classList.remove("open");
   load(true);
 });
 
@@ -1347,7 +1392,8 @@ $("new-open").addEventListener("click", function () {
   const box = $("newbox");
   const opening = box.classList.contains("hide");
   box.classList.toggle("hide", !opening);
-  this.textContent = opening ? "\u2715 그만두기" : "+ 전화·방문 접수 넣기";
+  // 글자를 바꾸면 버튼 크기가 들쭉날쭉해진다. 색만 바꾼다.
+  this.classList.toggle("open", opening);
   if (opening) { $("q-name").focus(); box.scrollIntoView({ behavior:"smooth", block:"center" }); }
 });
 
@@ -1373,12 +1419,25 @@ document.querySelectorAll("#swhen button").forEach(function (b) {
   });
 });
 
+// ---------- 챗봇 질문 구분 ----------
+document.querySelectorAll("#qkind button").forEach(function (b) {
+  b.addEventListener("click", function () {
+    qKind = b.dataset.q;
+    qPage = 1;
+    document.querySelectorAll("#qkind button").forEach(function (x) {
+      x.classList.toggle("on", x === b); });
+    drawQ();
+  });
+});
+
 // ---------- 챗봇 질문 기간 ----------
-document.querySelectorAll("#qwhen button").forEach(function (b) {
+// data-w 가 있는 버튼만 잡는다. 같은 상자 안의 구분 버튼까지 잡으면
+// qWhen 이 undefined 가 되어 화면에 "undefined 29건" 이 나온다.
+document.querySelectorAll("#qwhen button[data-w]").forEach(function (b) {
   b.addEventListener("click", function () {
     qWhen = b.dataset.w;
     qPage = 1;
-    document.querySelectorAll("#qwhen button").forEach(function (x) {
+    document.querySelectorAll("#qwhen button[data-w]").forEach(function (x) {
       x.classList.toggle("on", x === b); });
     drawQAll();
   });

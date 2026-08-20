@@ -153,6 +153,14 @@
                   border:2px solid var(--line); border-radius:10px; background:var(--card); }
   .tools .btn { flex:0 0 auto; white-space:nowrap;
                 font-size:0.88em; padding:11px 18px; border-radius:10px; }
+  /* 넣기 칸이 열려 있으면 색과 기호만 바꾼다.
+     글자까지 바꾸면 버튼 크기가 들쭉날쭉해진다. */
+  .tools .btn.key::before { content:"+"; display:inline-block;
+                            width:1em; margin-right:5px; text-align:center; }
+  .tools .btn.key.open::before { content:"\2715"; }
+  .tools .btn.key.open { background:var(--card); color:var(--bad);
+                         border-color:var(--bad); }
+  .tools .btn.key.open:hover { background:var(--bad); color:#fff; }
   button { cursor:pointer; }
   .btn.bad { background:var(--card); color:var(--bad); border-color:var(--bad); }
   .btn.bad:hover { background:var(--bad); color:#fff; }
@@ -389,7 +397,7 @@
 
   <div class="tools">
     <input id="q" type="text" placeholder="제목이나 내용으로 찾기">
-    <button type="button" class="btn key" id="new-open">+ 새 안내 넣기</button>
+    <button type="button" class="btn key" id="new-open">새 안내 넣기</button>
     <button type="button" class="btn ghost" id="reload">새로고침</button>
   </div>
 
@@ -446,7 +454,7 @@
 
   <div class="tools">
     <input id="s-q" type="text" placeholder="어르신 말이나 정식 이름으로 찾기">
-    <button type="button" class="btn key" id="syn-open">+ 새 말 넣기</button>
+    <button type="button" class="btn key" id="syn-open">새 말 넣기</button>
     <button type="button" class="btn ghost" id="syn-reload">새로고침</button>
   </div>
 
@@ -816,7 +824,8 @@ $("new-open").addEventListener("click", function () {
   const box = $("newbox");
   const opening = box.classList.contains("hide");
   box.classList.toggle("hide", !opening);
-  this.textContent = opening ? "\u2715 그만두기" : "+ 새 안내 넣기";
+  // 글자를 바꾸면 버튼 크기가 들쭉날쭉해진다. 색만 바꾼다.
+  this.classList.toggle("open", opening);
   if (opening) { $("n-title").focus(); box.scrollIntoView({ behavior:"smooth", block:"center" }); }
 });
 
@@ -862,7 +871,7 @@ $("n-save").addEventListener("click", async function () {
 
   // 넣는 칸을 닫고 방금 넣은 것을 목록 맨 위에 보여 준다
   $("newbox").classList.add("hide");
-  $("new-open").textContent = "+ 새 안내 넣기";
+  $("new-open").classList.remove("open");
   $("q").value = ""; $("f-cert").value = ""; $("f-cat").value = ""; $("f-src").value = "";
   page = 1;
   await load();
@@ -943,7 +952,7 @@ $("syn-open").addEventListener("click", function () {
   const box = $("synbox");
   const opening = box.classList.contains("hide");
   box.classList.toggle("hide", !opening);
-  this.textContent = opening ? "\u2715 그만두기" : "+ 새 말 넣기";
+  this.classList.toggle("open", opening);
   if (opening) { $("s-word").focus(); box.scrollIntoView({ behavior:"smooth", block:"center" }); }
 });
 $("syn-reload").addEventListener("click", function () { loadSyn(); });
@@ -974,7 +983,7 @@ $("s-add").addEventListener("click", async function () {
   synSay('"' + word + '" \u2192 ' + std + ' 넣었습니다. 챗봇에서 직접 물어보세요.', "ok");
   $("s-word").value = ""; $("s-std").value = "";
   $("synbox").classList.add("hide");
-  $("syn-open").textContent = "+ 새 말 넣기";
+  $("syn-open").classList.remove("open");
   await loadSyn();
 });
 
