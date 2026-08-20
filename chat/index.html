@@ -481,6 +481,20 @@ async function boot() {
       DOCS = DOCS.concat(part);
       if (part.length < 1000) break;
     }
+    // 직원이 화면에서 넣은 비슷한말을 함께 쓴다.
+    // settings.json 에 적힌 것은 기본값이고, 여기서 넣은 것이 더해진다.
+    try {
+      const sy = await db.from("synonyms_ko").select("word,std");
+      if (!sy.error && sy.data) {
+        sy.data.forEach(function (r) {
+          if (!r.word || !r.std) return;
+          if (!CFG.SYNONYMS[r.std]) CFG.SYNONYMS[r.std] = [];
+          if (CFG.SYNONYMS[r.std].indexOf(r.word) < 0) CFG.SYNONYMS[r.std].push(r.word);
+        });
+        console.log("비슷한말 " + sy.data.length + "개 읽음");
+      }
+    } catch (e) { console.log("비슷한말 못 읽음: " + e.message); }
+
     buildIndex();
     console.log("문서 " + DOCS.length + "건 · 기준값 " + CFG.MIN_SCORE);
   } catch(e){ console.log("문서 실패: "+e.message); return; }

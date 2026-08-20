@@ -279,6 +279,96 @@ where channel is null or channel = '' or channel = '미기재';
 -- select count(*) as 전체, count(receipt_no) as 번호있음 from applications;
 
 
+
+
+-- ============================================================
+-- 비슷한말 사전
+-- 어르신이 쓰시는 말을 정식 이름으로 바꿔 준다.
+-- 발주서 4절 6번 : "포크레인", "지게차 면허", "요양사" 로 말씀하신다
+-- ============================================================
+
+create table if not exists synonyms_ko (
+  id bigint generated always as identity primary key,
+  created_at timestamptz default now(),
+  word text not null unique,      -- 어르신이 쓰시는 말 (포크레인)
+  std  text not null              -- 정식 이름 (굴착기운전기능사)
+);
+
+alter table synonyms_ko enable row level security;
+drop policy if exists "syn read"  on synonyms_ko;
+drop policy if exists "syn write" on synonyms_ko;
+create policy "syn read"  on synonyms_ko for select to anon using (true);
+create policy "syn write" on synonyms_ko for all    to anon using (true) with check (true);
+
+
+-- 지금 settings.json 에 있는 것을 옮긴다
+insert into synonyms_ko (word, std) values
+  ('접수비', '응시료'),
+  ('시험비', '응시료'),
+  ('수수료', '응시료'),
+  ('돈', '응시료'),
+  ('얼마', '응시료'),
+  ('비용', '응시료'),
+  ('요금', '응시료'),
+  ('가격', '응시료'),
+  ('값', '응시료'),
+  ('1차', '필기'),
+  ('일차', '필기'),
+  ('이론', '필기'),
+  ('쓰는거', '필기'),
+  ('필기시험', '필기'),
+  ('2차', '실기'),
+  ('이차', '실기'),
+  ('실습', '실기'),
+  ('직접하는거', '실기'),
+  ('실기시험', '실기'),
+  ('굴착기', '굴착기운전기능사'),
+  ('포크레인', '굴착기운전기능사'),
+  ('포크래인', '굴착기운전기능사'),
+  ('지게차', '지게차운전기능사'),
+  ('지게차면허', '지게차운전기능사'),
+  ('한식', '한식조리기능사'),
+  ('한식조리', '한식조리기능사'),
+  ('조리기능사', '한식조리기능사'),
+  ('전기', '전기기능사'),
+  ('요양사', '요양보호사'),
+  ('요양', '요양보호사'),
+  ('신청', '접수'),
+  ('원서접수', '접수'),
+  ('등록', '접수'),
+  ('접수하다', '접수'),
+  ('취소', '환불'),
+  ('돌려받', '환불'),
+  ('물러', '환불'),
+  ('반환', '환불'),
+  ('고사장', '시험장'),
+  ('시험장소', '시험장'),
+  ('시험보는곳', '시험장'),
+  ('큐넷', '두두넷'),
+  ('q-net', '두두넷'),
+  ('qnet', '두두넷'),
+  ('국시원', '두두보건'),
+  ('보건시험원', '두두보건'),
+  ('날짜', '일정'),
+  ('언제', '일정'),
+  ('기간', '일정'),
+  ('시기', '일정'),
+  ('붙', '합격'),
+  ('패스', '합격'),
+  ('통과', '합격'),
+  ('면제', '유효기간'),
+  ('몇년', '유효기간'),
+  ('유효', '유효기간'),
+  ('가져갈', '준비물'),
+  ('챙길', '준비물'),
+  ('지참', '준비물')
+on conflict (word) do nothing;
+
+
+-- 확인
+-- select std, count(*) from synonyms_ko group by 1 order by 2 desc;
+
+
 -- ============================================================
 -- 싹 지우기 (표를 처음부터 다시 만들 때만)
 -- 아래 세 줄 앞의 -- 를 지우고 실행하십시오. 데이터가 전부 사라집니다.
@@ -286,3 +376,4 @@ where channel is null or channel = '' or channel = '미기재';
 -- drop table if exists applications;
 -- drop table if exists docs;
 -- drop table if exists questions;
+-- drop table if exists synonyms_ko;

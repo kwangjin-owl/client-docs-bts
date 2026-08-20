@@ -233,6 +233,23 @@
   <h1>안내 문서 관리</h1>
   <p class="lead">여기서 고치면 챗봇 답이 바로 바뀝니다. 다시 배포하지 않아도 됩니다.</p>
 
+  <div class="tabs" id="tabs">
+    <button type="button" data-t="doc" class="on">안내 문서</button>
+    <button type="button" data-t="syn">비슷한말 <span id="syn-n"></span></button>
+  </div>
+
+  <div class="tab on" id="tab-doc">
+  <div class="dfilters">
+    <select id="f-cert"><option value="">자격증 전체</option></select>
+    <select id="f-cat"><option value="">분류 전체</option></select>
+    <select id="f-src">
+      <option value="">출처 전체</option>
+      <option value="상담">상담기록</option>
+      <option value="문서">발주 문서</option>
+      <option value="직원">직원이 넣은 것</option>
+    </select>
+  </div>
+
   <div class="tools">
     <input class="search" id="q" type="text" placeholder="제목이나 내용으로 찾기">
     <button class="btn key" id="add">문서 추가</button>
@@ -245,9 +262,34 @@
   </div>
 
   <div id="list"></div>
+  <div class="more-wrap"><button type="button" class="more hide" id="more"></button></div>
 
   <p class="note" id="status">불러오는 중…</p>
   <p class="note tip">고친 뒤에는 챗봇을 열어 실제로 답이 바뀌었는지 확인하세요. 저장했다는 표시만 보고 넘어가면 안 됩니다.</p>
+  </div>
+
+  <div class="tab" id="tab-syn">
+  <h2 class="sec2">비슷한말 사전</h2>
+  <p class="lead">어르신이 쓰시는 말을 정식 이름으로 바꿔서 문서를 찾습니다.
+     "포크레인"이라고 물으셔도 굴착기 안내가 나오게 하는 것입니다.</p>
+
+  <div class="synadd">
+    <label>어르신이 쓰시는 말
+      <input id="s-word" type="text" placeholder="포크레인" autocomplete="off">
+    </label>
+    <label>정식 이름
+      <input id="s-std" type="text" placeholder="굴착기운전기능사" autocomplete="off" list="std-list">
+      <datalist id="std-list"></datalist>
+    </label>
+    <button type="button" class="btn key" id="s-add">넣기</button>
+  </div>
+  <p class="said2" id="s-said"></p>
+
+  <div id="syn-list"></div>
+  <p class="note" id="syn-status">불러오는 중…</p>
+  <p class="note tip">넣고 나면 챗봇에서 그 말로 직접 물어보세요.
+     저장했다는 표시만 보고 넘어가면 안 됩니다.</p>
+  </div>
 
   <details class="guide">
     <summary>이 화면 쓰는 법</summary>
@@ -262,8 +304,13 @@
 
       <dt>챗봇이 엉뚱한 답을 할 때</dt>
       <dd>어르신이 쓰신 말이 문서에 없어서입니다.
-          그 말을 문서 안에 같이 적어 주십시오.
-          예를 들어 "접수비"로 물으시면, 응시료 문서에 "접수비"라는 말을 넣습니다.</dd>
+          위 <b>비슷한말</b> 탭에서 그 말을 넣어 주십시오.
+          예를 들어 "포크레인"이라고 물으시면
+          <b>포크레인 → 굴착기운전기능사</b>로 넣습니다.
+          문서를 고치지 않아도 됩니다.</dd>
+
+      <dt>비슷한말을 넣었는데 답이 안 바뀔 때</dt>
+      <dd>챗봇 화면을 새로고침해 주십시오. 챗봇은 열 때 한 번 사전을 읽습니다.</dd>
 
       <dt>어떤 질문이 답을 못 받았는지 보려면</dt>
       <dd><a href="/admin">접수 내역</a> 화면 아래쪽
@@ -513,10 +560,134 @@ $("add").addEventListener("click", async function () {
   }
 });
 
-$("q").addEventListener("input", render);
-$("reload").addEventListener("click", function () { load(); });
 
-load();
+// ============================================================
+// 비슷한말 사전
+// 어르신이 쓰시는 말을 정식 이름으로 바꿔 준다.
+// 발주서 4절 6번 : "포크레인", "지게차 면허", "요양사" 로 말씀하신다
+// ============================================================
+
+let SYN = [];
+
+function synSay(t, kind) {
+  const e = $("s-said");
+  e.textContent = t;
+  e.className = "said2 " + (kind || "");
+  if (kind === "ok") setTimeout(function () {
+    if (e.textContent === t) { e.textContent = ""; e.className = "said2"; }
+  }, 4000);
+}
+
+async function loadSyn() {
+  if (!db) { $("syn-status").textContent = "데이터베이스에 연결되지 않았습니다"; return; }
+  const res = await db.from("synonyms_ko").select("*").order("std").order("word");
+  if (res.error) {
+    $("syn-status").textContent = "불러오지 못했습니다: " + res.error.message;
+    return;
+  }
+  SYN = res.data || [];
+  drawSyn();
+}
+
+function drawSyn() {
+  $("syn-n").textContent = SYN.length ? "(" + SYN.length + ")" : "";
+
+  // 정식 이름끼리 묶어서 보여 준다
+  const grp = {};
+  SYN.forEach(function (r) { (grp[r.std] = grp[r.std] || []).push(r); });
+  const keys = Object.keys(grp).sort(function (a, b) { return a.localeCompare(b, "ko"); });
+
+  $("syn-list").innerHTML = keys.length
+    ? keys.map(function (std) {
+        return '<div class="syngrp"><h3>' + esc(std) + '</h3><div class="synrow">' +
+          grp[std].map(function (r) {
+            return '<span class="syn"><b>' + esc(r.word) + '</b>' +
+              '<button type="button" data-id="' + r.id + '" title="지우기">&#10005;</button></span>';
+          }).join("") + '</div></div>';
+      }).join("")
+    : '<div class="empty"><b>아직 넣으신 말이 없습니다</b>' +
+      '<span>어르신이 자주 쓰시는 말을 위에서 넣어 주세요.</span></div>';
+
+  $("syn-status").textContent = SYN.length
+    ? "비슷한말 " + SYN.length + "개 · 정식 이름 " + keys.length + "가지"
+    : "";
+
+  // 정식 이름 자동 완성 후보
+  $("std-list").innerHTML = keys.map(function (k) {
+    return '<option value="' + esc(k) + '">'; }).join("");
+
+  document.querySelectorAll(".syn button").forEach(function (b) {
+    b.addEventListener("click", function () { delSyn(Number(b.dataset.id), b); });
+  });
+}
+
+$("s-add").addEventListener("click", async function () {
+  const word = $("s-word").value.trim();
+  const std  = $("s-std").value.trim();
+
+  if (!word) return synSay("어르신이 쓰시는 말을 넣어 주세요.", "bad");
+  if (!std)  return synSay("정식 이름을 넣어 주세요.", "bad");
+  if (word === std) return synSay("두 말이 같습니다. 다른 말을 넣어 주세요.", "bad");
+  if (!db) return synSay("데이터베이스에 연결되지 않았습니다.", "bad");
+
+  const dup = SYN.find(function (r) { return r.word === word; });
+  if (dup) return synSay('"' + word + '"은(는) 이미 ' + dup.std + '로 넣으셨습니다.', "bad");
+
+  const btn = this;
+  btn.disabled = true; btn.textContent = "넣는 중…";
+  const res = await db.from("synonyms_ko").insert({ word: word, std: std }).select();
+  btn.disabled = false; btn.textContent = "넣기";
+
+  // 저장이 안 됐으면 안 됐다고 말한다. 넣었다고만 하고 넘어가면 안 된다.
+  if (res.error) return synSay("넣지 못했습니다: " + res.error.message, "bad");
+  if (!res.data || !res.data.length)
+    return synSay("넣지 못했습니다. 새로고침한 뒤 다시 해보세요.", "bad");
+
+  synSay('"' + word + '" → ' + std + ' 넣었습니다. 챗봇에서 직접 물어보세요.', "ok");
+  $("s-word").value = ""; $("s-word").focus();
+  await loadSyn();
+});
+
+$("s-word").addEventListener("keydown", function (e) {
+  if (e.key === "Enter") $("s-std").focus();
+});
+$("s-std").addEventListener("keydown", function (e) {
+  if (e.key === "Enter") $("s-add").click();
+});
+
+async function delSyn(id, btn) {
+  const row = SYN.find(function (r) { return r.id === id; });
+  if (!row) return;
+  if (!confirm('"' + row.word + '" → ' + row.std + '\n지우시겠습니까?')) return;
+
+  btn.disabled = true;
+  const res = await db.from("synonyms_ko").delete().eq("id", id).select();
+  btn.disabled = false;
+
+  if (res.error) return synSay("지우지 못했습니다: " + res.error.message, "bad");
+  if (!res.data || !res.data.length)
+    return synSay("지우지 못했습니다. 새로고침한 뒤 다시 해보세요.", "bad");
+
+  synSay('"' + row.word + '" 지웠습니다.', "ok");
+  await loadSyn();
+}
+
+// ---------- 탭 ----------
+document.querySelectorAll("#tabs button").forEach(function (b) {
+  b.addEventListener("click", function () {
+    document.querySelectorAll("#tabs button").forEach(function (x) {
+      x.classList.toggle("on", x === b); });
+    document.querySelectorAll(".tab").forEach(function (t) {
+      t.classList.toggle("on", t.id === "tab-" + b.dataset.t); });
+    if (b.dataset.t === "syn" && !SYN.length) loadSyn();
+  });
+});
+
+$("q").addEventListener("input", render);
+$("reload").addEventListener("click", function () { load(); loadSyn(); });
+
+// 문서를 먼저 읽어 db 연결을 만든 뒤 비슷한말을 읽는다
+load().then(loadSyn);
 </script>
 
 
