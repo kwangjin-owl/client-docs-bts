@@ -312,6 +312,7 @@
   .lcount { flex:1; min-width:0; font-size:0.85em; color:var(--muted);
             white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .lcount b { color:var(--ink); font-size:1.1em; }
+  .lcount .tot { color:#9aa4ac; font-size:0.92em; }
   .lhint { flex:none; font-size:0.82em; color:var(--ok); font-weight:700; white-space:nowrap; }
   /* 접수경로 — 손님이 직접 넣은 것과 직원이 대신 넣은 것을 가른다 */
   .chan { display:inline-block; font-size:0.74em; font-weight:700;
@@ -753,7 +754,8 @@ function detailRow(r) {
 }
 
 let onlyStatus = "", onlyChan = "";
-let sortKey = "created_at", sortDown = true;   // 기본은 최근 접수부터
+// 기본: 접수순 큰 것(가장 최근)이 맨 위
+let sortKey = "seq", sortDown = true;
 let perPage = 50;            // 50건씩 / 한 쪽에 다
 let shownList = [];          // 지금 화면에 걸러진 목록 (일괄 처리 대상)
 
@@ -870,10 +872,12 @@ function render() {
   }).join("");
 
   const todoN = list.filter(function (r) { return NEXT[r.status]; }).length;
+  const whenLb = { "": "전체", "today": "오늘", "week": "최근 7일" }[$("f-when").value] || "전체";
   $("status").innerHTML = list.length
-    ? "<b>" + list.length + "</b>건" +
-      (todoN ? " · 안 한 것 <b>" + todoN + "</b>건" : " · 모두 처리")
-    : "조건에 맞는 접수가 없습니다";
+    ? whenLb + " <b>" + list.length + "</b>건" +
+      (todoN ? " · 안 한 것 <b>" + todoN + "</b>건" : " · 모두 처리") +
+      (list.length !== all.length ? " <span class='tot'>(전체 " + all.length + "건)</span>" : "")
+    : whenLb + " 접수가 없습니다";
 
   // 표 머리 눌러서 다시 늘어놓기
   let marked = false;
