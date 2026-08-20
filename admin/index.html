@@ -45,7 +45,12 @@
   .subtop { background:var(--card); border-bottom:1px solid var(--line); }
   .subtop-in { max-width:1200px; margin:0 auto; padding:0 24px;
                display:flex; align-items:center; gap:4px; }
-  .subtop .stitle { font-size:0.82em; color:var(--muted); margin-right:10px; }
+  .subtop .stitle { font-size:0.76em; font-weight:700; letter-spacing:.02em;
+                    color:var(--muted); background:var(--soft);
+                    padding:5px 11px; border-radius:6px;
+                    margin-right:14px; position:relative; }
+  .subtop .stitle::after { content:""; position:absolute; right:-8px; top:-6px;
+                           width:1px; height:26px; background:var(--line); }
   .subtop a { font-size:0.9em; padding:12px 15px; color:var(--muted);
               text-decoration:none; border-bottom:3px solid transparent; }
   .subtop a:hover { color:var(--key-d); }
@@ -166,14 +171,19 @@
   .tabs button:hover { color:var(--key-d); }
   .tabs button.on { color:var(--key-d); font-weight:700; border-bottom-color:var(--key); }
   .tabs button span { font-size:0.85em; color:var(--bad); font-weight:700; }
-  .tabs .add, .tabs button.add.on { margin-left:auto; margin-bottom:6px; align-self:center;
+  /* 넣는 화면으로 가는 버튼. 켜지면 모양이 확 달라진다. */
+  .tabs .add { margin-left:auto; margin-bottom:6px; align-self:center;
                background:var(--key); color:#fff; font-weight:700;
-               border-radius:9px; padding:11px 20px; border-bottom:0;
-               box-shadow:0 2px 6px rgba(15,123,108,.3); }
+               border:2px solid var(--key); border-radius:9px;
+               padding:10px 20px; box-shadow:0 2px 6px rgba(15,123,108,.3); }
   .tabs .add::before { content:"+ "; }
-  .tabs .add:hover { background:var(--key-d); color:#fff; }
-  .tabs button.add.on { background:var(--key-d); color:#fff;
-                        box-shadow:inset 0 2px 5px rgba(0,0,0,.25); }
+  .tabs .add:hover { background:var(--key-d); border-color:var(--key-d); color:#fff; }
+
+  /* 켜졌을 때 = 지금 이 화면을 보고 있다 */
+  .tabs button.add.on { background:#fff; color:var(--key-d);
+                        border-color:var(--key-d); box-shadow:none; }
+  .tabs button.add.on::before { content:"\2715  "; font-size:0.9em; }
+  .tabs button.add.on:hover { background:var(--soft); color:var(--key-d); }
   .tab { display:none; }
   .tab.on { display:block; }
 
@@ -501,9 +511,9 @@
     <div class="fgrp">
       <span class="flb">기간</span>
       <div class="fseg">
-        <button type="button" data-w="today" class="on">오늘</button>
+        <button type="button" data-w="today">오늘</button>
         <button type="button" data-w="week">최근 7일</button>
-        <button type="button" data-w="">전체</button>
+        <button type="button" data-w="" class="on">전체</button>
       </div>
     </div>
 
@@ -976,7 +986,7 @@ async function load() {
     // 버튼에 켜져 있는 기간을 그리기 전에 맞춘다.
     // render() 뒤에 있으면 버튼은 '오늘'인데 실제로는 전체가 걸린다.
     const onBtn = document.querySelector("#quicks button[data-w].on");
-    $("f-when").value = onBtn ? onBtn.dataset.w : "today";
+    $("f-when").value = onBtn ? onBtn.dataset.w : "";
 
     bindTableOnce();
     render();
@@ -1195,10 +1205,21 @@ $("q-save").addEventListener("click", async function () {
 // ---------- 탭 전환 ----------
 document.querySelectorAll("#tabs button").forEach(function (b) {
   b.addEventListener("click", function () {
+    // 이미 켜져 있는 접수 넣기를 다시 누르면 목록으로 돌아간다
+    if (b.dataset.t === "new" && b.classList.contains("on")) {
+      const work = document.querySelector('#tabs button[data-t="work"]');
+      if (work) { work.click(); return; }
+    }
     document.querySelectorAll("#tabs button").forEach(function (x) {
       x.classList.toggle("on", x === b); });
     document.querySelectorAll(".tab").forEach(function (t) {
       t.classList.toggle("on", t.id === "tab-" + b.dataset.t); });
+
+    // 접수 넣기 화면일 때는 버튼 글자를 '닫기'로 바꿔 지금 어디인지 알린다
+    const add = document.querySelector("#tabs .add");
+    if (add) add.textContent = (b.dataset.t === "new")
+      ? "접수 넣기 닫기" : "전화·방문 접수 넣기";
+
     window.scrollTo({ top:0, behavior:"smooth" });
   });
 });
