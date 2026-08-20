@@ -398,9 +398,18 @@ function readable(t) {
   return String(t).replace(/([다요])\.\s+/g,"$1.\n").replace(/\n{3,}/g,"\n\n").trim();
 }
 // 대화 칸 안에서만 아래로 내린다. 페이지 전체는 안 움직인다.
+// 새 질문을 대화 칸 맨 위에 놓는다. 답이 길어도 처음부터 읽으실 수 있다.
+function showTurn(box) {
+  const l = $("log");
+  l.scrollTop = Math.max(0, box.offsetTop - l.offsetTop - 8);
+}
+
+// 답이 올 때는 아래에 붙어 계실 때만 따라 내린다.
+// 위를 읽고 계시는데 끌어내리면 안 된다.
 function toBottom() {
   const l = $("log");
-  l.scrollTop = l.scrollHeight;
+  const near = l.scrollHeight - l.scrollTop - l.clientHeight < 120;
+  if (near) l.scrollTop = l.scrollHeight;
 }
 
 function addTurn(question) {
@@ -410,7 +419,7 @@ function addTurn(question) {
   box.innerHTML='<div class="q"></div><div class="a">생각하는 중…</div><p class="meta"></p>';
   box.querySelector(".q").textContent=question;
   $("log").appendChild(box);
-  toBottom();
+  showTurn(box);
   return box;
 }
 function fillTurn(box,text,meta,isErr) {

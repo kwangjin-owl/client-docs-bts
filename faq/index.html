@@ -282,6 +282,38 @@
                 color:var(--muted); cursor:pointer; }
   .syn button:hover { background:var(--bad); color:#fff; }
 
+  .synadd label em { font-style:normal; font-weight:400; color:#9aa4ac; margin-left:6px; }
+
+  /* 안내 새로 넣기 */
+  .newdoc { background:var(--soft); border-radius:14px; padding:22px 24px; margin-top:16px; }
+  .newdoc label { display:block; font-size:0.85em; font-weight:700;
+                  color:var(--muted); margin-top:16px; }
+  .newdoc label:first-child { margin-top:0; }
+  .newdoc input, .newdoc textarea {
+    width:100%; margin-top:8px; font:inherit; font-size:1em;
+    padding:13px 14px; border:2px solid var(--line); border-radius:10px;
+    background:var(--card); }
+  .newdoc textarea { line-height:1.7; resize:vertical; }
+  .newdoc input:focus, .newdoc textarea:focus { outline:0; border-color:var(--key); }
+  .newdoc input::placeholder, .newdoc textarea::placeholder { color:#b4b9bd; }
+  .newdoc .nrow { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .newdoc .nrow label { margin-top:16px; }
+  .newdoc .btn.big { margin-top:20px; padding:15px 32px; font-size:1em; }
+  @media (max-width:700px) { .newdoc .nrow { grid-template-columns:1fr; } }
+
+  /* 새로 넣기 버튼 — 접수 관리 화면과 같은 모양 */
+  .tabs .add { margin-left:auto; margin-bottom:6px; align-self:center;
+               background:var(--key); color:#fff; font-weight:700;
+               border:2px solid var(--key); border-radius:9px;
+               padding:10px 20px; border-bottom:0;
+               box-shadow:0 2px 6px rgba(15,123,108,.3); }
+  .tabs .add::before { content:"+ "; }
+  .tabs .add:hover { background:var(--key-d); border-color:var(--key-d); color:#fff; }
+  .tabs button.add.on { background:var(--key-d); border-color:var(--key-d); color:#fff;
+                        box-shadow:inset 0 2px 5px rgba(0,0,0,.22); }
+  .tabs button.add.on::before { content:"\2715  "; }
+  .tabs button.add.on:hover { background:var(--key-d); color:#fff; }
+
   .said2 { margin:14px 0 0; font-size:0.92em; min-height:1.3em; }
   .said2.ok  { color:var(--ok); font-weight:600; }
   .said2.bad { color:var(--bad); font-weight:600; }
@@ -311,6 +343,7 @@
   <div class="tabs" id="tabs">
     <button type="button" data-t="doc" class="on">챗봇이 답하는 내용 <span id="doc-n"></span></button>
     <button type="button" data-t="syn">어르신 말 바꾸기 <span id="syn-n"></span></button>
+    <button type="button" data-t="new" class="add">안내 새로 넣기</button>
   </div>
 
   <div class="tab on" id="tab-doc">
@@ -328,7 +361,6 @@
 
   <div class="tools">
     <input class="search" id="q" type="text" placeholder="제목이나 내용으로 찾기">
-    <button class="btn key" id="add">문서 추가</button>
     <button id="reload">새로고침</button>
   </div>
 
@@ -344,18 +376,51 @@
   <p class="note tip">고친 뒤에는 챗봇을 열어 실제로 답이 바뀌었는지 확인하세요. 저장했다는 표시만 보고 넘어가면 안 됩니다.</p>
   </div>
 
+  <div class="tab" id="tab-new">
+  <h2 class="sec2" style="margin-top:0">안내 새로 넣기</h2>
+  <p class="lead">여기 적은 내용을 챗봇이 그대로 답합니다.</p>
+
+  <div class="newdoc">
+    <label>제목
+      <input id="n-title" type="text" placeholder="예: 굴착기 시험장에 주차되나요" autocomplete="off">
+    </label>
+
+    <label>챗봇이 할 답
+      <textarea id="n-body" rows="4" placeholder="예: 시험장마다 다릅니다. 수험표에 적힌 시험장으로 미리 문의해 주십시오."></textarea>
+    </label>
+
+    <div class="nrow">
+      <label>자격증 (없으면 비워 두세요)
+        <input id="n-cert" type="text" placeholder="예: 굴착기운전기능사" autocomplete="off" list="cert-list">
+        <datalist id="cert-list"></datalist>
+      </label>
+      <label>분류 (없으면 비워 두세요)
+        <input id="n-cat" type="text" placeholder="예: 시험장" autocomplete="off" list="cat-list">
+        <datalist id="cat-list"></datalist>
+      </label>
+    </div>
+
+    <label>어르신이 쓰실 만한 말 (여러 개는 / 로 나눠 적습니다)
+      <input id="n-question" type="text" placeholder="예: 주차 되나요 / 차 가져가도 되나요" autocomplete="off">
+    </label>
+
+    <button type="button" class="btn key big" id="n-save">이 내용으로 넣기</button>
+    <p class="said2" id="n-said"></p>
+  </div>
+  </div>
+
   <div class="tab" id="tab-syn">
   <h2 class="sec2" style="margin-top:0">어르신 말 바꾸기</h2>
   <p class="lead">어르신이 "포크레인"이라고 물으셔도 굴착기 안내가 나오게 합니다.
      자료를 고치지 않아도 됩니다.</p>
 
   <div class="synadd">
-    <label>어르신이 쓰시는 말
-      <input id="s-word" type="text" placeholder="포크레인" autocomplete="off">
+    <label>어르신이 쓰시는 말 <em>예: 포크레인</em>
+      <input id="s-word" type="text" autocomplete="off">
     </label>
     <span class="arrow">&rarr;</span>
-    <label>이 말로 바꿔서 찾기
-      <input id="s-std" type="text" placeholder="굴착기운전기능사" autocomplete="off" list="std-list">
+    <label>이 말로 바꿔서 찾기 <em>예: 굴착기운전기능사</em>
+      <input id="s-std" type="text" autocomplete="off" list="std-list">
       <datalist id="std-list"></datalist>
     </label>
     <button type="button" class="btn key" id="s-add">넣기</button>
@@ -467,6 +532,12 @@ function fillPicks() {
   $("f-cat").innerHTML = '<option value="">분류 전체</option>' +
     cats.map(function (c) { return '<option>' + esc(c) + '</option>'; }).join("");
   $("f-cert").value = keepC; $("f-cat").value = keepK;
+
+  // 새로 넣는 화면의 자동완성 후보
+  $("cert-list").innerHTML = certs.map(function (c) {
+    return '<option value="' + esc(c) + '">'; }).join("");
+  $("cat-list").innerHTML = cats.map(function (c) {
+    return '<option value="' + esc(c) + '">'; }).join("");
 }
 
 function srcKind(d) {
@@ -486,6 +557,11 @@ function render() {
     if (fs && srcKind(d) !== fs) return false;
     if (!q) return true;
     return (d.title + " " + d.body + " " + (d.question || "")).indexOf(q) >= 0;
+  });
+
+  // 최근에 넣거나 고친 것이 위로 온다. 방금 넣은 문서를 바로 볼 수 있어야 한다.
+  list.sort(function (a, b) {
+    return String(b.updated_at || "").localeCompare(String(a.updated_at || ""));
   });
 
   const shown = list.slice(0, showN);
@@ -668,34 +744,57 @@ async function loadInner(keepOpen, savedId, savedMsg) {
   }
 }
 
-$("add").addEventListener("click", async function () {
-  if (!db) return;
-  const ab = $("add");
-  ab.disabled = true; ab.textContent = "만드는 중…";
+function nSay(t, kind) {
+  const e = $("n-said");
+  e.textContent = t;
+  e.className = "said2 " + (kind || "");
+}
+
+$("n-save").addEventListener("click", async function () {
+  const title = $("n-title").value.trim();
+  const body  = $("n-body").value.trim();
+
+  if (!title) return nSay("제목을 넣어 주세요.", "bad");
+  if (!body)  return nSay("챗봇이 할 답을 넣어 주세요.", "bad");
+  if (!db)    return nSay("데이터베이스에 연결되지 않았습니다.", "bad");
+
+  const dup = docs.find(function (d) { return d.title === title; });
+  if (dup) return nSay('"' + title + '" 은(는) 이미 있습니다. 목록에서 그 안내를 고쳐 주세요.', "bad");
+
+  const btn = this;
+  btn.disabled = true; btn.textContent = "넣는 중…";
   const res = await db.from("docs").insert({
-    title: "새 문서",
-    body: "여기에 내용을 적으세요.",
-    source: "직접 작성"
+    title: title,
+    body: body,
+    cert: $("n-cert").value.trim() || null,
+    category: $("n-cat").value.trim() || null,
+    question: $("n-question").value.trim() || null,
+    source: "직원이 넣음",
+    updated_at: new Date().toISOString()
   }).select();
-  ab.disabled = false; ab.textContent = "문서 추가";
-  if (res.error) { $("status").textContent = "추가 실패: " + res.error.message; return; }
+  btn.disabled = false; btn.textContent = "이 내용으로 넣기";
+
+  // 저장이 안 됐으면 안 됐다고 말한다
+  if (res.error) return nSay("넣지 못했습니다: " + res.error.message, "bad");
+  if (!res.data || !res.data.length)
+    return nSay("넣지 못했습니다. 새로고침한 뒤 다시 해보세요.", "bad");
+
+  nSay('"' + title + '" 넣었습니다. 챗봇에서 직접 물어보세요.', "ok");
+  ["n-title", "n-body", "n-cert", "n-cat", "n-question"].forEach(function (id) {
+    $(id).value = "";
+  });
+
+  // 목록 탭으로 돌아가 방금 넣은 것을 보여 준다
+  $("q").value = ""; $("f-cert").value = ""; $("f-cat").value = ""; $("f-src").value = "";
+  showN = 50;
   await load();
-  const created = res.data && res.data[0];
-  if (created) {
-    const el = document.querySelector('.item[data-id="' + created.id + '"]');
-    if (el) {
-      el.classList.add("open");
-      el.querySelector(".chev").textContent = "접기";
-      el.scrollIntoView({ behavior:"smooth", block:"center" });
-      el.querySelector(".f-title").focus();
-      el.querySelector(".f-title").select();
-    }
-  }
+  const goDoc = document.querySelector('#tabs button[data-t="doc"]');
+  if (goDoc) goDoc.click();
 });
 
 
 // ============================================================
-// 비슷한말 사전
+// 어르신 말 바꾸기
 // 어르신이 쓰시는 말을 정식 이름으로 바꿔 준다.
 // 발주서 4절 6번 : "포크레인", "지게차 면허", "요양사" 로 말씀하신다
 // ============================================================
@@ -725,7 +824,6 @@ async function loadSyn() {
 function drawSyn() {
   $("syn-n").textContent = SYN.length ? "(" + SYN.length + ")" : "";
 
-  // 정식 이름끼리 묶어서 보여 준다
   const grp = {};
   SYN.forEach(function (r) { (grp[r.std] = grp[r.std] || []).push(r); });
   const keys = Object.keys(grp).sort(function (a, b) { return a.localeCompare(b, "ko"); });
@@ -745,10 +843,9 @@ function drawSyn() {
       '예를 들어 "포크레인" → "굴착기운전기능사"</span></div>';
 
   $("syn-status").textContent = SYN.length
-    ? "비슷한말 " + SYN.length + "개 · 정식 이름 " + keys.length + "가지"
+    ? "바꾸는 말 " + SYN.length + "개 · 정식 이름 " + keys.length + "가지"
     : "";
 
-  // 정식 이름 자동 완성 후보
   $("std-list").innerHTML = keys.map(function (k) {
     return '<option value="' + esc(k) + '">'; }).join("");
 
@@ -762,7 +859,7 @@ $("s-add").addEventListener("click", async function () {
   const std  = $("s-std").value.trim();
 
   if (!word) return synSay("어르신이 쓰시는 말을 넣어 주세요.", "bad");
-  if (!std)  return synSay("정식 이름을 넣어 주세요.", "bad");
+  if (!std)  return synSay("바꿀 정식 이름을 넣어 주세요.", "bad");
   if (word === std) return synSay("두 말이 같습니다. 다른 말을 넣어 주세요.", "bad");
   if (!db) return synSay("데이터베이스에 연결되지 않았습니다.", "bad");
 
@@ -774,7 +871,7 @@ $("s-add").addEventListener("click", async function () {
   const res = await db.from("synonyms_ko").insert({ word: word, std: std }).select();
   btn.disabled = false; btn.textContent = "넣기";
 
-  // 저장이 안 됐으면 안 됐다고 말한다. 넣었다고만 하고 넘어가면 안 된다.
+  // 저장이 안 됐으면 안 됐다고 말한다
   if (res.error) return synSay("넣지 못했습니다: " + res.error.message, "bad");
   if (!res.data || !res.data.length)
     return synSay("넣지 못했습니다. 새로고침한 뒤 다시 해보세요.", "bad");
@@ -794,7 +891,7 @@ $("s-std").addEventListener("keydown", function (e) {
 async function delSyn(id, btn) {
   const row = SYN.find(function (r) { return r.id === id; });
   if (!row) return;
-  if (!confirm('"' + row.word + '" → ' + row.std + '\n지우시겠습니까?')) return;
+  if (!confirm('"' + row.word + '" \u2192 ' + row.std + '\n지우시겠습니까?')) return;
 
   btn.disabled = true;
   const res = await db.from("synonyms_ko").delete().eq("id", id).select();
@@ -807,17 +904,6 @@ async function delSyn(id, btn) {
   synSay('"' + row.word + '" 지웠습니다.', "ok");
   await loadSyn();
 }
-
-// ---------- 탭 ----------
-document.querySelectorAll("#tabs button").forEach(function (b) {
-  b.addEventListener("click", function () {
-    document.querySelectorAll("#tabs button").forEach(function (x) {
-      x.classList.toggle("on", x === b); });
-    document.querySelectorAll(".tab").forEach(function (t) {
-      t.classList.toggle("on", t.id === "tab-" + b.dataset.t); });
-    if (b.dataset.t === "syn" && !SYN.length) loadSyn();
-  });
-});
 
 // 거르는 칸을 바꾸면 처음 50건부터 다시 본다
 function resetView() { showN = 50; render(); }
