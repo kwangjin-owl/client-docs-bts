@@ -284,26 +284,12 @@
   .quick summary { padding:14px 20px; cursor:pointer; font-weight:600;
                    color:var(--key); font-size:0.95em; }
   .quick .qin { padding:0 20px 20px; }
-  .quick .qrow { display:grid; grid-template-columns:repeat(5, 1fr); gap:10px; }
-  @media (max-width:1100px) { .quick .qrow { grid-template-columns:repeat(3,1fr); } }
   @media (max-width:640px)  { .quick .qrow { grid-template-columns:1fr; } }
   /* 새 안내 넣기 화면과 같은 모양 */
-  .quick .qf { background:none; padding:0; }
-  .quick .qf label { display:block; font-size:0.82em; font-weight:700;
-                     color:var(--muted); margin:0 0 7px; line-height:1.5; }
-  .quick .qrow { gap:14px; }
-  .quick .qh2 { font-size:0.74em; color:var(--muted); margin:6px 0 0; line-height:1.5; }
   .quick .qnote { font-size:0.76em; color:var(--muted); margin:14px 0 0; }
 
   /* 잘못 넣으신 칸을 그 자리에서 알려 준다 */
-  .qf input.wrong, .qf select.wrong { border-color:var(--bad) !important;
-                                      background:var(--bad-bg) !important; }
   /* 필수 배지는 손님 화면과 같은 모양을 쓴다 (위에 이미 있음) */
-  .quick input, .quick select { width:100%; margin:0; font:inherit; font-size:0.95em;
-    padding:11px 13px; border:2px solid var(--line); border-radius:10px;
-    background:var(--card); }
-  .quick input:focus, .quick select:focus { outline:0; border-color:var(--key); }
-  .quick input::placeholder { color:#b4b9bd; }
   .quick .go2 { width:100%; margin-top:14px; font:inherit; font-size:1.02em;
     font-weight:600; padding:14px; background:var(--key); color:#fff;
     border:2px solid var(--key); border-radius:10px; cursor:pointer; }
@@ -311,12 +297,8 @@
   .quick .said2 { margin:10px 0 0; font-size:0.9em; }
   .quick .said2.ok { color:var(--ok); font-weight:600; }
   .quick .said2.bad { color:var(--bad); font-weight:600; }
-  .quick .qh2 { font-size:0.78em; color:var(--muted); margin:6px 0 0; }
   .quick .qnote { margin:16px 0 0; padding:13px 16px; background:var(--key-bg);
                   border-radius:10px; font-size:0.83em; color:var(--key-d); line-height:1.7; }
-  .quick .qfee { margin:12px 0 0; padding:10px 16px; background:var(--key-bg);
-                 border-radius:8px; font-size:0.9em; color:var(--key); }
-  .quick .qfee b { font-size:1.25em; }
 
   /* 챗봇 질문 표 */
   .qtable thead th { font-size:0.82em; font-weight:700; color:var(--muted);
@@ -369,15 +351,34 @@
   #by-question .pager { margin-top:12px; margin-bottom:22px; }
 
   /* 목록 머리 — 건수와 처리 버튼을 한 줄에, 표와 붙여서 */
-  /* 새로 넣는 칸 — 목록 위에서 펼쳐진다 */
-  .newbox { background:var(--soft); border:2px solid var(--key);
-            border-radius:14px; padding:16px 18px; margin-top:12px; }
-  .newtitle { font-size:0.98em; font-weight:700; margin:0 0 2px; color:var(--key-d); }
-  .newlead { font-size:0.8em; color:var(--muted); margin:0 0 12px; }
-  .nacts { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-top:12px; }
-  .nacts .btn { padding:13px 26px; font-size:0.9em; }
-  .nacts .said2 { margin:0; font-size:0.88em; }
-  .nacts .said2.ok { color:var(--ok); font-weight:600; }
+  /* 새로 넣는 칸 — 세 화면이 같은 모양 */
+  .nf { margin-top:14px; }
+  .nf:first-of-type { margin-top:0; }
+  .nf label { display:block; font-size:0.82em; font-weight:700;
+              color:var(--muted); margin:0 0 7px; line-height:1.5; }
+  .nf input, .nf select, .nf textarea {
+    width:100%; margin:0; font:inherit; font-size:0.95em;
+    padding:11px 13px; border:2px solid var(--line); border-radius:10px;
+    background:var(--card); }
+  .nf input:focus, .nf select:focus, .nf textarea:focus { outline:0; border-color:var(--key); }
+  .nf textarea { line-height:1.7; resize:vertical; }
+  .nf input::placeholder, .nf textarea::placeholder { color:#b4b9bd; }
+  .nf input.wrong, .nf select.wrong { border-color:var(--bad) !important;
+                                      background:var(--bad-bg) !important; }
+  .nh { font-size:0.74em; color:var(--muted); margin:6px 0 0; line-height:1.5; }
+  .nrow { display:grid; grid-template-columns:repeat(5, 1fr); gap:14px; }
+  .nrow .nf { margin-top:0; }
+  @media (max-width:1100px) { .nrow { grid-template-columns:repeat(3,1fr); } }
+  @media (max-width:700px)  { .nrow { grid-template-columns:1fr; } }
+
+  .newbox, .newdoc { background:var(--soft); border:2px solid var(--key);
+                     border-radius:14px; padding:18px 20px; margin-top:12px; }
+  .newtitle { font-size:1em; font-weight:700; margin:0 0 3px; color:var(--key-d); }
+  .newlead { font-size:0.8em; color:var(--muted); margin:0 0 14px; line-height:1.5; }
+  .nacts { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-top:16px; }
+  .nacts .btn { padding:11px 24px; font-size:0.88em; }
+  .nacts .said2 { margin:0; font-size:0.86em; }
+  .nacts .said2.ok  { color:var(--ok);  font-weight:600; }
   .nacts .said2.bad { color:var(--bad); font-weight:600; }
 
   .dacts { display:flex; align-items:center; gap:12px; flex-wrap:wrap;
@@ -615,15 +616,15 @@
   <div class="newbox hide" id="newbox">
   <p class="newtitle">전화·방문 접수 넣기</p>
   <p class="newlead">손님이 전화나 방문으로 신청하신 것을 직원이 대신 넣습니다.</p>
-      <div class="qrow">
-        <div class="qf"><label for="q-cert">신청 자격증 <span class="badge-must">필수</span></label><select id="q-cert"></select></div>
-        <div class="qf"><label for="q-name">이름 <span class="badge-must">필수</span></label><input id="q-name" placeholder="예: 홍길동"></div>
-        <div class="qf"><label for="q-phone">연락처 <span class="badge-must">필수</span></label>
+      <div class="nrow">
+        <div class="nf"><label for="q-cert">신청 자격증 <span class="badge-must">필수</span></label><select id="q-cert"></select></div>
+        <div class="nf"><label for="q-name">이름 <span class="badge-must">필수</span></label><input id="q-name" placeholder="예: 홍길동"></div>
+        <div class="nf"><label for="q-phone">연락처 <span class="badge-must">필수</span></label>
           <input id="q-phone" inputmode="tel" placeholder="예: 010-1234-5678">
-          <p class="qh2">나중에 손님께 연락드릴 때 씁니다. 못 받으셨으면 대신 받으신 분 번호라도 적어 주세요</p></div>
-        <div class="qf"><label for="q-channel">접수경로 <span class="badge-must">필수</span></label>
+          <p class="nh">나중에 손님께 연락드릴 때 씁니다. 못 받으셨으면 대신 받으신 분 번호라도 적어 주세요</p></div>
+        <div class="nf"><label for="q-channel">접수경로 <span class="badge-must">필수</span></label>
           <select id="q-channel"><option>전화</option><option>방문</option></select></div>
-        <div class="qf"><label for="q-memo">비고 <span class="badge-opt">선택</span></label>
+        <div class="nf"><label for="q-memo">비고 <span class="badge-opt">선택</span></label>
           <input id="q-memo" placeholder="예: 딸이 대신 문의"></div>
       </div>
 

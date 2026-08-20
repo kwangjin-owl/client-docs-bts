@@ -325,14 +325,16 @@
   .syn button:hover { background:var(--bad); color:#fff; }
 
 
-  /* 새로 넣는 칸 — 목록 위에서 펼쳐진다 */
-  .newdoc, .newbox { background:var(--soft); border:2px solid var(--key);
-                     border-radius:14px; padding:20px 22px; margin-top:14px; }
-  .newtitle { font-size:1.02em; font-weight:700; margin:0 0 4px; color:var(--key-d); }
-  .newlead { font-size:0.82em; color:var(--muted); margin:0 0 4px; }
-  .nacts { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-top:18px; }
-  .nacts .btn { padding:13px 26px; }
-  .nacts .said2 { margin:0; }
+  /* 새로 넣는 칸 — 세 화면이 같은 모양 */
+  .newbox, .newdoc { background:var(--soft); border:2px solid var(--key);
+                     border-radius:14px; padding:18px 20px; margin-top:12px; }
+  .newtitle { font-size:1em; font-weight:700; margin:0 0 3px; color:var(--key-d); }
+  .newlead { font-size:0.8em; color:var(--muted); margin:0 0 14px; line-height:1.5; }
+  .nacts { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-top:16px; }
+  .nacts .btn { padding:11px 24px; font-size:0.88em; }
+  .nacts .said2 { margin:0; font-size:0.86em; }
+  .nacts .said2.ok  { color:var(--ok);  font-weight:600; }
+  .nacts .said2.bad { color:var(--bad); font-weight:600; }
   .nf { margin-top:14px; }
   .nf:first-of-type { margin-top:0; }
   .nf label { display:block; font-size:0.82em; font-weight:700;
