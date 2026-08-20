@@ -545,7 +545,7 @@
 <div class="tab" id="tab-ask">
   <h2 class="sec2" style="margin-top:0">받은 질문</h2>
   <p class="lead">손님이 무엇을 물어보셨는지 봅니다.
-     챗봇이 <b>답 못 한 질문</b>은 옆 탭에서 안내를 넣어 주세요.</p>
+     구분이 <b>답 못 함</b>인 질문은 옆 탭에서 안내를 넣어 주세요.</p>
 
   <div class="filters" id="qwhen">
     <div class="fgrp">
@@ -561,9 +561,9 @@
       <span class="flb">구분</span>
       <div class="fseg" id="qkind">
         <button type="button" data-q="" class="on">전체</button>
-        <button type="button" data-q="miss">답 못 한 질문 <span id="qn-miss"></span></button>
-        <button type="button" data-q="ask">자격증 되물은 질문 <span id="qn-ask"></span></button>
-        <button type="button" data-q="hit">답한 질문 <span id="qn-hit"></span></button>
+        <button type="button" data-q="miss">답 못 함 <span id="qn-miss"></span></button>
+        <button type="button" data-q="ask">자격증 되물음 <span id="qn-ask"></span></button>
+        <button type="button" data-q="hit">답함 <span id="qn-hit"></span></button>
       </div>
     </div>
 
@@ -579,16 +579,16 @@
 
   <table>
     <colgroup>
-      <col style="width:58px"><col style="width:116px"><col style="width:96px">
+      <col style="width:58px"><col style="width:116px"><col style="width:112px">
       <col style="width:auto"><col style="width:92px">
     </colgroup>
     <thead>
       <tr>
         <th class="num sortable" data-qk="seq">순번</th>
         <th class="sortable" data-qk="last">마지막</th>
-        <th class="sortable" data-qk="kind">챗봇이</th>
-        <th class="sortable" data-qk="q">손님이 물어본 말</th>
+        <th class="sortable" data-qk="kind">구분</th>
         <th class="num sortable" data-qk="cnt">횟수</th>
+        <th class="sortable" data-qk="q">손님이 물어본 말</th>
       </tr>
     </thead>
     <tbody id="q-rows"></tbody>
@@ -639,35 +639,36 @@
   <details class="guide">
     <summary>이 화면 쓰는 법</summary>
     <dl>
-      <dt>접수 기간이 바뀌었을 때</dt>
-      <dd>해당 자격증 문서를 펼쳐 내용을 고치고 저장하면 됩니다.
+      <dt>안내 내용이 바뀌었을 때</dt>
+      <dd><b>챗봇이 답하는 내용</b> 탭에서 그 안내를 눌러 펼치고,
+          내용을 고친 뒤 <b>저장</b>을 누르면 됩니다.
           배포는 하지 않아도 되고, 저장하는 순간 챗봇 답이 바뀝니다.</dd>
 
       <dt>없는 안내를 새로 넣을 때</dt>
-      <dd>위 <b>문서 추가</b>를 누르면 빈 문서가 하나 생깁니다.
-          제목과 내용을 넣고 저장하십시오.</dd>
+      <dd><b>챗봇이 답하는 내용</b> 탭에서 <b>+ 새 안내 넣기</b>를 누르십시오.
+          제목과 챗봇이 할 답을 넣고 <b>이 내용으로 넣기</b>를 누르면 됩니다.</dd>
 
       <dt>챗봇이 엉뚱한 답을 할 때</dt>
       <dd>어르신이 쓰신 말이 문서에 없어서입니다.
-          위 <b>비슷한말</b> 탭에서 그 말을 넣어 주십시오.
+          위 <b>어르신 말 바꾸기</b> 탭에서 그 말을 넣어 주십시오.
           예를 들어 "포크레인"이라고 물으시면
           <b>포크레인 → 굴착기운전기능사</b>로 넣습니다.
           문서를 고치지 않아도 됩니다.</dd>
 
-      <dt>비슷한말을 넣었는데 답이 안 바뀔 때</dt>
+      <dt>어르신 말을 넣었는데 답이 안 바뀔 때</dt>
       <dd>챗봇 화면을 새로고침해 주십시오. 챗봇은 열 때 한 번 사전을 읽습니다.</dd>
 
-      <dt>받은 질문이 세 갈래인 이유</dt>
-      <dd><b>못 찾음</b>은 자료에 없어서 답을 못 드린 것입니다.
+      <dt>구분이 셋인 이유</dt>
+      <dd><b>답 못 함</b>은 자료에 없어서 답을 못 드린 것입니다.
           여기에 안내를 보태거나 어르신 말을 넣어 주십시오.<br>
-          <b>되물음</b>은 손님이 자격증을 안 말씀하셔서 여쭤본 것입니다. 잘못된 것이 아닙니다.<br>
+          <b>자격증 되물음</b>은 손님이 자격증을 안 말씀하셔서 여쭤본 것입니다. 잘못된 것이 아닙니다.<br>
           <b>답함</b>은 제대로 답해 드린 것입니다.</dd>
 
       <dt>어떤 질문이 답을 못 받았는지 보려면</dt>
-      <dd>위 <b>받은 질문</b> 탭에서 구분을 <b>못 찾음</b>으로 놓고 보십시오.</dd>
+      <dd>위 <b>받은 질문</b> 탭에서 구분을 <b>답 못 함</b>으로 놓고 보십시오.</dd>
 
       <dt>실수로 지웠을 때</dt>
-      <dd>지운 직후 위에 뜨는 <b>되돌리기</b>를 누르면 살아납니다.
+      <dd>지운 직후 목록 위에 뜨는 <b>지운 것 되살리기</b>를 누르면 살아납니다.
           화면을 새로 고치면 되돌릴 수 없습니다.</dd>
     </dl>
   </details>
@@ -1266,11 +1267,11 @@ function drawQAll() {
 
 // 접수 목록과 같은 표. 정렬도 같은 방식으로 한다.
 const QPER = 20;
-// 직원이 바로 알아듣게 적는다. "되물음" 같은 말은 무슨 뜻인지 모른다.
+// 화면에 보일 이름. 위 필터 버튼과 같은 말을 쓴다.
 // 직원이 바로 알아듣게 적는다.
 const QKIND = {
   miss: { lb: "답 못 함",  cls: "k-miss", ord: 0 },
-  ask:  { lb: "되물음",    cls: "k-ask",  ord: 1 },
+  ask:  { lb: "자격증 되물음", cls: "k-ask", ord: 1 },
   hit:  { lb: "답함",      cls: "k-hit",  ord: 2 }
 };
 
@@ -1314,8 +1315,8 @@ function drawQ() {
         return '<tr><td class="num">' + r.seq + '</td>' +
                '<td>' + fmtWhen(r.last) + '</td>' +
                '<td><span class="kbadge ' + k.cls + '">' + k.lb + '</span></td>' +
-               '<td>' + esc(r.q) + '</td>' +
-               '<td class="num">' + r.cnt + '건' + mix + '</td></tr>';
+               '<td class="num">' + r.cnt + '건' + mix + '</td>' +
+               '<td>' + esc(r.q) + '</td></tr>';
       }).join("")
     : '<tr><td colspan="5"><div class="empty"><b>' +
       (qKind ? "그 구분에 해당하는 질문이 없습니다" : "들어온 질문이 없습니다") +
