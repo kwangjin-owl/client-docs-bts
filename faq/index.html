@@ -345,7 +345,6 @@
     background:var(--card); }
   .nf textarea { line-height:1.7; resize:vertical; }
   .nf input:focus, .nf textarea:focus { outline:0; border-color:var(--key); }
-  .nf input::placeholder, .nf textarea::placeholder { color:#b4b9bd; }
   .nh { font-size:0.72em; color:var(--muted); margin:6px 0 0; line-height:1.5;
         min-height:2.2em; }
   .nrow { display:grid; grid-template-columns:repeat(3, 1fr); gap:14px; margin-top:14px;
@@ -436,6 +435,9 @@
   .guide dt { font-weight:600; margin-top:14px; }
   .guide dd { margin:4px 0 0; color:var(--muted); line-height:1.75; }
   .guide a { color:var(--key); }
+  /* 빈 칸 예시 글씨. 다섯 화면이 같은 흐림으로 보이게 한다. */
+  input::placeholder, textarea::placeholder, select::placeholder {
+    color:#a7b1b9; font-weight:400; opacity:1; }
 </style>
 </head>
 <body>

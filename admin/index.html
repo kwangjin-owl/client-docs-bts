@@ -346,7 +346,6 @@
     background:var(--card); }
   .nf input:focus, .nf select:focus, .nf textarea:focus { outline:0; border-color:var(--key); }
   .nf textarea { line-height:1.7; resize:vertical; }
-  .nf input::placeholder, .nf textarea::placeholder { color:#b4b9bd; }
   .nf input.wrong, .nf select.wrong { border-color:var(--bad) !important;
                                       background:var(--bad-bg) !important; }
   .nh { font-size:0.72em; color:var(--muted); margin:6px 0 0; line-height:1.5;
@@ -486,6 +485,9 @@
      클래스 하나짜리끼리는 나중에 나온 것이 이겨서,
      .undo { display:flex } 같은 규칙이 .hide 를 덮어썼다. */
   .hide, .hide.hide { display:none !important; }
+  /* 빈 칸 예시 글씨. 다섯 화면이 같은 흐림으로 보이게 한다. */
+  input::placeholder, textarea::placeholder, select::placeholder {
+    color:#a7b1b9; font-weight:400; opacity:1; }
 </style>
 </head>
 <body>

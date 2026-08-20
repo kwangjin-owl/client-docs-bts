@@ -85,7 +85,6 @@
           font-weight:700; margin:0 0 7px; }
   input, select, textarea { width:100%; font:inherit; color:var(--ink); background:#fff;
     padding:14px 16px; border:2px solid var(--line); border-radius:9px; font-weight:600; }
-  input::placeholder, textarea::placeholder { color:#a7b1b9; font-weight:400; }
   /* 맞으면 초록, 틀리면 빨강. 아무것도 안 넣었으면 회색 */
   input.ok  { border-color:var(--ok);  background:#f4fbf6; }
   input.bad { border-color:var(--bad); background:var(--bad-bg); }
@@ -407,6 +406,9 @@
      클래스 하나짜리끼리는 나중에 나온 것이 이겨서,
      .undo { display:flex } 같은 규칙이 .hide 를 덮어썼다. */
   .hide, .hide.hide { display:none !important; }
+  /* 빈 칸 예시 글씨. 다섯 화면이 같은 흐림으로 보이게 한다. */
+  input::placeholder, textarea::placeholder, select::placeholder {
+    color:#a7b1b9; font-weight:400; opacity:1; }
 </style>
 </head>
 <body>
