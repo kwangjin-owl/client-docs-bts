@@ -69,7 +69,8 @@
   .eyebrow::before { content:""; width:18px; height:3px; border-radius:2px; background:var(--key); }
   h1 { font-size:1.32em; font-weight:700; margin:0 0 5px; letter-spacing:-.01em; }
   h2.sec { font-size:1.15em; font-weight:700; margin:0 0 4px; }
-  .lead { font-size:0.86em; color:var(--muted); margin:0 0 12px; }
+  .lead { font-size:0.86em; color:var(--muted); margin:0 0 12px; line-height:1.75;
+          word-break:keep-all; }
 
   /* ===== 버튼 ===== */
   .btn { font:inherit; font-weight:700; padding:15px 22px; border-radius:10px;
@@ -216,12 +217,18 @@
   td input.pick, th input#pick-all { width:20px; height:20px; cursor:pointer;
                                       accent-color:var(--key); }
 
-  .tools { display:grid; grid-template-columns:1fr 190px auto;
-           gap:10px; align-items:center; margin:10px 0 0; }
-  .tools input, .tools select, .tools .btn { padding:11px 14px; font-size:0.9em; }
-  @media (max-width:760px) { .tools { grid-template-columns:1fr; } }
-  .tools input, .tools select { margin:0; }
-  .tools .btn { white-space:nowrap; padding:13px 20px; }
+  /* 찾기 줄 — 두 화면이 같은 모양을 쓴다 */
+  .tools { display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin:10px 0 0; }
+  .tools input[type="text"] { flex:1 1 260px; min-width:0; margin:0;
+                              font:inherit; font-size:0.9em; padding:11px 14px;
+                              border:2px solid var(--line); border-radius:10px;
+                              background:var(--card); }
+  .tools input[type="text"]:focus { outline:0; border-color:var(--key); }
+  .tools select { flex:0 0 auto; width:170px; margin:0;
+                  font:inherit; font-size:0.9em; padding:11px 12px;
+                  border:2px solid var(--line); border-radius:10px; background:var(--card); }
+  .tools .btn { flex:0 0 auto; white-space:nowrap;
+                font-size:0.88em; padding:11px 18px; border-radius:10px; }
 
   button { cursor:pointer; }
   button.go { background:var(--key); color:#fff; border-color:var(--key); }
@@ -449,7 +456,7 @@
 <div class="wrap">
   <div class="sheet">
   <h1>접수 관리</h1>
-  <p class="lead">접수 처리, 현황 보기, 챗봇 질문을 나눠 두었습니다.</p>
+  <p class="lead">접수를 처리하고, 현황과 챗봇 질문을 봅니다.</p>
 
   <div class="tabs" id="tabs">
     <button type="button" data-t="work" class="on">접수 목록 <span id="tab-n"></span></button>
@@ -560,7 +567,7 @@
       <option value="week">최근 7일</option>
     </select>
     <button type="button" class="btn key" id="new-open">+ 전화·방문 접수 넣기</button>
-    <button class="btn ghost" id="reload">새로고침</button>
+    <button type="button" class="btn ghost" id="reload">새로고침</button>
   </div>
 
   <div class="newbox hide" id="newbox">
