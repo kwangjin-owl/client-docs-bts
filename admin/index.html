@@ -598,7 +598,8 @@
   </div>
 
   <div class="tools">
-    <button type="button" class="btn ghost" id="del-toggle">뺀 것 보기 <span id="del-n"></span></button>
+    <button type="button" class="btn ghost" id="del-toggle"><span
+      class="dl">지운 접수 보기</span> <span id="del-n"></span></button>
     <input id="q" type="text" placeholder="성함, 연락처, 접수번호로 찾기">
     <select id="f-cert"><option value="">자격증 전체</option></select>
     <select id="f-when" class="hide">
@@ -665,7 +666,7 @@
     </colgroup>
     <thead>
       <tr>
-        <th class="num sortable" data-k="seq">순번</th>
+        <th class="num sortable" data-k="seq">번호</th>
         <th class="sortable" data-k="created_at">접수일</th>
         <th class="sortable" data-k="name">이름</th>
         <th>연락처</th>
@@ -730,15 +731,16 @@
 
       <dt>안내 내용을 고치려면</dt>
       <dt>잘못 넣은 접수를 없애려면</dt>
-      <dd>그 줄을 눌러 펼치고 <b>목록에서 빼기</b>를 누르십시오.
-          진짜로 지우지는 않고 목록에서만 감춥니다.
-          왜 뺐는지도 같이 남아서 나중에 확인하실 수 있고,
-          찾기 줄의 <b>뺀 것 보기</b>에서 다시 넣으실 수 있습니다.</dd>
+      <dd>그 줄을 눌러 펼치고 <b>이 접수 지우기</b>를 누르십시오.
+          목록에서는 사라지지만 기록은 남습니다.
+          왜 지우셨는지도 같이 남아서 나중에 확인하실 수 있고,
+          찾기 줄의 <b>지운 접수 보기</b>에서 되살리실 수 있습니다.</dd>
 
-      <dt>순번이 중간에 비어 있는 이유</dt>
-      <dd>뺀 접수가 있어서입니다. 순번은 접수마다 하나씩 붙는 번호라
+      <dt>번호가 중간에 비어 있는 이유</dt>
+      <dd>지운 접수가 있어서입니다. 이 번호는 접수 한 건마다 하나씩 붙고
           한 번 쓴 번호는 다시 쓰지 않습니다.
-          그래야 어제 500번이던 분이 오늘도 500번입니다.</dd>
+          그래야 어제 500번이던 분이 오늘도 500번입니다.
+          Supabase에서 보시는 번호와 같습니다.</dd>
 
       <dd><a href="/faq">챗봇 답변 관리</a> 화면에서 고치시면 챗봇 답이 바로 바뀝니다.
           손님이 무엇을 물어보셨는지도 그 화면 <b>받은 질문</b>에서 보실 수 있습니다.</dd>
@@ -880,11 +882,11 @@ function detailRow(r) {
     '</dl>' +
     '<div class="dacts">' +
       (r.deleted_at
-        ? '<button type="button" class="btn undelrow" data-id="' + r.id + '">다시 목록에 넣기</button>' +
-          '<span class="dhint">' + fmtWhen(r.deleted_at) + ' 에 뺐습니다' +
+        ? '<button type="button" class="btn undelrow" data-id="' + r.id + '">되살리기</button>' +
+          '<span class="dhint">' + fmtWhen(r.deleted_at) + ' 에 지웠습니다' +
           (r.deleted_why ? ' — ' + esc(r.deleted_why) : '') + '</span>'
-        : '<button type="button" class="btn bad delrow" data-id="' + r.id + '">목록에서 빼기</button>' +
-          '<span class="dhint">진짜로 지우지 않습니다. 나중에 다시 넣으실 수 있습니다.</span>') +
+        : '<button type="button" class="btn bad delrow" data-id="' + r.id + '">이 접수 지우기</button>' +
+          '<span class="dhint">기록은 남습니다. 나중에 되살리실 수 있습니다.</span>') +
     '</div></td></tr>';
 }
 
@@ -910,7 +912,7 @@ function render() {
   const when = $("f-when").value;
 
   const list = all.filter(function (r) {
-    // 뺀 접수는 안 보인다. "뺀 것 보기"를 켜면 그것만 나온다.
+    // 지운 접수는 목록에 안 나온다. "지운 접수 보기"를 켜면 그것만 나온다.
     if (showDeleted ? !r.deleted_at : !!r.deleted_at) return false;
     if (cert && r.cert_name !== cert) return false;
     if (when === "today" && !isToday(r.created_at)) return false;
@@ -1061,8 +1063,7 @@ function render() {
   const liveN = all.filter(function (r) { return !r.deleted_at; }).length;
   const delN  = all.length - liveN;
   $("tab-n").textContent = liveN ? "(" + liveN + ")" : "";
-  $("del-n").textContent = delN ? "(" + delN + ")" : "";
-  $("del-toggle").classList.toggle("hide", !delN && !showDeleted);
+  $("del-n").textContent = "(" + delN + ")";
 }
 
 // 줄이 많아지면 줄마다 이벤트를 붙이는 것이 느리다.
@@ -1080,7 +1081,7 @@ function bindTableOnce() {
       page = 1; render();
       return;
     }
-    // 목록에서 빼기 · 되살리기
+    // 지우기 · 되살리기
     const del = e.target.closest(".delrow");
     if (del) { e.stopPropagation(); delRow(Number(del.dataset.id), del); return; }
     const undel = e.target.closest(".undelrow");
@@ -1104,7 +1105,7 @@ function bindTableOnce() {
   });
 }
 
-// 잘못 넣은 접수를 목록에서 뺀다. 진짜로 지우지는 않는다.
+// 잘못 넣은 접수를 목록에서 감춘다. 진짜로 지우지는 않는다.
 // 접수는 돈이 오가는 기록이라 나중에 확인할 길이 있어야 하고,
 // 진짜 지우면 뒤에 있는 사람들 순번이 당겨져 기록이 어긋난다.
 async function delRow(id, btn) {
@@ -1112,20 +1113,20 @@ async function delRow(id, btn) {
   if (!row) return;
 
   const why = prompt(
-    row.name + " 님 접수를 목록에서 빼시겠습니까?\n" +
+    row.name + " 님 접수를 지우시겠습니까?\n" +
     (row.receipt_no ? "접수번호 " + row.receipt_no + "\n" : "") +
     row.cert_name + "\n\n" +
-    "왜 빼시는지 적어 주세요. 나중에 확인하실 수 있습니다.", "잘못 넣음");
+    "왜 지우시는지 적어 주세요. 기록에 남습니다.", "잘못 넣음");
   if (why === null) return;
 
-  btn.disabled = true; btn.textContent = "빼는 중…";
+  btn.disabled = true; btn.textContent = "지우는 중…";
   const res = await db.from("applications")
     .update({ deleted_at: new Date().toISOString(),
               deleted_why: (why || "").trim() || "적지 않음" })
     .eq("id", id).select();
-  btn.disabled = false; btn.textContent = "목록에서 빼기";
+  btn.disabled = false; btn.textContent = "이 접수 지우기";
 
-  if (res.error) { alert("빼지 못했습니다: " + res.error.message); return; }
+  if (res.error) { alert("지우지 못했습니다: " + res.error.message); return; }
   load();
 }
 
@@ -1133,12 +1134,12 @@ async function delRow(id, btn) {
 async function undelRow(id, btn) {
   const row = all.find(function (r) { return r.id === id; });
   if (!row) return;
-  if (!confirm(row.name + " 님 접수를 다시 목록에 넣으시겠습니까?")) return;
+  if (!confirm(row.name + " 님 접수를 되살리시겠습니까?")) return;
 
   btn.disabled = true; btn.textContent = "되살리는 중…";
   const res = await db.from("applications")
     .update({ deleted_at: null, deleted_why: null }).eq("id", id).select();
-  btn.disabled = false; btn.textContent = "다시 목록에 넣기";
+  btn.disabled = false; btn.textContent = "되살리기";
 
   if (res.error) { alert("되살리지 못했습니다: " + res.error.message); return; }
   load();
