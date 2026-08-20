@@ -219,6 +219,10 @@
 
   /* ===== 자격증 카드 ===== */
   /* 묶음마다 배경을 달리해서 구역이 보이게 */
+  .pagehead { margin-bottom:18px; }
+  .pagehead h1 { font-size:1.65em; font-weight:700; margin:0 0 6px; letter-spacing:-.01em; }
+  .pagehead .lead { font-size:0.95em; color:var(--muted); margin:0 0 12px; }
+
   .scope { display:flex; align-items:flex-start; gap:9px; background:var(--key-bg);
            border-radius:10px; padding:13px 17px; margin:0 0 4px;
            font-size:0.86em; color:var(--key-d); line-height:1.7; }
@@ -388,9 +392,17 @@
 </style>
 </head>
 <body>
-<div class="top"><div class="top-in"><a class="brandmark" href="/"><span class="sq">두두</span>두두자격지원센터</a><nav class="menu"><a href="/" class="here">접수 신청</a><a href="/check">접수 확인</a><a href="/chat">물어보기</a></nav><a class="staff-btn" href="/admin" title="센터 직원만 쓰는 화면입니다">직원용</a></div></div>
+<div class="top"><div class="top-in"><a class="brandmark" href="/"><span class="sq">두두</span>두두자격지원센터</a><nav class="menu"><a href="/" class="here">접수 신청</a><a href="/check">접수 확인</a><a href="/chat">궁금한 것 물어보기</a></nav><a class="staff-btn" href="/admin" title="센터 직원만 쓰는 화면입니다">직원용</a></div></div>
 
 <div class="wrap">
+
+  <div class="pagehead">
+    <h1>접수 신청</h1>
+    <p class="lead">복잡한 원서접수는 저희가 대신 해 드립니다.
+       자격증 하나를 고르고 성함과 연락처만 남겨 주세요.</p>
+    <p class="scope"><b>시험을 처음 보실 때 내는 원서</b>만 대신 넣어 드립니다.
+       필기(전문자격은 1차)까지이고, 그다음에 보시는 실기는 안내하지 않습니다.</p>
+  </div>
 
   <!-- 1 -->
   <div class="item" id="it1">
@@ -401,10 +413,6 @@
       <span class="st" id="st1">여기부터 하세요</span>
     </div>
     <div class="ibody">
-    <p class="lead">복잡한 원서접수는 저희가 대신 해 드립니다.
-       자격증 하나를 고르고 성함과 연락처만 남겨 주세요.</p>
-    <p class="scope"><b>시험을 처음 보실 때 내는 원서</b>만 대신 넣어 드립니다.
-       필기(전문자격은 1차)까지이고, 그다음에 보시는 실기는 안내하지 않습니다.</p>
 
     <div class="bloc open">
       <p class="group"><span class="dot"></span>지금 접수하실 수 있습니다</p>
@@ -684,10 +692,13 @@ function reopenPick() {
   $("it1").scrollIntoView({ behavior:"smooth", block:"start" });
 }
 $("pn-change").addEventListener("click", reopenPick);
-$("it1").querySelector(".ihead").addEventListener("click", function () {
-  if ($("it1").classList.contains("folded")) reopenPick();
-});
-$("it1").querySelector(".ihead").style.cursor = "pointer";
+const it1head = $("it1").querySelector(".ihead");
+if (it1head) {
+  it1head.addEventListener("click", function () {
+    if ($("it1").classList.contains("folded")) reopenPick();
+  });
+  it1head.style.cursor = "pointer";
+}
 // 칸에서 손을 떼면 바로 맞는지 알려 준다. 제출할 때까지 기다리지 않는다.
 function tellField(id, hintId, check, base) {
   const el = $(id), hint = $(hintId);

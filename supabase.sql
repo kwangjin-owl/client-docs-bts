@@ -267,9 +267,10 @@ set receipt_no =
    || '-' || lpad(((id / 10000) % 1000)::text, 3, '0')
 where receipt_no is null;
 
--- 접수경로가 비어 있으면 온라인으로 본다
-update applications set channel = '온라인'
-where channel is null or channel = '' or channel = '미기재';
+-- 접수경로가 비어 있으면 '미기재'로 둔다.
+-- CSV 원본에 접수 경로가 없었으므로 온라인이라고 볼 수 없다.
+update applications set channel = '미기재'
+where channel is null or channel = '';
 
 
 -- ============================================================
@@ -367,6 +368,26 @@ on conflict (word) do nothing;
 
 -- 확인
 -- select std, count(*) from synonyms_ko group by 1 order by 2 desc;
+
+
+-- ============================================================
+-- 접수 경로 바로잡기
+--
+-- CSV 원본에는 접수 경로(전화/방문/온라인)가 없었습니다.
+-- 제가 빈 값을 전부 '온라인'으로 채워서 1000건이 온라인이 됐는데,
+-- 발주서 1절은 "전화 70% / 방문 30%" 입니다. 온라인일 수 없습니다.
+--
+-- 옛 데이터는 '미기재'로 되돌립니다.
+-- 오늘부터 화면으로 들어오는 것만 '온라인'입니다.
+-- ============================================================
+
+update applications
+set channel = '미기재'
+where channel = '온라인'
+  and created_at < '2026-08-20';
+
+-- 확인
+-- select channel, count(*) from applications group by 1 order by 2 desc;
 
 
 -- ============================================================

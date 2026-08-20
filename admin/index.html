@@ -155,6 +155,10 @@
   .bar .track { flex:1; background:#eef0f2; border-radius:6px; height:22px; overflow:hidden; }
   .bar .fill { display:block; background:var(--key); height:22px; border-radius:6px; }
   .bar .ct { width:120px; flex:none; text-align:right; color:var(--muted); white-space:nowrap; }
+  /* 0건도 목록에 남긴다. 흐리게 하되 읽을 수는 있게. */
+  .bar.zero .nm { color:#9aa4ac; }
+  .bar.zero .track { background:#f2f4f5; }
+  .bar.zero .ct { color:#9aa4ac; }
 
   .stats { margin-top:8px; }
   .stats > summary { padding:14px 18px; cursor:pointer; font-weight:700; font-size:0.9em;
@@ -426,8 +430,8 @@
 </style>
 </head>
 <body>
-<div class="top"><div class="top-in"><a class="brandmark" href="/"><span class="sq">두두</span>두두자격지원센터</a><nav class="menu"><a href="/">접수 신청</a><a href="/check">접수 확인</a><a href="/chat">물어보기</a></nav><a class="staff-btn here" href="/admin">직원용</a></div></div>
-<div class="subtop"><div class="subtop-in"><span class="stitle">직원용</span><a href="/admin" class="here">접수 내역</a><a href="/faq">안내 문서</a><button type="button" class="lock" id="lock">잠그기</button></div></div>
+<div class="top"><div class="top-in"><a class="brandmark" href="/"><span class="sq">두두</span>두두자격지원센터</a><nav class="menu"><a href="/">접수 신청</a><a href="/check">접수 확인</a><a href="/chat">궁금한 것 물어보기</a></nav><a class="staff-btn here" href="/admin">직원용</a></div></div>
+<div class="subtop"><div class="subtop-in"><span class="stitle">직원용</span><a href="/admin" class="here">접수 관리</a><a href="/faq">안내 자료</a><button type="button" class="lock" id="lock">잠그기</button></div></div>
 <div class="gate" id="gate">
   <div class="gate-box">
     <h2>직원용 화면</h2>
@@ -664,7 +668,7 @@
           어제 처리한 건을 오늘 다시 찾는 일을 줄이려고 넣었습니다.</dd>
 
       <dt>안내 내용을 고치려면</dt>
-      <dd><a href="/faq">안내 문서</a> 화면에서 고치시면 챗봇 답이 바로 바뀝니다.</dd>
+      <dd><a href="/faq">안내 자료</a> 화면에서 고치시면 챗봇 답이 바로 바뀝니다.</dd>
     </dl>
   </details>
   </div>
@@ -738,17 +742,24 @@ function pill(status) {
   return '<span class="pill no">' + (status || "-") + '</span>';
 }
 
-function drawBars(boxId, counts) {
+// always 에 적은 항목은 0건이어도 줄을 남긴다.
+// 없애 버리면 "그 자격증은 왜 없지?" 하고 다시 세어 봐야 한다.
+function drawBars(boxId, counts, always) {
   const box = $(boxId);
-  const entries = Object.keys(counts).map(function (k) { return [k, counts[k]]; })
-                        .sort(function (a, b) { return b[1] - a[1]; });
-  if (!entries.length) { box.innerHTML = '<p class="note">아직 접수가 없습니다.</p>'; return; }
-  const max = entries[0][1];
+  const keys = Object.keys(counts);
+  (always || []).forEach(function (k) { if (keys.indexOf(k) < 0) keys.push(k); });
+
+  const entries = keys.map(function (k) { return [k, counts[k] || 0]; })
+                      .sort(function (a, b) { return b[1] - a[1] || a[0].localeCompare(b[0], "ko"); });
+
   const total = entries.reduce(function (s, e) { return s + e[1]; }, 0);
+  if (!entries.length) { box.innerHTML = '<p class="note">아직 접수가 없습니다.</p>'; return; }
+
+  const max = entries[0][1] || 1;
   box.innerHTML = entries.map(function (e) {
     const pct = Math.round(e[1] / max * 100);
-    const share = Math.round(e[1] / total * 100);
-    return '<div class="bar"><span class="nm">' + e[0] + '</span>' +
+    const share = total ? Math.round(e[1] / total * 100) : 0;
+    return '<div class="bar' + (e[1] ? "" : " zero") + '"><span class="nm">' + esc(e[0]) + '</span>' +
            '<span class="track"><span class="fill" style="width:' + pct + '%"></span></span>' +
            '<span class="ct">' + e[1] + '건 · ' + share + '%</span></div>';
   }).join("");
@@ -849,9 +860,9 @@ function render() {
     byCtx[r.usage_context || "미기재"] = (byCtx[r.usage_context || "미기재"] || 0) + 1;
     byCh[r.channel || "미기재"] = (byCh[r.channel || "미기재"] || 0) + 1;
   });
-  drawBars("by-cert", byCert);
-  drawBars("by-context", byCtx);
-  drawBars("by-channel", byCh);
+  drawBars("by-cert", byCert, QCERTS.map(function (c) { return c.name; }));
+  drawBars("by-context", byCtx, ["본인단독", "가족보조", "복지관", "대리접수"]);
+  drawBars("by-channel", byCh, ["온라인", "전화", "방문"]);
 
   const sel = $("f-cert"), keep = sel.value;
   sel.innerHTML = '<option value="">자격증 전체</option>' +
