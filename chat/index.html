@@ -152,10 +152,14 @@
   .talk-top .who { flex:1; min-width:0; }
   .talk-top b { display:block; font-size:0.95em; }
   .talk-top .sub { font-size:0.78em; color:#a9c3d1; }
-  .talk-top .clr { flex:none; font:inherit; font-size:0.78em; padding:7px 13px;
-                   border:1px solid rgba(255,255,255,.35); border-radius:8px;
-                   background:none; color:#cfe0e9; cursor:pointer; }
-  .talk-top .clr:hover { background:rgba(255,255,255,.12); color:#fff; }
+  /* 대화 지우기는 대화 아래에 둔다. 머리에 두면 이름표와 섞여 어수선하다. */
+  .clrbar { margin:0; padding:8px 20px 0; text-align:center;
+            background:var(--soft); }
+  .clr { font:inherit; font-size:0.78em; padding:6px 14px; cursor:pointer;
+         border:1px solid var(--line); border-radius:999px;
+         background:var(--card); color:var(--muted); }
+  .clr:hover { border-color:#9aa4ac; color:var(--ink); }
+  .clr.hide { display:none; }
   .log { flex:1; min-height:200px; overflow-y:auto; padding:20px; background:var(--soft);
          scroll-behavior:smooth; }
   .turn { margin-bottom:18px; }
@@ -217,12 +221,8 @@
   html.embed .sheet { padding:0; margin:0; background:none; box-shadow:none; }
   html.embed .talk { border:0; border-radius:0; min-height:0; }
   /* 겹쳐 뜬 창에서는 이름표 띠를 얇고 밝게. 남색 띠가 둘이면 어수선하다. */
-  html.embed .talk-top { padding:6px 10px; background:var(--card);
-                         border-bottom:1px solid var(--line); }
-  html.embed .talk-top .av, html.embed .talk-top .who { display:none; }
-  html.embed .talk-top .clr { margin-left:auto; font-size:0.74em; padding:5px 11px;
-                              border-color:var(--line); color:var(--muted); }
-  html.embed .talk-top .clr:hover { background:var(--soft); color:var(--ink); }
+  html.embed .talk-top { display:none; }
+  html.embed .clrbar { padding:6px 12px 0; }
 
   .chips.inbox { display:flex; flex-wrap:wrap; gap:7px; justify-content:center;
                  margin-top:14px; }
@@ -254,7 +254,6 @@
         <span class="av">두두</span>
         <span class="who"><b>두두 안내 도우미</b>
           <span class="sub">안내 자료에 있는 것만 답해 드립니다</span></span>
-        <button type="button" class="clr hide" id="clr">대화 지우기</button>
       </div>
       <div class="log" id="log">
         <div class="empty" id="empty">
@@ -262,6 +261,7 @@
           위 <b>이런 질문을 해보세요</b>를 눌러 보셔도 됩니다.</span>
         </div>
       </div>
+      <p class="clrbar"><button type="button" class="clr hide" id="clr">지금까지 대화 지우기</button></p>
       <div class="ask">
         <input id="q" type="text" placeholder="궁금한 것을 적어 주세요" autocomplete="off">
         <button type="button" class="btn key" id="send">물어보기</button>
@@ -462,11 +462,7 @@ function showClr() {
   const has = $("log").innerHTML.indexOf("turn") >= 0;
   $("clr").classList.toggle("hide", !has);
   // 겹쳐 뜬 창에서는 지울 것이 없으면 띠 자체를 없앤다
-  if (EMBED) {
-    const top = document.querySelector(".talk-top");
-    if (top) top.style.display = has ? "flex" : "none";
-    fit();
-  }
+  fit();
 }
 
 $("clr").addEventListener("click", function () {
@@ -603,7 +599,7 @@ const EMBED = document.documentElement.classList.contains("embed");
 if (EMBED) {
   // 겹쳐 뜬 창은 좁다. 머리·꼬리와 예시 질문 상자를 숨기고
   // 예시는 대화 칸 안에 넣어 같이 흐르게 한다.
-  [".top", ".foot", "h1", ".lead", ".warnbox", ".pane"].forEach(function (sel) {
+  [".top", ".foot", "h1", ".lead", ".warnbox", ".pane", ".talk-top"].forEach(function (sel) {
     document.querySelectorAll(sel).forEach(function (e) { e.style.display = "none"; });
   });
 }

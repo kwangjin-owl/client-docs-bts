@@ -157,10 +157,11 @@
      글자까지 바꾸면 버튼 크기가 들쭉날쭉해진다. */
   .tools .btn.key::before { content:"+"; display:inline-block;
                             width:1em; margin-right:5px; text-align:center; }
-  .tools .btn.key.open::before { content:"\2715"; }
-  .tools .btn.key.open { background:var(--card); color:var(--bad);
-                         border-color:var(--bad); box-shadow:none; }
-  .tools .btn.key.open:hover { background:var(--bad); color:#fff; }
+  .tools .btn.key.open::before { content:"\2212"; }
+  /* 넣기 칸이 열려 있으면 남색으로. 빨강은 지우는 버튼 같아서 쓰지 않는다. */
+  .tools .btn.key.open { background:var(--navy); color:#fff;
+                         border-color:var(--navy); box-shadow:none; }
+  .tools .btn.key.open:hover { background:var(--navy-d); border-color:var(--navy-d); }
   button { cursor:pointer; }
   .btn.bad { background:var(--card); color:var(--bad); border-color:var(--bad); }
   .btn.bad:hover { background:var(--bad); color:#fff; }
@@ -412,6 +413,15 @@
   .k-hit  { background:var(--ok-bg);   color:var(--ok); }
   .qmix { display:block; margin-top:3px; font-size:0.82em;
           font-weight:400; color:#9aa4ac; }
+
+  /* 이 화면 쓰는 법 — 접수 관리와 같은 모양 */
+  .guide { margin-top:16px; border:2px solid var(--line); border-radius:16px;
+           background:var(--card); }
+  .guide summary { padding:14px 20px; cursor:pointer; font-weight:600; font-size:0.95em; }
+  .guide dl { margin:0; padding:0 20px 20px; font-size:0.9em; }
+  .guide dt { font-weight:600; margin-top:14px; }
+  .guide dd { margin:4px 0 0; color:var(--muted); line-height:1.75; }
+  .guide a { color:var(--key); }
 </style>
 </head>
 <body>
@@ -525,32 +535,32 @@
       <span class="flb">구분</span>
       <div class="fseg" id="qkind">
         <button type="button" data-q="" class="on">전체</button>
-        <button type="button" data-q="miss">못 찾음 <span id="qn-miss"></span></button>
-        <button type="button" data-q="ask">되물음 <span id="qn-ask"></span></button>
+        <button type="button" data-q="miss">답 못 함 <span id="qn-miss"></span></button>
+        <button type="button" data-q="ask">자격증 물음 <span id="qn-ask"></span></button>
         <button type="button" data-q="hit">답함 <span id="qn-hit"></span></button>
       </div>
     </div>
-  </div>
-  <div class="tools">
-    <button type="button" class="btn ghost" id="q-reload">새로고침</button>
-  </div>
 
+    <div class="fgrp right">
+      <button type="button" class="btn ghost" id="q-reload">새로고침</button>
+    </div>
+  </div>
   <div class="listbar">
     <span class="lcount" id="q-note">불러오는 중…</span>
   </div>
 
   <table>
     <colgroup>
-      <col style="width:64px"><col style="width:112px"><col style="width:84px">
-      <col style="width:auto"><col style="width:104px">
+      <col style="width:62px"><col style="width:150px"><col style="width:108px">
+      <col style="width:auto"><col style="width:110px">
     </colgroup>
     <thead>
       <tr>
         <th class="num sortable" data-qk="seq">순번</th>
-        <th class="sortable" data-qk="last">마지막 질문</th>
-        <th class="sortable" data-qk="kind">구분</th>
-        <th class="sortable" data-qk="q">질문</th>
-        <th class="num sortable" data-qk="cnt">건수</th>
+        <th class="sortable" data-qk="last">마지막으로 물어본 때</th>
+        <th class="sortable" data-qk="kind">챗봇이</th>
+        <th class="sortable" data-qk="q">손님이 물어본 말</th>
+        <th class="num sortable" data-qk="cnt">물어본 횟수</th>
       </tr>
     </thead>
     <tbody id="q-rows"></tbody>
@@ -1215,13 +1225,14 @@ function drawQAll() {
 
 // 접수 목록과 같은 표. 정렬도 같은 방식으로 한다.
 const QPER = 20;
+// 직원이 바로 알아듣게 적는다. "되물음" 같은 말은 무슨 뜻인지 모른다.
 const QKIND = {
-  miss: { lb: "못 찾음", cls: "k-miss", ord: 0 },
-  ask:  { lb: "되물음",  cls: "k-ask",  ord: 1 },
-  hit:  { lb: "답함",    cls: "k-hit",  ord: 2 }
+  miss: { lb: "답 못 함",    cls: "k-miss", ord: 0 },
+  ask:  { lb: "자격증 물음", cls: "k-ask",  ord: 1 },
+  hit:  { lb: "답함",        cls: "k-hit",  ord: 2 }
 };
 
-let qSort = "last", qDown = true;
+let qSort = "seq", qDown = true;   // 기본은 순번 (최근 것이 위)
 
 function countKind(k) {
   const n = QROWS.filter(function (r) { return r.kind === k; }).length;

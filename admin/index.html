@@ -240,10 +240,11 @@
      글자까지 바꾸면 버튼 크기가 들쭉날쭉해진다. */
   .tools .btn.key::before { content:"+"; display:inline-block;
                             width:1em; margin-right:5px; text-align:center; }
-  .tools .btn.key.open::before { content:"\2715"; }
-  .tools .btn.key.open { background:var(--card); color:var(--bad);
-                         border-color:var(--bad); box-shadow:none; }
-  .tools .btn.key.open:hover { background:var(--bad); color:#fff; }
+  .tools .btn.key.open::before { content:"\2212"; }
+  /* 넣기 칸이 열려 있으면 남색으로. 빨강은 지우는 버튼 같아서 쓰지 않는다. */
+  .tools .btn.key.open { background:var(--navy); color:#fff;
+                         border-color:var(--navy); box-shadow:none; }
+  .tools .btn.key.open:hover { background:var(--navy-d); border-color:var(--navy-d); }
 
   button { cursor:pointer; }
   button.go { background:var(--key); color:#fff; border-color:var(--key); }
@@ -1194,6 +1195,43 @@ function qfill(sel, items) {
 
 function qdig(v, m) { return v.replace(/[^0-9]/g, "").slice(0, m); }
 
+// 손님 화면과 같은 연락처 규칙. 아무 번호나 저장되면 연락을 못 드린다.
+const AREA = ["02","031","032","033","041","042","043","044","051","052","053",
+              "054","055","061","062","063","064","070","0505"];
+
+function qmask(v) {
+  const d = qdig(v, 11);
+  if (d.startsWith("02")) {
+    if (d.length <= 2) return d;
+    if (d.length <= 5) return d.slice(0,2)+"-"+d.slice(2);
+    if (d.length <= 9) return d.slice(0,2)+"-"+d.slice(2,5)+"-"+d.slice(5);
+    return d.slice(0,2)+"-"+d.slice(2,6)+"-"+d.slice(6);
+  }
+  if (d.length <= 3) return d;
+  if (d.length <= 6) return d.slice(0,3)+"-"+d.slice(3);
+  if (d.length <= 10) return d.slice(0,3)+"-"+d.slice(3,6)+"-"+d.slice(6);
+  return d.slice(0,3)+"-"+d.slice(3,7)+"-"+d.slice(7);
+}
+
+function qcheckPhone(v) {
+  const d = qdig(v, 11);
+  if (!d) return { ok:false, why:"연락처를 넣어 주세요. 나중에 손님께 연락드릴 때 씁니다." };
+  if (/^(\d)\1+$/.test(d)) return { ok:false, why:"연락처를 다시 확인해 주세요." };
+  if (/^01[016789]/.test(d)) {
+    if (d.length !== 10 && d.length !== 11)
+      return { ok:false, why:"휴대전화 번호를 끝까지 넣어 주세요. 예: 010-1234-5678" };
+    return { ok:true, value: qmask(v) };
+  }
+  const hit = AREA.filter(function (a) { return d.startsWith(a); })
+                  .sort(function (a,b) { return b.length - a.length; })[0];
+  if (!hit) return { ok:false, why:"쓰지 않는 번호입니다. 010 이나 지역번호로 시작해야 합니다." };
+  if (d.length < 9 || d.length > 11)
+    return { ok:false, why:"연락처 자릿수를 다시 확인해 주세요. 예: 02-123-4567" };
+  return { ok:true, value: qmask(v) };
+}
+
+
+
 $("q-phone").addEventListener("input", function () {
   const d = qdig(this.value, 11);
   this.value = d.length <= 3 ? d
@@ -1230,10 +1268,9 @@ $("q-save").addEventListener("click", async function () {
 
   // 어느 칸이 잘못됐는지 그 칸에 표시한다. 저장까지 가서 실패하면 안 된다.
   qmark();
-  if (!name)  return qbad("q-name", "이름을 넣어 주세요.");
-  if (!phone) return qbad("q-phone", "연락처를 넣어 주세요. 나중에 손님께 연락드릴 때 씁니다.");
-  if (qdig(phone, 11).length < 9)
-    return qbad("q-phone", "연락처가 짧습니다. 010-1234-5678 처럼 적어 주세요.");
+  if (!name) return qbad("q-name", "이름을 넣어 주세요.");
+  const pc = qcheckPhone(phone);
+  if (!pc.ok) return qbad("q-phone", pc.why);
   if (!db) return qsay("데이터베이스에 연결되지 않았습니다.", "bad");
 
   const head = c.track === "국가기술" ? "1" : c.track === "전문" ? "2" : "3";
