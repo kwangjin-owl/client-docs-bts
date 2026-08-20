@@ -1,15 +1,17 @@
 -- ============================================================
--- 시니어 자격증 접수 서비스 - 데이터베이스 전체
+-- 시니어 자격증 접수 서비스 - 데이터베이스
 -- 두두자격지원센터 / 미니프로젝트 1
 --
--- 이 파일 하나만 Supabase SQL Editor 에 붙여넣고 Run 하면
--- 표 세 개가 전부 만들어집니다.
+-- 이 파일 하나를 Supabase SQL Editor 에 통째로 붙여넣고 Run 하시면 됩니다.
 --
--- ★ 주의 ★
--- 맨 위 drop 문 때문에 실행할 때마다 안에 든 것이 전부 지워집니다.
--- 이미 접수 데이터가 쌓여 있다면 실행하지 마십시오.
+-- 여러 번 돌려도 안전합니다.
+--   표가 없으면 만들고, 있으면 그대로 둡니다.
+--   칸이 없으면 늘리고, 값이 비어 있으면 채웁니다.
+--   쌓인 데이터는 지우지 않습니다.
 --
--- 실행 뒤 할 일
+-- 표를 처음부터 다시 만들고 싶으실 때만 맨 아래 '싹 지우기'를 쓰십시오.
+--
+-- 처음 만드신 뒤 할 일
 --   Table Editor > applications > Insert > Import data from CSV
 --   applications_1000.csv 올리기
 -- ============================================================
@@ -18,9 +20,7 @@
 -- ------------------------------------------------------------
 -- 1. 접수 (applications)
 -- ------------------------------------------------------------
-drop table if exists applications;
-
-create table applications (
+create table if not exists applications (
   id bigint generated always as identity primary key,
   created_at timestamptz default now(),
 
@@ -61,17 +61,19 @@ create table applications (
 );
 
 alter table applications enable row level security;
+drop policy if exists "anon insert" on applications;
 create policy "anon insert" on applications for insert to anon with check (true);
+drop policy if exists "anon read" on applications;
 create policy "anon read"   on applications for select to anon using (true);
+drop policy if exists "anon update" on applications;
+create policy "anon update" on applications for update to anon using (true) with check (true);
 
 
 -- ------------------------------------------------------------
 -- 2. 챗봇 문서 (docs)
 --    FAQ 어드민에서 고치면 챗봇 답이 바로 바뀝니다.
 -- ------------------------------------------------------------
-drop table if exists docs;
-
-create table docs (
+create table if not exists docs (
   id bigint generated always as identity primary key,
   updated_at timestamptz default now(),
   cert text,
@@ -81,10 +83,18 @@ create table docs (
 );
 
 alter table docs enable row level security;
+drop policy if exists "anon read docs" on docs;
 create policy "anon read docs"   on docs for select to anon using (true);
+drop policy if exists "anon update docs" on docs;
 create policy "anon update docs" on docs for update to anon using (true) with check (true);
+drop policy if exists "anon insert docs" on docs;
 create policy "anon insert docs" on docs for insert to anon with check (true);
+drop policy if exists "anon delete docs" on docs;
 create policy "anon delete docs" on docs for delete to anon using (true);
+
+-- 같은 제목이 두 번 들어가지 않게 막는다.
+-- 이미 있는 문서는 건드리지 않으므로, 화면에서 고치신 내용이 지워지지 않습니다.
+create unique index if not exists docs_title_key on docs (title);
 
 insert into docs (cert, title, body, source) values
 (null, '이 서비스가 도와드리는 범위',
@@ -185,16 +195,15 @@ insert into docs (cert, title, body, source) values
 
 (null, '접수 화면에 시험이 안 보일 때',
 '접수 기간이 아니면 두두넷 접수 화면의 자격 선택 단계에서 "현재 접수중인 시험이 없습니다"라는 말만 나옵니다. 화면이 고장난 것이 아니라 지금이 접수 기간이 아니라는 뜻입니다. 정기 종목은 정해진 기간에만 접수할 수 있으니 다음 회차 접수 시작일을 기다리셔야 합니다. 또한 접수 폼의 둘째 단계 이후, 원서접수내역, 필기시험 면제기간 조회 등은 로그인해야 볼 수 있습니다.',
-'00_자료출처_안내.md 주의');
+'00_자료출처_안내.md 주의')
+on conflict (title) do nothing;
 
 
 -- ------------------------------------------------------------
 -- 3. 챗봇 질문 기록 (questions)
 --    발주서 4절 "어떤 질문이 제일 많이 들어오는지 알고 싶습니다"
 -- ------------------------------------------------------------
-drop table if exists questions;
-
-create table questions (
+create table if not exists questions (
   id bigint generated always as identity primary key,
   created_at timestamptz default now(),
 
@@ -207,48 +216,67 @@ create table questions (
 );
 
 alter table questions enable row level security;
+drop policy if exists "anon insert q" on questions;
 create policy "anon insert q" on questions for insert to anon with check (true);
+drop policy if exists "anon read q" on questions;
 create policy "anon read q"   on questions for select to anon using (true);
 
 
+
 -- ============================================================
--- CSV 로 넣은 옛 데이터에 접수번호 채우기
--- 접수번호가 비어 있는 행에만 붙습니다. 두 번 돌려도 안전합니다.
+-- 뒤늦게 늘린 칸 (이미 있으면 그냥 넘어갑니다)
 -- ============================================================
+
+alter table applications add column if not exists receipt_no text;
+alter table applications add column if not exists pay_status text default '대기';
+alter table applications add column if not exists fee_discount_amount int;
+alter table applications add column if not exists agreed_terms boolean default false;
+alter table applications add column if not exists disability_type text;
+alter table applications add column if not exists accommodation_request text;
+
+create unique index if not exists applications_receipt_no_key
+  on applications (receipt_no) where receipt_no is not null;
+
+
+-- ============================================================
+-- 값 정리 (비어 있거나 옛 표기인 것만 손봅니다)
+-- ============================================================
+
+-- 결제와 처리를 갈라 놓는다
+-- 세 기관 CSV 는 원래 결제상태와 접수상태가 따로 있었는데
+-- 통합할 때 하나로 합쳐서 '접수완료 다음이 결제대기' 처럼 순서가 엉켰습니다.
+update applications set pay_status = '완료' where status = '접수완료';
+update applications set pay_status = '대기' where status = '결제대기';
+update applications set pay_status = '환불' where status = '취소';
+
+update applications set status = '접수' where status in ('접수완료', '결제대기');
+
+-- 접수번호가 비어 있는 옛 데이터에 번호를 붙인다
+-- 모양 : 1MMDD-NNNN-NNN  (앞 1자리 = 1 국가기술 / 2 전문 / 3 두두보건)
 update applications
 set receipt_no =
-      case track
-        when '국가기술' then '1'
-        when '전문'     then '2'
-        else '3'
-      end
+      case track when '국가기술' then '1' when '전문' then '2' else '3' end
    || to_char(created_at, 'MMDD')
    || '-' || lpad((id % 10000)::text, 4, '0')
    || '-' || lpad(((id / 10000) % 1000)::text, 3, '0')
 where receipt_no is null;
 
+-- 접수경로가 비어 있으면 온라인으로 본다
+update applications set channel = '온라인'
+where channel is null or channel = '' or channel = '미기재';
+
 
 -- ============================================================
--- 결제 상태를 접수 상태와 따로 갈라 놓기
---
--- 세 기관 CSV 는 원래 결제상태와 접수상태가 따로 있었는데
--- 통합할 때 하나로 합쳐서 '접수완료 다음이 결제대기' 처럼
--- 순서가 뒤엉켜 보였습니다. 다시 갈라 놓습니다.
---
--- 한 번만 돌리면 되고, 두 번 돌려도 안전합니다.
+-- 확인 (아래 두 줄을 따로 긁어서 실행해 보십시오)
 -- ============================================================
+-- select status, pay_status, channel, count(*) from applications group by 1,2,3 order by 4 desc;
+-- select count(*) as 전체, count(receipt_no) as 번호있음 from applications;
 
-alter table applications add column if not exists pay_status text default '대기';
 
--- 옛 데이터: 접수상태에 섞여 있던 결제 정보를 옮긴다
-update applications set pay_status = '완료' where status = '접수완료';
-update applications set pay_status = '대기' where status = '결제대기';
-update applications set pay_status = '환불' where status = '취소';
-
--- 결제 때문에 붙어 있던 상태를 처리 단계 값으로 바꾼다
-update applications set status = '접수'   where status = '접수완료';
-update applications set status = '접수'   where status = '결제대기';
-update applications set status = '취소'   where status = '취소';
-
--- 확인용
--- select status, pay_status, count(*) from applications group by 1,2 order by 1,2;
+-- ============================================================
+-- 싹 지우기 (표를 처음부터 다시 만들 때만)
+-- 아래 세 줄 앞의 -- 를 지우고 실행하십시오. 데이터가 전부 사라집니다.
+-- ============================================================
+-- drop table if exists applications;
+-- drop table if exists docs;
+-- drop table if exists questions;

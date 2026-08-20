@@ -175,14 +175,14 @@
   .tab.on { display:block; }
 
   /* 기간·상태는 '고르는 것', 보기 방식은 '켜고 끄는 것' — 모양을 다르게 */
-  .filters { display:flex; align-items:center; gap:14px 20px; flex-wrap:wrap; margin:12px 0 0; }
-  .fgrp { display:flex; align-items:center; gap:9px; }
+  .filters { display:flex; align-items:center; gap:10px 16px; flex-wrap:wrap; margin:12px 0 0; }
+  .fgrp { display:flex; align-items:center; gap:7px; }
   .fgrp.right { margin-left:auto; }
-  .flb { font-size:0.78em; font-weight:700; color:var(--muted); white-space:nowrap; }
+  .flb { font-size:0.76em; font-weight:700; color:var(--muted); white-space:nowrap; }
 
   /* 고르는 것 — 이어 붙인 칸 */
   .fseg { display:flex; border:2px solid var(--line); border-radius:10px; overflow:hidden; }
-  .fseg button { font:inherit; font-size:0.83em; padding:9px 14px; cursor:pointer;
+  .fseg button { font:inherit; font-size:0.8em; padding:8px 12px; cursor:pointer;
                  border:0; border-left:1px solid var(--line);
                  background:var(--card); color:var(--muted); white-space:nowrap; }
   .fseg button:first-child { border-left:0; }
@@ -209,8 +209,9 @@
   td input.pick, th input#pick-all { width:20px; height:20px; cursor:pointer;
                                       accent-color:var(--key); }
 
-  .tools { display:grid; grid-template-columns:1fr 200px auto;
-           gap:10px; align-items:center; margin:12px 0 0; }
+  .tools { display:grid; grid-template-columns:1fr 190px auto;
+           gap:10px; align-items:center; margin:10px 0 0; }
+  .tools input, .tools select, .tools .btn { padding:11px 14px; font-size:0.9em; }
   @media (max-width:760px) { .tools { grid-template-columns:1fr; } }
   .tools input, .tools select { margin:0; }
   .tools .btn { white-space:nowrap; padding:13px 20px; }
@@ -219,6 +220,7 @@
   button.go { background:var(--key); color:#fff; border-color:var(--key); }
 
   table { width:100%; border-collapse:collapse; font-size:16px; table-layout:fixed; }
+  th.num, td.num { text-align:right; }
   th, td { text-align:left; padding:12px 8px; border-bottom:1px solid var(--line);
            vertical-align:middle; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
            font-size:0.85em; }
@@ -517,11 +519,10 @@
       </div>
     </div>
 
-    <div class="fgrp">
-      <span class="flb">보기</span>
+    <div class="fgrp right">
       <div class="fseg">
         <button type="button" data-p="50" class="on">50건씩</button>
-        <button type="button" data-p="all">한 쪽에 다</button>
+        <button type="button" data-p="all">전부</button>
       </div>
     </div>
   </div>
@@ -544,14 +545,14 @@
 
   <table>
     <colgroup>
-      <col style="width:52px"><col style="width:88px"><col style="width:72px">
-      <col style="width:124px"><col style="width:142px"><col style="width:70px">
-      <col style="width:auto"><col style="width:86px">
-      <col style="width:62px"><col style="width:104px">
+      <col style="width:44px"><col style="width:96px"><col style="width:74px">
+      <col style="width:126px"><col style="width:96px"><col style="width:72px">
+      <col style="width:auto"><col style="width:88px">
+      <col style="width:64px"><col style="width:106px">
     </colgroup>
     <thead>
       <tr>
-        <th class="num sortable" data-k="created_at">번호</th>
+        <th class="num">#</th>
         <th class="sortable" data-k="created_at">접수일</th>
         <th class="sortable" data-k="name">이름</th>
         <th>연락처</th>
