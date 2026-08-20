@@ -391,9 +391,17 @@ function search(question) {
   // 자격증을 안 말씀하셨는데 상위 답이 여러 자격증에 걸쳐 있으면 되묻는다.
   // 아무거나 답하면 "직원마다 다른 금액을 말한다"는 문제가 그대로 생긴다.
   if (!want) {
-    const top = ranked.filter(function (r) { return r.s >= ranked[0].s - 0.08; }).slice(0, 12);
-    // 자격증이 안 적힌 문서(모든 자격증에 해당)는 되묻기 판단에서 뺀다
-    if (!ranked[0].doc.cert) return { s: ranked[0].s, doc: ranked[0].doc, ask: null };
+    // 점수가 같은 문서가 수십 개일 수 있으니 자르지 않고 다 본다
+    const same = ranked.filter(function (r) { return r.s >= ranked[0].s - 0.08; });
+
+    // 그 안에 자격증이 안 적힌 문서(모든 자격증 공통)가 있으면 그걸 쓴다.
+    // "실기 접수 어떻게 해요"처럼 자격증과 상관없는 질문에 되물으면 안 된다.
+    const all = same.filter(function (r) { return !r.doc.cert; })[0];
+    if (all) return { s: all.s, doc: all.doc, ask: null };
+
+    // 12개만 보면 한 자격증 문서로만 채워져 되묻기를 놓친다. 만점권 전체를 본다.
+    const top = same;
+
     const certs = Array.from(new Set(top.map(function (r) { return r.doc.cert; })
                                         .filter(function (c) { return c; })));
     if (certs.length >= 2) return { s: ranked[0].s, doc: ranked[0].doc, ask: certs };
