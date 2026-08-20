@@ -395,6 +395,7 @@
   .chan.c-미기재 { background:#f5f6f7; color:#9aa4ac; }
 
   /* 결제 — 두두넷에서 정해지는 값. 여기서는 보기만 한다 */
+  /* 결제는 두두넷에서 정해지는 값이라 여기선 못 바꾼다. 눌러 보이지 않게 둔다. */
   .pay { display:inline-block; font-size:0.74em; font-weight:700;
          padding:4px 8px; border-radius:6px; white-space:nowrap; }
   .pay.p-완료 { background:var(--ok-bg);   color:var(--ok); }
@@ -404,16 +405,18 @@
   .memo { color:var(--muted); font-size:0.82em; }
 
   /* 상태 고르기 — 지금 상태를 보여 주면서 그 자리에서 바꿀 수 있다 */
-  /* 브라우저가 그리는 화살표가 글자와 겹친다. 직접 그리고 그만큼 자리를 비운다. */
+  /* 알약 자체가 눌러 보이는 버튼이 되게 한다.
+     브라우저 화살표는 글자를 덮으므로 끄고 직접 그린다. */
   .stsel { width:100%; font:inherit; font-size:0.8em; font-weight:700;
-           padding:7px 24px 7px 9px; border-radius:8px; cursor:pointer;
+           padding:7px 22px 7px 10px; border-radius:999px; cursor:pointer;
            border:2px solid var(--line); background:var(--card);
+           box-shadow:0 1px 0 rgba(20,40,60,.10);
            -webkit-appearance:none; -moz-appearance:none; appearance:none;
-           background-image:url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='7'%3E%3Cpath d='M1.2 1.5l4.3 4.3 4.3-4.3' fill='none' stroke='%23445' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+           background-image:url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='7'%3E%3Cpath d='M1.2 1.5l4.3 4.3 4.3-4.3' fill='none' stroke='%23445' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E");
            background-repeat:no-repeat;
-           background-position:right 8px center; }
-  /* 누를 수 있는 것으로 보이게 : 올리면 떠오르고 화살표가 진해진다 */
-  .stsel:hover { border-color:var(--ink); box-shadow:0 2px 6px rgba(20,40,60,.16);
+           background-position:right 7px center;
+           transition:box-shadow .12s, transform .12s; }
+  .stsel:hover { border-color:var(--ink); box-shadow:0 3px 8px rgba(20,40,60,.20);
                  transform:translateY(-1px); }
   .stsel:focus { outline:3px solid var(--key-bg); outline-offset:1px;
                  border-color:var(--key); }
@@ -498,12 +501,8 @@
   /* 빈 칸 예시 글씨. 다섯 화면이 같은 흐림으로 보이게 한다. */
   input::placeholder, textarea::placeholder, select::placeholder {
     color:#a7b1b9; font-weight:400; opacity:1; }
-  th .hint { display:block; font-weight:400; font-size:0.86em; color:#9aa4ac;
-             letter-spacing:0; margin-top:2px; }
-
   /* 표 머리는 잘리면 안 된다. 이름과 정렬 화살표가 늘 다 보이게 한다. */
   th { white-space:nowrap; overflow:visible; text-overflow:clip; }
-  th.two { white-space:normal; line-height:1.35; }
 </style>
 </head>
 <body>
@@ -671,7 +670,7 @@
     <colgroup>
       <col style="width:70px"><col style="width:108px"><col style="width:78px">
       <col style="width:134px"><col style="width:128px"><col style="width:76px">
-      <col style="width:auto"><col style="width:92px"><col style="width:90px">
+      <col style="width:auto"><col style="width:92px"><col style="width:70px">
       <col style="width:90px">
     </colgroup>
     <thead>
@@ -684,8 +683,8 @@
         <th class="sortable" data-k="channel">경로</th>
         <th>비고</th>
         <th class="num sortable" data-k="fee_final">금액</th>
-        <th class="sortable two" data-k="pay_status">결제<span class="hint">눌러서 바꿈</span></th>
-        <th class="sortable two" data-k="status">처리<span class="hint">눌러서 바꿈</span></th>
+        <th class="sortable" data-k="pay_status">결제</th>
+        <th class="sortable" data-k="status">처리</th>
       </tr>
     </thead>
     <tbody id="rows"></tbody>
@@ -723,10 +722,14 @@
           <b>전화 · 방문</b>은 직원이 대신 넣은 것입니다.
           위 <b>경로</b>에서 <b>온라인</b>만 눌러 보시면 화면으로 들어온 것이 몇 건인지 보입니다.</dd>
 
-      <dt>처리나 결제를 바꾸려면</dt>
-      <dd>표의 <b>처리</b> · <b>결제</b> 칸에 있는 알약을 누르면 고를 수 있는 것이 펼쳐집니다.
+      <dt>처리를 바꾸려면</dt>
+      <dd>표의 <b>처리</b> 칸을 누르면 고를 수 있는 것이 펼쳐집니다.
           앞으로만 가는 것이 아니라 되돌리거나 취소로도 바꿀 수 있습니다.
           바꾸기 전에 한 번 더 여쭤봅니다.</dd>
+
+      <dt>결제는 왜 못 바꾸나요</dt>
+      <dd>결제는 두두넷·두두보건에서 정해지는 값이라 표에서는 보기만 합니다.
+          바꾸셔야 하면 그 줄을 눌러 펼친 뒤 고치십시오.</dd>
 
       <dt>아직 손 안 댄 것만 보려면</dt>
       <dd>맨 위 <b>처리</b> 거르기에서 <b>접수</b>를 고르시면 됩니다.</dd>
