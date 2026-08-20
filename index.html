@@ -152,11 +152,13 @@
 
   /* ===== 항목 ===== */
   /* 지금 할 곳만 또렷하게. 아직 안 할 곳은 가라앉힌다. */
-  .item { background:var(--card); border-radius:16px; overflow:hidden;
-          margin-bottom:14px; padding:0; transition:opacity .2s, box-shadow .2s; }
+  .item { background:var(--card); border:2px solid var(--line); border-radius:14px;
+          overflow:hidden; margin-bottom:12px; padding:0;
+          transition:opacity .2s, border-color .2s; }
+  .item:last-child { margin-bottom:0; }
 
   /* 지금 할 차례 */
-  .item.now { box-shadow:0 4px 18px rgba(18,58,82,.16); }
+  .item.now { border-color:var(--navy); }
   .item.now .ihead { background:var(--navy); color:#fff; }
   .item.now .inum { background:var(--key); color:#fff; }
   .item.now .ihead .t span { color:#bcd3dd; }
@@ -264,9 +266,11 @@
   .tg.late { background:#eceff1; color:#5c6a75; }
   .card .nm { font-size:1.02em; font-weight:700; line-height:1.3; }
   .card .why { font-size:0.74em; color:var(--muted); line-height:1.5; flex:1; }
-  .card .bot { display:flex; justify-content:space-between; align-items:baseline; gap:6px;
+  .card .bot { display:flex; justify-content:space-between; align-items:flex-end; gap:8px;
                margin-top:6px; padding-top:9px; border-top:1px solid var(--line);
                font-size:0.74em; }
+  .card .bot .w { flex:1; min-width:0; line-height:1.5; word-break:keep-all; }
+  .card .bot .f { flex:none; }
   .card .bot .w { color:var(--muted); }
   .card .bot .f { font-weight:700; font-size:1.1em; }
   .card.picked .nm, .card.picked .why,
@@ -402,11 +406,10 @@
 
 <div class="wrap">
 
-  <div class="pagehead">
+  <div class="sheet">
     <h1>접수 신청</h1>
     <p class="lead">자격증 하나를 고르고 성함과 연락처만 남기시면
        <b>필기(1차) 원서접수</b>를 저희가 대신 해 드립니다.</p>
-  </div>
 
   <!-- 1 -->
   <div class="item" id="it1">
@@ -526,6 +529,7 @@
       <button type="button" class="btn ghost" id="cv-close">닫기</button>
     </div>
   </div>
+  </div>
 </div>
 
 
@@ -544,21 +548,21 @@ const $ = function (id) { return document.getElementById(id); };
 // 01_사업현황_발주서.md 2절 "왜 찾는가" + 01_form_정책.md 값
 const CERTS = [
   { code:"7910", name:"한식조리기능사",   track:"국가기술", agency:"두두넷", examType:"상시CBT",
-    fee:14500, state:"now",  why:"식당 취업이나 창업을 준비하시는 분",       when:"아무 때나 접수" },
+    fee:14500, state:"now",  why:"식당 취업이나 창업을 준비하시는 분",       when:"기간 없음 · 자리 나면 접수" },
   { code:"7520", name:"지게차운전기능사", track:"국가기술", agency:"두두넷", examType:"상시CBT",
-    fee:14500, state:"now",  why:"물류창고 취업을 준비하시는 분 (지게차 면허)", when:"아무 때나 접수" },
+    fee:14500, state:"now",  why:"물류창고 취업을 준비하시는 분 (지게차 면허)", when:"기간 없음 · 자리 나면 접수" },
   { code:"7530", name:"굴착기운전기능사", track:"국가기술", agency:"두두넷", examType:"상시CBT",
-    fee:14500, state:"now",  why:"건설현장 취업을 준비하시는 분 (포크레인)",   when:"아무 때나 접수" },
+    fee:14500, state:"now",  why:"건설현장 취업을 준비하시는 분 (포크레인)",   when:"기간 없음 · 자리 나면 접수" },
   { code:"2300", name:"전기기능사",       track:"국가기술", agency:"두두넷", examType:"정기",
     fee:14500, state:"soon", why:"시설관리 취업을 준비하시는 분",           when:"8월 24일 ~ 27일" },
   { code:"P001", name:"손해평가사",       track:"전문",   agency:"두두넷",
-    fee:30000, state:"late", why:"농작물 재해 평가 업무를 준비하시는 분",     when:"올해 1차 끝남" },
+    fee:30000, state:"late", why:"농작물 재해 평가 업무를 준비하시는 분",     when:"올해 접수 끝남" },
   { code:"P002", name:"공인중개사",       track:"전문",   agency:"두두넷",
-    fee:13400, state:"late", why:"부동산 개업을 준비하시는 분",             when:"올해 1차 끝남" },
+    fee:13400, state:"late", why:"부동산 개업을 준비하시는 분",             when:"올해 접수 끝남" },
   { code:"H001", name:"요양보호사",       track:"보건", agency:"두두보건", hours:240,
-    fee:32000, state:"now",  why:"요양원·재가센터 취업을 준비하시는 분 (요양사)", when:"시험 7일 전까지" },
+    fee:32000, state:"now",  why:"요양원·재가센터 취업을 준비하시는 분 (요양사)", when:"센터마다 다름 · 시험 7일 전까지" },
   { code:"H002", name:"위생사",           track:"보건", agency:"두두보건", hours:null,
-    fee:30000, state:"late", why:"급식소·위생 업무 취업을 준비하시는 분",     when:"일정 확인 중" }
+    fee:30000, state:"late", why:"급식소·위생 업무 취업을 준비하시는 분",     when:"일정 확인 못 함" }
 ];
 const TAG = { now:"지금 접수 가능", soon:"접수 예정", late:"접수 기간 아님" };
 
