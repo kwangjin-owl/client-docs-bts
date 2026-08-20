@@ -497,10 +497,12 @@
     </div>
 
     <div class="fgrp">
-      <span class="flb">상태</span>
+      <span class="flb">진행</span>
       <div class="fseg">
-        <button type="button" data-s="접수완료" class="st">처리할 것만</button>
-        <button type="button" data-s="" class="on">전체</button>
+        <button type="button" data-s="" class="on">모두</button>
+        <button type="button" data-s="접수완료">접수완료</button>
+        <button type="button" data-s="확인">확인</button>
+        <button type="button" data-s="완료">완료</button>
       </div>
     </div>
 
@@ -527,18 +529,18 @@
   <div class="listbar">
     <span class="lcount" id="status">불러오는 중…</span>
     <span class="lhint" id="bulk-hint"></span>
-    <button type="button" class="btn bulkbtn" id="bulk-go">한꺼번에 확인</button>
+    <button type="button" class="btn bulkbtn" id="bulk-go">일괄 처리</button>
   </div>
 
   <table>
     <colgroup>
-      <col style="width:52px"><col style="width:92px"><col style="width:124px">
-      <col style="width:72px"><col style="width:130px"><col style="width:140px">
-      <col style="width:90px"><col style="width:86px"><col style="width:104px">
+      <col style="width:74px"><col style="width:92px"><col style="width:120px">
+      <col style="width:72px"><col style="width:128px"><col style="width:134px">
+      <col style="width:88px"><col style="width:84px"><col style="width:96px">
     </colgroup>
     <thead>
       <tr>
-        <th class="num">번호</th>
+        <th class="num sortable" data-k="created_at">접수순</th>
         <th class="sortable" data-k="created_at">접수일시</th>
         <th>접수번호</th>
         <th class="sortable" data-k="name">성함</th>
@@ -546,7 +548,7 @@
         <th class="sortable" data-k="cert_name">자격증</th>
         <th class="num sortable" data-k="fee_final">결제금액</th>
         <th class="sortable" data-k="status">상태</th>
-        <th>이 줄 처리</th>
+        <th>다음 단계로</th>
       </tr>
     </thead>
     <tbody id="rows"></tbody>
@@ -570,14 +572,19 @@
           그 기준으로 다시 늘어놓습니다. 한 번 더 누르면 반대 순서가 됩니다.
           맨 왼쪽 번호는 지금 늘어놓은 순서대로 매겨집니다.</dd>
 
-      <dt>한 건씩 처리하려면</dt>
-      <dd>표 오른쪽 <b>이 줄 처리</b> 칸의 초록 테두리 버튼을 누르십시오.
-          그 줄 하나만 다음 단계로 넘어갑니다.</dd>
+      <dt>진행 단계는 어떻게 되나요</dt>
+      <dd><b>접수완료</b>(손님이 넣음) → <b>확인</b>(직원이 요건을 봄) →
+          <b>완료</b>(두두넷 원서접수까지 마침) 순서입니다.
+          위 <b>진행</b>에서 고르면 그 단계에 있는 것만 보입니다.</dd>
 
-      <dt>여러 건을 한꺼번에 처리하려면</dt>
-      <dd>목록 위 주황색 <b>목록 ○건 한꺼번에 확인</b> 버튼입니다.
-          지금 걸린 기간·상태·자격증 조건에 맞는 것만 바뀝니다.
-          기간 <b>전체</b> · 상태 <b>처리할 것만</b>으로 두면 쌓인 것이 한 번에 정리됩니다.</dd>
+      <dt>한 건씩 넘기려면</dt>
+      <dd>표 오른쪽 <b>다음 단계로</b> 칸의 초록 버튼을 누르십시오.
+          <b>→ 확인</b>이라고 적혀 있으면 누를 때 확인 단계로 바뀝니다.</dd>
+
+      <dt>여러 건을 한 번에 넘기려면</dt>
+      <dd>목록 위 주황색 <b>일괄 처리</b> 버튼입니다.
+          지금 걸린 기간·진행·자격증 조건에 맞는 것만 바뀝니다.
+          기간 <b>전체</b> · 진행 <b>접수완료</b>로 두면 쌓인 것이 한 번에 정리됩니다.</dd>
 
       <dt>확인 · 완료 처리는 무엇인가요</dt>
       <dd>발주 문서(01_사업현황_발주서.md 3절)상 3 확인 · 4 완료는 직원이 손으로 하는 단계입니다.
@@ -864,17 +871,18 @@ function reset() { page = 1; render(); }
 
 // 발주서 3절: 3 확인 · 4 완료는 직원이 손으로 한다. 그 단계를 여기서 넘긴다.
 const NEXT = { "접수완료":"확인", "확인":"완료" };
+// 지금 상태에서 다음 단계로 넘기는 버튼. 무엇으로 바뀌는지 화살표로 보여 준다.
 function nextBtn(r) {
   const n = NEXT[r.status];
   if (!n) return '<span class="dash">-</span>';
   return '<button type="button" class="step" data-id="' + r.id +
-         '" data-to="' + n + '">' + n + '</button>';
+         '" data-to="' + n + '">&rarr; ' + n + '</button>';
 }
 
 async function stepTo(id, to, btn) {
   btn.disabled = true; btn.textContent = "…";
   const res = await db.from("applications").update({ status: to }).eq("id", id);
-  if (res.error) { btn.disabled = false; btn.textContent = to;
+  if (res.error) { btn.disabled = false; btn.textContent = "\u2192 " + to;
     alert("바꾸지 못했습니다: " + res.error.message); return; }
   const row = all.find(function (x) { return x.id === id; });
   if (row) row.status = to;
@@ -1179,8 +1187,8 @@ function drawBulk() {
   const todo = shownList.filter(function (r) { return NEXT[r.status]; });
   $("bulk-go").disabled = todo.length === 0;
   $("bulk-go").textContent = todo.length
-    ? "목록 " + todo.length + "건 한꺼번에 확인"
-    : "한꺼번에 처리할 것 없음";
+    ? "일괄 처리 " + todo.length + "건"
+    : "일괄 처리할 것 없음";
 }
 
 $("bulk-go").addEventListener("click", async function () {
@@ -1190,8 +1198,9 @@ $("bulk-go").addEventListener("click", async function () {
   const when = $("f-when").value === "today" ? "오늘 들어온 " :
                $("f-when").value === "week" ? "최근 7일 " : "";
   if (!confirm("지금 목록에 보이는 " + when + todo.length + "건을\n" +
-      "한꺼번에 '확인'으로 바꿉니다.\n\n" +
-      "한 건씩 하시려면 표의 '이 줄 처리' 칸을 쓰십시오.\n" +
+      "한꺼번에 다음 단계로 넘깁니다.\n\n" +
+      "접수완료 → 확인 · 확인 → 완료\n" +
+      "한 건씩 하시려면 표 오른쪽 '다음 단계로' 칸을 쓰십시오.\n\n" +
       "상태만 바뀝니다. 두두넷 원서접수는 따로 하셔야 합니다.")) return;
 
   const btn = this, ids = todo.map(function (r) { return r.id; });
