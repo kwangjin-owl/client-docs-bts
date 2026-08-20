@@ -646,22 +646,25 @@ function render() {
       : '<b>안내 문서가 없습니다</b><span>문서 추가를 눌러 첫 문서를 만드세요.<br>여기에 적은 내용만 챗봇이 답합니다.</span>')
       + '</div>';
     $("status").textContent = "전체 " + docs.length + "건 · 조건에 맞는 것이 없습니다";
-    $("pager").innerHTML = "";
+    $("pager").innerHTML =
+      '<button disabled>&laquo; 처음</button><button disabled>&larr; 이전</button>' +
+      '<span>0건 · 1 / 1쪽</span>' +
+      '<button disabled>다음 &rarr;</button><button disabled>끝 &raquo;</button>';
     return;
   }
 
   $("doc-n").textContent = docs.length ? "(" + docs.length + ")" : "";
 
+  // 쪽 버튼은 늘 보인다. 나타났다 사라지면 화면이 흔들린다.
   const first = page === 1, last = page === pages;
-  $("pager").innerHTML = pages > 1
-    ? '<button id="p-first"' + (first ? " disabled" : "") + '>&laquo; 처음</button>' +
-      '<button id="prev"'    + (first ? " disabled" : "") + '>&larr; 이전</button>' +
-      '<span>' + (from + 1) + '&ndash;' + (from + shown.length) + ' / ' + list.length + '건 · ' +
-      '<input id="p-go" type="number" min="1" max="' + pages + '" value="' + page + '"> / ' +
-      pages + '쪽</span>' +
-      '<button id="next"'    + (last ? " disabled" : "") + '>다음 &rarr;</button>' +
-      '<button id="p-last"'  + (last ? " disabled" : "") + '>끝 &raquo;</button>'
-    : "";
+  $("pager").innerHTML =
+    '<button id="p-first"' + (first ? " disabled" : "") + '>&laquo; 처음</button>' +
+    '<button id="prev"'    + (first ? " disabled" : "") + '>&larr; 이전</button>' +
+    '<span>' + (from + 1) + '&ndash;' + (from + shown.length) + ' / ' + list.length + '건 · ' +
+    '<input id="p-go" type="number" min="1" max="' + pages + '" value="' + page + '"' +
+    (pages === 1 ? " disabled" : "") + '> / ' + pages + '쪽</span>' +
+    '<button id="next"'    + (last ? " disabled" : "") + '>다음 &rarr;</button>' +
+    '<button id="p-last"'  + (last ? " disabled" : "") + '>끝 &raquo;</button>';
 
   $("status").textContent =
     "전체 " + docs.length + "건" +

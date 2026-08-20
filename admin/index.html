@@ -337,7 +337,6 @@
             white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .lcount b { color:var(--ink); font-size:1.1em; }
   .lcount .tot { color:#9aa4ac; font-size:0.92em; }
-  .allshown { font-size:0.85em; color:var(--muted); }
   .lhint { flex:none; font-size:0.82em; color:var(--ok); font-weight:700; white-space:nowrap; }
   /* 접수경로 — 손님이 직접 넣은 것과 직원이 대신 넣은 것을 가른다 */
   .chan { display:inline-block; font-size:0.74em; font-weight:700;
@@ -907,16 +906,16 @@ function render() {
   const from = (page - 1) * per;
   shown = list.slice(from, from + per);
 
+  // 쪽 버튼은 늘 보인다. 나타났다 사라지면 화면이 흔들린다.
   const first = page === 1, last = page === pages;
-  $("pager").innerHTML = pages > 1
-    ? '<button id="p-first"' + (first ? " disabled" : "") + '>« 처음</button>' +
-      '<button id="prev"'    + (first ? " disabled" : "") + '>← 이전</button>' +
-      '<span>' + (from + 1) + '–' + (from + shown.length) + ' / ' + list.length + '건 · ' +
-      '<input id="p-go" type="number" min="1" max="' + pages + '" value="' + page + '"> / ' +
-      pages + '쪽</span>' +
-      '<button id="next"'    + (last ? " disabled" : "") + '>다음 →</button>' +
-      '<button id="p-last"'  + (last ? " disabled" : "") + '>끝 »</button>'
-    : (list.length ? '<span class="allshown">' + list.length + '건 전부 보고 계십니다</span>' : "");
+  $("pager").innerHTML =
+    '<button id="p-first"' + (first ? " disabled" : "") + '>&laquo; 처음</button>' +
+    '<button id="prev"'    + (first ? " disabled" : "") + '>&larr; 이전</button>' +
+    '<span>' + (from + 1) + '&ndash;' + (from + shown.length) + ' / ' + list.length + '건 · ' +
+    '<input id="p-go" type="number" min="1" max="' + pages + '" value="' + page + '"' +
+    (pages === 1 ? " disabled" : "") + '> / ' + pages + '쪽</span>' +
+    '<button id="next"'    + (last ? " disabled" : "") + '>다음 &rarr;</button>' +
+    '<button id="p-last"'  + (last ? " disabled" : "") + '>끝 &raquo;</button>';
 
   if (!list.length) {
     const why = (q || cert || when)
@@ -924,6 +923,10 @@ function render() {
       : '<b>아직 접수가 없습니다</b><span>접수 화면에서 신청서가 들어오면 여기에 쌓입니다.</span>';
     $("rows").innerHTML = '<tr><td colspan="10"><div class="empty">' + why + '</div></td></tr>';
     $("status").textContent = "전체 " + all.length + "건";
+    $("pager").innerHTML =
+      '<button disabled>&laquo; 처음</button><button disabled>&larr; 이전</button>' +
+      '<span>0건 · 1 / 1쪽</span>' +
+      '<button disabled>다음 &rarr;</button><button disabled>끝 &raquo;</button>';
     return;
   }
 
@@ -1183,16 +1186,14 @@ function qTable(list, page, kind) {
   }).join("");
 
   const first = page === 1, last = page === pages;
-  const pager = pages > 1
-    ? '<div class="pager">' +
-      '<button data-k="' + kind + '" data-p="1"' + (first ? " disabled" : "") + '>&laquo; 처음</button>' +
-      '<button data-k="' + kind + '" data-p="' + (page-1) + '"' + (first ? " disabled" : "") + '>&larr; 이전</button>' +
-      '<span>' + (from + 1) + '&ndash;' + (from + shown.length) + ' / ' + list.length + '가지 · ' +
-      page + ' / ' + pages + '쪽</span>' +
-      '<button data-k="' + kind + '" data-p="' + (page+1) + '"' + (last ? " disabled" : "") + '>다음 &rarr;</button>' +
-      '<button data-k="' + kind + '" data-p="' + pages + '"' + (last ? " disabled" : "") + '>끝 &raquo;</button>' +
-      '</div>'
-    : "";
+  const pager = '<div class="pager">' +
+    '<button data-k="' + kind + '" data-p="1"' + (first ? " disabled" : "") + '>&laquo; 처음</button>' +
+    '<button data-k="' + kind + '" data-p="' + (page-1) + '"' + (first ? " disabled" : "") + '>&larr; 이전</button>' +
+    '<span>' + (from + 1) + '&ndash;' + (from + shown.length) + ' / ' + list.length + '가지 · ' +
+    page + ' / ' + pages + '쪽</span>' +
+    '<button data-k="' + kind + '" data-p="' + (page+1) + '"' + (last ? " disabled" : "") + '>다음 &rarr;</button>' +
+    '<button data-k="' + kind + '" data-p="' + pages + '"' + (last ? " disabled" : "") + '>끝 &raquo;</button>' +
+    '</div>';
 
   return head + '<table class="qtable"><tbody>' + body + '</tbody></table>' + pager;
 }
