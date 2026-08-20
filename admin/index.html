@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- 파일 버전: 2026-08-20 오후 (보기 50/200/1000줄, 결제·처리 분리) -->
 <html lang="ko">
 <head>
 <meta charset="utf-8">
@@ -788,7 +789,7 @@ function render() {
   $("s-today").innerHTML = todayRows.length + '<span class="u">건</span>';
   $("s-all").innerHTML = all.length + '<span class="u">건</span>';
   $("s-fee").innerHTML = won(todayRows.reduce(function (s, r) { return s + (r.fee_final || 0); }, 0)) + '<span class="u">원</span>';
-  const waiting = all.filter(function (r) { return r.status === "접수완료" || r.status === "확인"; });
+  const waiting = all.filter(function (r) { return NEXT[r.status]; });
   $("s-todo").innerHTML = waiting.length + '<span class="u">건</span>';
 
   const byCert = {}, byCtx = {};
