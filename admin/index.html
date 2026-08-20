@@ -519,6 +519,9 @@
     <div class="stat todo"><p class="k">처리 기다리는 건</p><p class="v" id="s-todo">-</p></div>
   </div>
 
+  <h2>처리 단계별</h2>
+  <div id="by-status"></div>
+
   <h2>자격증별</h2>
   <div id="by-cert"></div>
 
@@ -593,7 +596,7 @@
         <div class="qf"><label for="q-name">이름 <span class="badge-must">필수</span></label><input id="q-name" placeholder="홍길동"></div>
         <div class="qf"><label for="q-phone">연락처 <span class="badge-must">필수</span></label>
           <input id="q-phone" inputmode="tel" placeholder="010-1234-5678">
-          <p class="qh2">직원이 연락드릴 때 씁니다. 못 받으셨으면 대신 받으신 분 번호라도 적어 주세요</p></div>
+          <p class="qh2">나중에 손님께 연락드릴 때 씁니다. 못 받으셨으면 대신 받으신 분 번호라도 적어 주세요</p></div>
         <div class="qf"><label for="q-channel">접수경로 <span class="badge-must">필수</span></label>
           <select id="q-channel"><option>전화</option><option>방문</option></select></div>
       </div>
@@ -883,6 +886,10 @@ function render() {
     byCtx[r.usage_context || "미기재"] = (byCtx[r.usage_context || "미기재"] || 0) + 1;
     byCh[r.channel || "미기재"] = (byCh[r.channel || "미기재"] || 0) + 1;
   });
+  const bySt = {};
+  stat.forEach(function (r) { bySt[r.status || "미기재"] = (bySt[r.status || "미기재"] || 0) + 1; });
+  drawBars("by-status", bySt, STATES);
+
   drawBars("by-cert", byCert, QCERTS.map(function (c) { return c.name; }));
   drawBars("by-context", byCtx, ["본인단독", "가족보조", "복지관", "대리접수"]);
   drawBars("by-channel", byCh, ["온라인", "전화", "방문"]);
@@ -991,8 +998,8 @@ function render() {
     };
   }
 
-  const waitN = all.filter(function (r) { return NEXT[r.status]; }).length;
-  $("tab-n").textContent = waitN ? "(" + waitN + ")" : "";
+  // 탭 배지는 전체 건수. 안 한 것은 위 카드에 따로 있다.
+  $("tab-n").textContent = all.length ? "(" + all.length + ")" : "";
 }
 
 // 줄이 많아지면 줄마다 이벤트를 붙이는 것이 느리다.
@@ -1048,9 +1055,17 @@ async function load() {
       if (!conf.url || !conf.key) { $("status").textContent = "서버에 환경변수가 설정되어 있지 않습니다"; return; }
       db = supabase.createClient(conf.url, conf.key);
     }
-    const res = await db.from("applications").select("*").order("created_at", { ascending:false });
-    if (res.error) { $("status").textContent = "불러오기 실패: " + res.error.message; return; }
-    all = res.data || [];
+    // Supabase 는 한 번에 1000건까지만 준다. 나눠서 다 받아 온다.
+    // 이걸 안 하면 접수를 새로 넣어도 목록에 안 나타난다.
+    all = [];
+    for (let from = 0; ; from += 1000) {
+      const res = await db.from("applications").select("*")
+                    .order("created_at", { ascending:false }).range(from, from + 999);
+      if (res.error) { $("status").textContent = "불러오기 실패: " + res.error.message; return; }
+      const part = res.data || [];
+      all = all.concat(part);
+      if (part.length < 1000) break;
+    }
     // 접수한 순서대로 번호를 매긴다. 오래된 것이 1번.
     // 정렬을 어떻게 바꿔도 이 번호는 그 사람 것으로 따라간다.
     all.slice().sort(function (a, b) {
@@ -1180,7 +1195,7 @@ $("q-save").addEventListener("click", async function () {
   // 어느 칸이 잘못됐는지 그 칸에 표시한다. 저장까지 가서 실패하면 안 된다.
   qmark();
   if (!name)  return qbad("q-name", "이름을 넣어 주세요.");
-  if (!phone) return qbad("q-phone", "연락처를 넣어 주세요. 직원이 연락드릴 때 씁니다.");
+  if (!phone) return qbad("q-phone", "연락처를 넣어 주세요. 나중에 손님께 연락드릴 때 씁니다.");
   if (qdig(phone, 11).length < 9)
     return qbad("q-phone", "연락처가 짧습니다. 010-1234-5678 처럼 적어 주세요.");
   if (!db) return qsay("데이터베이스에 연결되지 않았습니다.", "bad");
