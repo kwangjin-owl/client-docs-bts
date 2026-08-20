@@ -405,39 +405,34 @@
   .memo { color:var(--muted); font-size:0.82em; }
 
   /* 상태 고르기 — 지금 상태를 보여 주면서 그 자리에서 바꿀 수 있다 */
-  /* 고르는 칸처럼 보이게 한다.
-     색깔 알약은 어디서나 '표시'라는 뜻이라, 화살표를 붙여도 표시로 읽힌다.
-     흰 바탕 + 테두리 + 세로선으로 나눈 화살표라야 눌러서 고르는 것으로 보인다.
-     상태 색은 왼쪽 점으로만 남긴다. */
-  .stcell { position:relative; }
+  /* 칠해진 색이라야 훑을 때 보인다.
+     그런데 색 알약은 '표시'로 읽히므로, 오른쪽 화살표 자리만 흰색으로 떼어낸다.
+     색은 그대로 눈에 띄고, 흰 칸과 세로선이 펼쳐지는 것임을 알려 준다. */
   .stsel { width:100%; font:inherit; font-size:0.8em; font-weight:700;
-           padding:7px 30px 7px 10px; border-radius:8px; cursor:pointer;
-           border:2px solid var(--line); border-left-width:6px;
-           border-left-color:var(--dot, var(--line));
-           background:var(--card); color:var(--ink);
+           padding:7px 34px 7px 11px; border-radius:8px; cursor:pointer;
+           border:2px solid var(--tone, var(--line));
+           background-color:var(--tint, var(--card)); color:var(--tone, var(--ink));
            -webkit-appearance:none; -moz-appearance:none; appearance:none;
-           background-repeat:no-repeat, no-repeat;
-           /* 세로선 · 화살표 */
+           background-repeat:no-repeat, no-repeat, no-repeat;
+           /* 흰 화살표 칸 · 세로선 · 화살표 */
            background-image:
-             linear-gradient(var(--line) 0 0),
-             url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='7'%3E%3Cpath d='M1.2 1.5l4.3 4.3 4.3-4.3' fill='none' stroke='%23445' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E");
-           background-size: 2px 58%, 11px 7px;
-           background-position: right 22px center, right 6px center;
-           transition:border-color .12s, background-color .12s; }
-  /* 올리거나 눌러도 왼쪽 색 띠는 그대로 둔다 */
-  .stsel:hover { border-color:var(--ink); border-left-color:var(--dot, var(--line));
-                 background-color:#f2f5f7; }
-  .stsel:focus { outline:3px solid var(--key-bg); outline-offset:1px;
-                 border-color:var(--key); border-left-color:var(--dot, var(--line)); }
+             linear-gradient(var(--card) 0 0),
+             linear-gradient(var(--tone, var(--line)) 0 0),
+             url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='7'%3E%3Cpath d='M1.2 1.5l4.3 4.3 4.3-4.3' fill='none' stroke='%23445' stroke-width='2.3' stroke-linecap='round'/%3E%3C/svg%3E");
+           background-size: 27px 100%, 2px 100%, 11px 7px;
+           background-position: right 0 center, right 27px center, right 8px center;
+           background-origin:border-box; background-clip:padding-box, padding-box, padding-box;
+           transition:filter .12s; }
+  .stsel:hover { filter:brightness(.95); }
+  .stsel:focus { outline:3px solid var(--key-bg); outline-offset:1px; }
   .stsel:disabled { opacity:.5; cursor:default; }
 
-  /* 상태별 색. 점만으로는 훑을 때 안 보여서 글자에도 색을 넣는다.
-     바탕은 흰색으로 두어야 고르는 칸으로 보인다. */
-  .stsel.s-문의 { --dot:var(--warn); color:var(--warn); }
-  .stsel.s-접수 { --dot:var(--ok);   color:var(--ok); }
-  .stsel.s-확인 { --dot:var(--key);  color:var(--key-d); }
-  .stsel.s-완료 { --dot:#8b96a0;     color:#5c6a75; }
-  .stsel.s-취소 { --dot:var(--bad);  color:var(--bad); }
+  /* 상태별 색 : tone 은 테두리·글자, tint 는 바탕 */
+  .stsel.s-문의 { --tone:var(--warn);  --tint:var(--warn-bg); }
+  .stsel.s-접수 { --tone:var(--ok);    --tint:var(--ok-bg); }
+  .stsel.s-확인 { --tone:var(--key-d); --tint:var(--key-bg); }
+  .stsel.s-완료 { --tone:#5c6a75;      --tint:#eef0f2; }
+  .stsel.s-취소 { --tone:var(--bad);   --tint:var(--bad-bg); }
   table { margin-top:0 !important; border:2px solid var(--line); border-top:0;
           border-radius:0 0 12px 12px; }
   @media (max-width:700px) {
