@@ -140,7 +140,9 @@
 
   .links a { font-size:16px; color:var(--key); text-decoration:none; margin-left:16px; }
   /* 찾기 줄 — 두 화면이 같은 모양을 쓴다 */
-  .tools { display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin:10px 0 0; }
+  .tools { display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+           margin:10px 0 18px; padding-bottom:18px;
+           border-bottom:1px solid var(--line); }
   .tools input[type="text"] { flex:1 1 260px; min-width:0; margin:0;
                               font:inherit; font-size:0.9em; padding:11px 14px;
                               border:2px solid var(--line); border-radius:10px;
@@ -152,8 +154,8 @@
   .tools .btn { flex:0 0 auto; white-space:nowrap;
                 font-size:0.88em; padding:11px 18px; border-radius:10px; }
   button { cursor:pointer; }
-  button.go { background:var(--key); color:#fff; border-color:var(--key); }
-  button.danger { color:var(--bad); border-color:var(--bad); }
+  .btn.bad { background:var(--card); color:var(--bad); border-color:var(--bad); }
+  .btn.bad:hover { background:var(--bad); color:#fff; }
 
   .item { border:1px solid var(--line); border-radius:12px; margin-bottom:10px; overflow:hidden; }
   .head { display:flex; align-items:center; justify-content:space-between; gap:12px;
@@ -171,7 +173,8 @@
   textarea { min-height:160px; resize:vertical; line-height:1.7; width:100%; max-width:100%; }
   .row { display:flex; gap:12px; flex-wrap:wrap; }
   .row > div { flex:1; min-width:180px; }
-  .acts { display:flex; gap:10px; margin-top:18px; align-items:center; }
+  .acts { display:flex; gap:10px; margin-top:18px; align-items:center; flex-wrap:wrap; }
+  .acts .btn { padding:11px 22px; font-size:0.88em; }
   .said { font-size:15px; margin-left:4px; }
   .said.ok { color:var(--ok); }
   .said.bad { color:var(--bad); }
@@ -182,7 +185,9 @@
   .undo { display:flex; align-items:center; justify-content:space-between; gap:16px;
           background:var(--warn-bg); color:var(--warn); border-radius:12px;
           padding:16px 20px; margin-bottom:12px; font-size:17px; }
-  .undo button { background:#fff; border:1px solid var(--warn); color:var(--warn); }
+  .undo .btn { padding:9px 18px; font-size:0.85em;
+               background:var(--card); color:var(--warn); border-color:var(--warn); }
+  .undo .btn:hover { background:var(--warn); color:#fff; }
   .gate { position:fixed; inset:0; z-index:100; background:#fff;
           display:flex; align-items:center; justify-content:center; padding:20px; }
   .gate.off { display:none; }
@@ -340,9 +345,6 @@
      .undo 의 display:flex 가 .hide 의 display:none 을 덮어써서
      지운 적도 없는데 되돌리기 띠가 계속 떠 있었다. */
   .hide, .hide.hide { display:none !important; }
-  /* 오른쪽 아래 주황 버튼이 꼬리 글을 덮지 않게 아래를 비운다.
-     폭을 줄이면 글 줄바꿈이 달라져 화면마다 꼬리 높이가 달라진다. */
-  .foot-in { padding-bottom:74px; }
 </style>
 </head>
 <body>
@@ -427,7 +429,7 @@
 
   <div class="undo hide" id="undo">
     <span id="undo-text"></span>
-    <button type="button" id="undo-btn">지운 것 되살리기</button>
+    <button type="button" class="btn" id="undo-btn">지운 것 되살리기</button>
   </div>
 
   <div id="list"></div>
@@ -638,8 +640,8 @@ function render() {
         '<label>출처</label>' +
         '<input class="f-source" type="text" value="' + esc(d.source) + '">' +
         '<div class="acts">' +
-          '<button class="go save">저장</button>' +
-          '<button class="danger del">삭제</button>' +
+          '<button type="button" class="btn key save">저장</button>' +
+          '<button type="button" class="btn bad del">삭제</button>' +
           '<span class="said"></span>' +
         '</div>' +
       '</div>' +
