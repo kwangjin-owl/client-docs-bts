@@ -274,13 +274,15 @@
   .qh.bad { color:var(--bad); }
   .qh b { font-weight:800; }
   .qh span { font-size:0.82em; font-weight:400; color:var(--muted); }
-  .qtable { width:100%; border-collapse:collapse; }
-  .qtable td { padding:11px 12px; border-bottom:1px solid var(--line); font-size:0.88em;
-               vertical-align:middle; }
+  .qtable { width:100%; border-collapse:collapse; table-layout:fixed;
+            border:2px solid var(--line); border-radius:12px; overflow:hidden; }
+  .qtable td { padding:11px 14px; border-bottom:1px solid var(--line); font-size:0.86em;
+               vertical-align:middle; word-break:keep-all; overflow-wrap:anywhere; }
+  .qtable tr:last-child td { border-bottom:0; }
   .qtable tr:hover td { background:var(--soft); }
   .qq { width:auto; }
-  .qn { width:80px; text-align:right; font-weight:700; white-space:nowrap; }
-  .qd { width:130px; text-align:right; color:var(--muted); font-size:0.82em; white-space:nowrap; }
+  .qn { width:78px; text-align:right; font-weight:700; white-space:nowrap; }
+  .qd { width:126px; text-align:right; color:var(--muted); font-size:0.8em; white-space:nowrap; }
   .qmore { margin-top:10px; font:inherit; font-size:0.85em; padding:10px 18px;
            border:2px solid var(--line); border-radius:8px; background:var(--card);
            color:var(--muted); cursor:pointer; }
@@ -555,7 +557,7 @@
     </colgroup>
     <thead>
       <tr>
-        <th class="num">#</th>
+        <th class="num sortable" data-k="seq">접수순</th>
         <th class="sortable" data-k="created_at">접수일</th>
         <th class="sortable" data-k="name">이름</th>
         <th>연락처</th>
@@ -813,6 +815,7 @@ function render() {
     if (sortKey === "status") { x = STORDER[x] ?? 9; y = STORDER[y] ?? 9; }
     if (sortKey === "pay_status") { x = PAYORDER[x] ?? 9; y = PAYORDER[y] ?? 9; }
     if (sortKey === "fee_final") { x = x || 0; y = y || 0; }
+    if (sortKey === "seq") { x = a._seq || 0; y = b._seq || 0; }
     if (typeof x === "string" || typeof y === "string") {
       x = String(x || ""); y = String(y || "");
       const r = x.localeCompare(y, "ko");
@@ -849,7 +852,7 @@ function render() {
 
   $("rows").innerHTML = shown.map(function (r, i) {
     return '<tr class="row" data-id="' + r.id + '">' +
-      '<td class="num seq">' + (from + i + 1) + '</td>' +
+      '<td class="num seq">' + (r._seq || "-") + '</td>' +
       '<td>' + fmtWhen(r.created_at) + '</td>' +
       '<td>' + esc(r.name) + '</td>' +
       '<td>' + esc(r.phone) + '</td>' +
@@ -936,6 +939,10 @@ async function load() {
     const res = await db.from("applications").select("*").order("created_at", { ascending:false });
     if (res.error) { $("status").textContent = "불러오기 실패: " + res.error.message; return; }
     all = res.data || [];
+    // 접수한 순서대로 고정 번호를 매긴다. 정렬을 바꿔도 이 번호는 그 사람 것이다.
+    all.slice().sort(function (a, b) {
+      return String(a.created_at).localeCompare(String(b.created_at));
+    }).forEach(function (r, i) { r._seq = i + 1; });
     render();
     if (!$("f-when").value) $("f-when").value = "today";
   loadQuestions();
