@@ -4,7 +4,7 @@
   "USE_AI": true,
   "MODEL": "gemini-3.5-flash-lite",
   "TITLE_WEIGHT": 0.15,
-  "FALLBACK": "해당 내용은 저희 안내 문서에 없습니다. 두두자격지원센터 02-000-0000으로 문의해 주세요.",
+  "FALLBACK": "그건 저희 안내 자료에 없어요. 두두자격지원센터 02-000-0000으로 문의해 주세요.",
   "STOPWORDS": [
     "은",
     "는",
