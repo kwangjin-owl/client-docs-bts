@@ -508,6 +508,20 @@ on conflict (word) do nothing;
 
 
 -- ============================================================
+-- 지운 접수를 진짜 지우지 않고 표시만 한다
+-- 접수는 돈이 오가는 기록이라 "내가 접수했는데 왜 없냐"고 하실 때
+-- 확인할 길이 있어야 한다. 번호가 당겨지는 문제도 같이 없어진다.
+-- ============================================================
+
+alter table applications add column if not exists deleted_at timestamptz;
+alter table applications add column if not exists deleted_by text;
+alter table applications add column if not exists deleted_why text;
+
+create index if not exists applications_deleted_idx
+  on applications (deleted_at) where deleted_at is not null;
+
+
+-- ============================================================
 -- 싹 지우기 (표를 처음부터 다시 만들 때만)
 -- 아래 세 줄 앞의 -- 를 지우고 실행하세요. 데이터가 전부 사라집니다.
 -- ============================================================

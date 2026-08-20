@@ -619,9 +619,15 @@ function checkPhone(v) {
   const d = digits(v, 11);
   if (!d) return { ok:false, why:"연락처를 넣어 주세요." };
   if (/^(\d)\1+$/.test(d)) return { ok:false, why:"연락처를 다시 확인해 주세요." };
-  if (/^01[016789]/.test(d)) {
-    if (d.length !== 10 && d.length !== 11)
+  // 010 은 반드시 11자리다. 10자리는 011, 016 같은 옛 번호에만 해당한다.
+  if (d.startsWith("010")) {
+    if (d.length !== 11)
       return { ok:false, why:"휴대전화 번호를 끝까지 넣어 주세요. 예: 010-1234-5678" };
+    return { ok:true, value:maskPhone(v) };
+  }
+  if (/^01[16789]/.test(d)) {
+    if (d.length !== 10 && d.length !== 11)
+      return { ok:false, why:"휴대전화 번호를 끝까지 넣어 주세요. 예: 011-234-5678" };
     return { ok:true, value:maskPhone(v) };
   }
   const hit = AREA.filter(function (a) { return d.startsWith(a); })
