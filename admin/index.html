@@ -256,8 +256,9 @@
   .quick .said2 { margin:10px 0 0; font-size:0.9em; }
   .quick .said2.ok { color:var(--ok); font-weight:600; }
   .quick .said2.bad { color:var(--bad); font-weight:600; }
-  .quick .qsec { font-size:0.85em; font-weight:600; color:var(--muted);
-                 margin:18px 0 8px; padding-top:14px; border-top:1px solid var(--line); }
+  .quick .qh2 { font-size:0.78em; color:var(--muted); margin:6px 0 0; }
+  .quick .qnote { margin:16px 0 0; padding:13px 16px; background:var(--key-bg);
+                  border-radius:10px; font-size:0.83em; color:var(--key-d); line-height:1.7; }
   .quick .qfee { margin:12px 0 0; padding:10px 16px; background:var(--key-bg);
                  border-radius:8px; font-size:0.9em; color:var(--key); }
   .quick .qfee b { font-size:1.25em; }
@@ -305,13 +306,34 @@
             white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .lcount b { color:var(--ink); font-size:1.1em; }
   .lhint { flex:none; font-size:0.82em; color:var(--ok); font-weight:700; white-space:nowrap; }
-  /* 한꺼번에 처리 — 주황. 줄별 처리(초록 테두리)와 확실히 구분한다 */
-  .bulkbtn { flex:none; padding:10px 20px; font-size:0.84em; font-weight:700;
-             white-space:nowrap; background:var(--hot); color:#fff;
-             border:2px solid var(--hot); border-radius:9px; cursor:pointer; }
-  .bulkbtn:hover { background:#c25a08; border-color:#c25a08; }
-  .bulkbtn:disabled { background:var(--card); border-color:var(--line);
-                      color:#b4b9bd; cursor:default; }
+  /* 접수경로 — 손님이 직접 넣은 것과 직원이 대신 넣은 것을 가른다 */
+  .chan { display:inline-block; font-size:0.76em; font-weight:700;
+          padding:4px 10px; border-radius:6px; white-space:nowrap; }
+  .chan.c-온라인 { background:var(--ok-bg);  color:var(--ok); }
+  .chan.c-전화   { background:#eef1f3; color:#5c6a75; }
+  .chan.c-방문   { background:#eef1f3; color:#5c6a75; }
+  .chan.c-미기재 { background:#f5f6f7; color:#9aa4ac; }
+
+  /* 결제 — 두두넷에서 정해지는 값. 여기서는 보기만 한다 */
+  .pay { display:inline-block; font-size:0.76em; font-weight:700;
+         padding:4px 10px; border-radius:6px; white-space:nowrap; }
+  .pay.p-완료 { background:var(--ok-bg);   color:var(--ok); }
+  .pay.p-대기 { background:var(--warn-bg); color:var(--warn); }
+  .pay.p-환불 { background:var(--bad-bg);  color:var(--bad); }
+
+  .memo { color:var(--muted); font-size:0.82em; }
+
+  /* 상태 고르기 — 지금 상태를 보여 주면서 그 자리에서 바꿀 수 있다 */
+  .stsel { width:100%; font:inherit; font-size:0.82em; font-weight:700;
+           padding:8px 10px; border-radius:8px; cursor:pointer;
+           border:2px solid var(--line); background:var(--card); }
+  .stsel:hover { border-color:var(--muted); }
+  .stsel:disabled { opacity:.5; }
+  .stsel.s-문의 { border-color:var(--warn); background:var(--warn-bg); color:var(--warn); }
+  .stsel.s-접수 { border-color:var(--ok);   background:var(--ok-bg);   color:var(--ok); }
+  .stsel.s-확인 { border-color:var(--key);  background:var(--key-bg);  color:var(--key-d); }
+  .stsel.s-완료 { border-color:#c2c8cd;     background:#eef0f2;        color:#5c6a75; }
+  .stsel.s-취소 { border-color:var(--bad);  background:var(--bad-bg);  color:var(--bad); }
   table { margin-top:0 !important; border:2px solid var(--line); border-top:0;
           border-radius:0 0 12px 12px; }
   @media (max-width:700px) {
@@ -327,11 +349,6 @@
   th.sortable.up::after   { content:"\2191"; opacity:1; color:var(--key); }
   th.sortable.down::after { content:"\2193"; opacity:1; color:var(--key); }
   .dash { color:#c2c8cd; }
-  .step { font:inherit; font-size:0.8em; padding:7px 15px; white-space:nowrap;
-          border:2px solid var(--key); border-radius:7px;
-          background:var(--card); color:var(--key-d); cursor:pointer; font-weight:700; }
-  .step:hover { background:var(--key); color:#fff; }
-  .step:disabled { border-color:var(--line); color:var(--muted); background:var(--soft); }
   .pill.mid  { background:var(--key-bg); color:var(--key-d); }
   .pill.done { background:#e8eaec; color:#5c6a75; }
   @media (max-width:640px) {
@@ -417,40 +434,23 @@
   <div class="quick open">
     <div class="qin">
       <div class="qrow">
-        <div class="qf"><label for="q-cert">자격증</label><select id="q-cert"></select></div>
-        <div class="qf"><label for="q-name">성함</label><input id="q-name" placeholder="홍길동"></div>
-        <div class="qf"><label for="q-birth">생년월일</label>
-          <input id="q-birth" inputmode="numeric" placeholder="19480612"></div>
+        <div class="qf"><label for="q-cert">신청 자격증</label><select id="q-cert"></select></div>
+        <div class="qf"><label for="q-name">이름</label><input id="q-name" placeholder="홍길동"></div>
         <div class="qf"><label for="q-phone">연락처</label>
-          <input id="q-phone" inputmode="tel" placeholder="010-1234-5678"></div>
-        <div class="qf"><label for="q-gender">성별</label>
-          <select id="q-gender"><option value="">고르기</option>
-            <option value="M">남</option><option value="F">여</option></select></div>
-        <div class="qf"><label for="q-region">시험 지역</label><select id="q-region"></select></div>
-        <div class="qf"><label for="q-channel">접수 경로</label>
+          <input id="q-phone" inputmode="tel" placeholder="010-1234-5678">
+          <p class="qh2">못 받으셨으면 비워 두셔도 됩니다</p></div>
+        <div class="qf"><label for="q-channel">접수경로</label>
           <select id="q-channel"><option>전화</option><option>방문</option></select></div>
-        <div class="qf"><label for="q-context">누가 접수</label>
-          <select id="q-context"><option>본인단독</option><option>가족보조</option>
-            <option>복지관</option><option>대리접수</option></select></div>
       </div>
-      <p class="qsec">자격증에 따라 달라지는 칸</p>
-      <div class="qrow" id="q-track"></div>
-
-      <p class="qsec">결제</p>
-      <div class="qrow">
-        <div class="qf"><label for="q-disc">감면</label><select id="q-disc"></select></div>
-        <div class="qf"><label for="q-pay">결제수단</label>
-          <select id="q-pay"><option>신용카드</option><option>계좌이체</option>
-            <option>가상계좌</option></select></div>
-        <div class="qf"><label for="q-date">희망 시험일</label><input id="q-date" type="date"></div>
-        <div class="qf"><label for="q-session">교시 · 시간대</label><select id="q-session"></select></div>
-      </div>
-      <p class="qfee" id="q-fee"></p>
 
       <div class="qf" style="margin-top:12px">
         <label for="q-memo">비고</label>
-        <input id="q-memo" placeholder="예: 딸이 대신 문의">
+        <input id="q-memo" placeholder="예: 딸이 대신 문의 · 연락처 못 받음">
       </div>
+
+      <p class="qnote">접수번호와 접수일은 저장할 때 자동으로 붙습니다.
+        생년월일 · 시험지역 · 회차 같은 자세한 내용은 두두넷·두두보건에서 접수하실 때 넣으시면 됩니다.</p>
+
       <button type="button" class="btn key big" id="q-save">이 내용으로 접수 넣기</button>
       <p class="said2" id="q-said"></p>
     </div>
@@ -497,12 +497,22 @@
     </div>
 
     <div class="fgrp">
-      <span class="flb">진행</span>
+      <span class="flb">처리</span>
       <div class="fseg">
         <button type="button" data-s="" class="on">모두</button>
-        <button type="button" data-s="접수완료">접수완료</button>
+        <button type="button" data-s="접수">접수</button>
         <button type="button" data-s="확인">확인</button>
         <button type="button" data-s="완료">완료</button>
+      </div>
+    </div>
+
+    <div class="fgrp">
+      <span class="flb">경로</span>
+      <div class="fseg">
+        <button type="button" data-c="" class="on">모두</button>
+        <button type="button" data-c="온라인">온라인</button>
+        <button type="button" data-c="전화">전화</button>
+        <button type="button" data-c="방문">방문</button>
       </div>
     </div>
 
@@ -529,14 +539,14 @@
   <div class="listbar">
     <span class="lcount" id="status">불러오는 중…</span>
     <span class="lhint" id="bulk-hint"></span>
-    <button type="button" class="btn bulkbtn" id="bulk-go">일괄 처리</button>
   </div>
 
   <table>
     <colgroup>
-      <col style="width:74px"><col style="width:92px"><col style="width:120px">
-      <col style="width:72px"><col style="width:128px"><col style="width:134px">
-      <col style="width:88px"><col style="width:84px"><col style="width:96px">
+      <col style="width:60px"><col style="width:88px"><col style="width:118px">
+      <col style="width:70px"><col style="width:124px"><col style="width:130px">
+      <col style="width:76px"><col style="width:auto"><col style="width:84px">
+      <col style="width:70px"><col style="width:118px">
     </colgroup>
     <thead>
       <tr>
@@ -546,9 +556,11 @@
         <th class="sortable" data-k="name">성함</th>
         <th>연락처</th>
         <th class="sortable" data-k="cert_name">자격증</th>
+        <th class="sortable" data-k="channel">접수경로</th>
+        <th>비고</th>
         <th class="num sortable" data-k="fee_final">결제금액</th>
-        <th class="sortable" data-k="status">상태</th>
-        <th>다음 단계로</th>
+        <th class="sortable" data-k="pay_status">결제</th>
+        <th class="sortable" data-k="status">처리 · 눌러서 바꾸기</th>
       </tr>
     </thead>
     <tbody id="rows"></tbody>
@@ -572,19 +584,30 @@
           그 기준으로 다시 늘어놓습니다. 한 번 더 누르면 반대 순서가 됩니다.
           맨 왼쪽 번호는 지금 늘어놓은 순서대로 매겨집니다.</dd>
 
-      <dt>진행 단계는 어떻게 되나요</dt>
-      <dd><b>접수완료</b>(손님이 넣음) → <b>확인</b>(직원이 요건을 봄) →
-          <b>완료</b>(두두넷 원서접수까지 마침) 순서입니다.
-          위 <b>진행</b>에서 고르면 그 단계에 있는 것만 보입니다.</dd>
+      <dt>처리와 결제는 무엇이 다른가요</dt>
+      <dd><b>처리</b>는 저희 직원이 하는 일입니다.
+          <b>문의</b>(접수 기간이 아님) · <b>접수</b>(신청서가 들어옴) ·
+          <b>확인</b>(요건을 봄) · <b>완료</b>(두두넷 접수까지 마침) · <b>취소</b>.<br>
+          <b>결제</b>는 두두넷·두두보건에서 정해지는 값입니다.
+          <b>대기 · 완료 · 환불</b>이 있고, 그쪽에서 확인하신 뒤 줄을 펼쳐 바꾸시면 됩니다.</dd>
 
-      <dt>한 건씩 넘기려면</dt>
-      <dd>표 오른쪽 <b>다음 단계로</b> 칸의 초록 버튼을 누르십시오.
-          <b>→ 확인</b>이라고 적혀 있으면 누를 때 확인 단계로 바뀝니다.</dd>
+      <dt>접수경로는 무엇인가요</dt>
+      <dd><b>온라인</b>은 손님이 접수 화면에서 직접 넣으신 것,
+          <b>전화 · 방문</b>은 직원이 대신 넣은 것입니다.
+          위 <b>경로</b>에서 <b>온라인</b>만 눌러 보시면 화면으로 들어온 것이 몇 건인지 보입니다.</dd>
 
-      <dt>여러 건을 한 번에 넘기려면</dt>
-      <dd>목록 위 주황색 <b>일괄 처리</b> 버튼입니다.
-          지금 걸린 기간·진행·자격증 조건에 맞는 것만 바뀝니다.
-          기간 <b>전체</b> · 진행 <b>접수완료</b>로 두면 쌓인 것이 한 번에 정리됩니다.</dd>
+      <dt>상태를 바꾸려면</dt>
+      <dd>표 오른쪽 <b>상태</b> 칸을 눌러 고르시면 됩니다.
+          앞으로만 가는 것이 아니라 되돌리거나 취소로도 바꿀 수 있습니다.
+          바꾸기 전에 한 번 더 여쭤봅니다.</dd>
+
+      <dt>아직 손 안 댄 것만 보려면</dt>
+      <dd>위 <b>처리</b>에서 <b>접수</b>를 고르시면 됩니다.</dd>
+
+      <dt>전화·방문 접수는 무엇을 넣나요</dt>
+      <dd>지금 쓰시는 접수대장과 같은 <b>자격증 · 이름 · 연락처 · 접수경로 · 비고</b> 다섯 가지입니다.
+          접수번호와 접수일은 자동으로 붙습니다.
+          생년월일 · 시험지역 · 회차 같은 것은 두두넷·두두보건에서 접수하실 때 넣으시면 됩니다.</dd>
 
       <dt>확인 · 완료 처리는 무엇인가요</dt>
       <dd>발주 문서(01_사업현황_발주서.md 3절)상 3 확인 · 4 완료는 직원이 손으로 하는 단계입니다.
@@ -687,6 +710,8 @@ function detailRow(r) {
   const pairs = [];
   const add = function (k, v) { if (v !== undefined && v !== null && v !== "") pairs.push([k, v]); };
   add("접수번호", r.receipt_no);
+  add("접수경로", r.channel);
+  add("결제", r.pay_status);
   add("생년월일", r.birth_date);
   add("성별", r.gender === "M" ? "남" : r.gender === "F" ? "여" : r.gender);
   add("시험지역", r.exam_region);
@@ -716,12 +741,12 @@ function detailRow(r) {
   add("교육수료번호", x.training_cert_no);
   add("교육수료일", x.training_done);
   add("교육이수시간", x.training_hours ? x.training_hours + "시간" : "");
-  return '<tr class="detail"><td colspan="9"><dl>' +
+  return '<tr class="detail"><td colspan="11"><dl>' +
     pairs.map(function (p) { return '<dt>' + p[0] + '</dt><dd>' + p[1] + '</dd>'; }).join("") +
     '</dl></td></tr>';
 }
 
-let onlyStatus = "";
+let onlyStatus = "", onlyChan = "";
 let sortKey = "created_at", sortDown = true;   // 기본은 최근 접수부터
 let perPage = 50;            // 50건씩 / 한 쪽에 다
 let shownList = [];          // 지금 화면에 걸러진 목록 (일괄 처리 대상)
@@ -737,6 +762,7 @@ function render() {
     if (when === "today" && !isToday(r.created_at)) return false;
     if (when === "week" && !withinDays(r.created_at, 7)) return false;
     if (onlyStatus && r.status !== onlyStatus) return false;
+    if (onlyChan && r.channel !== onlyChan) return false;
     if (q) {
       const byName = (r.name || "").indexOf(q) >= 0;
       const byPhone = qd.length >= 3 &&
@@ -776,10 +802,12 @@ function render() {
   sel.value = keep;
 
   // 정렬
-  const STORDER = { "접수완료":0, "확인":1, "완료":2, "문의":3, "결제대기":4, "취소":5 };
+  const STORDER = { "문의":0, "접수":1, "확인":2, "완료":3, "취소":4 };
+  const PAYORDER = { "대기":0, "완료":1, "환불":2 };
   list.sort(function (a, b) {
     let x = a[sortKey], y = b[sortKey];
     if (sortKey === "status") { x = STORDER[x] ?? 9; y = STORDER[y] ?? 9; }
+    if (sortKey === "pay_status") { x = PAYORDER[x] ?? 9; y = PAYORDER[y] ?? 9; }
     if (sortKey === "fee_final") { x = x || 0; y = y || 0; }
     if (typeof x === "string" || typeof y === "string") {
       x = String(x || ""); y = String(y || "");
@@ -823,9 +851,11 @@ function render() {
       '<td>' + esc(r.name) + '</td>' +
       '<td>' + esc(r.phone) + '</td>' +
       '<td>' + esc(r.cert_name) + '</td>' +
+      '<td>' + chanTag(r) + '</td>' +
+      '<td class="memo">' + esc(r.memo || "") + '</td>' +
       '<td class="num">' + won(r.fee_final) + '원</td>' +
-      '<td>' + pill(r.status) + '</td>' +
-      '<td>' + nextBtn(r) + '</td></tr>';
+      '<td>' + payTag(r) + '</td>' +
+      '<td>' + statusPick(r) + '</td></tr>';
   }).join("");
 
   const todoN = list.filter(function (r) { return NEXT[r.status]; }).length;
@@ -834,6 +864,50 @@ function render() {
       (todoN ? " · 안 한 것 <b>" + todoN + "</b>건" : " · 모두 처리")
     : "조건에 맞는 접수가 없습니다";
 
+  // 표 머리 눌러서 다시 늘어놓기
+  let marked = false;
+  document.querySelectorAll("th.sortable").forEach(function (th) {
+    th.classList.remove("up", "down");
+    if (th.dataset.k === sortKey && !marked) {
+      th.classList.add(sortDown ? "down" : "up");
+      marked = true;
+    }
+    th.onclick = function () {
+      if (sortKey === th.dataset.k) sortDown = !sortDown;
+      else { sortKey = th.dataset.k; sortDown = true; }
+      page = 1; render();
+    };
+  });
+
+  // 상태 고르기 — 줄 펼치기와 겹치지 않게 막는다
+  document.querySelectorAll(".stsel").forEach(function (sel) {
+    const before = sel.value;
+    sel.addEventListener("click", function (e) { e.stopPropagation(); });
+    sel.addEventListener("change", function (e) {
+      e.stopPropagation();
+      setStatus(Number(sel.dataset.id), sel.value, sel, before);
+    });
+  });
+
+  // 쪽 이동
+  function goPage(n) {
+    page = Math.min(Math.max(1, n), pages);
+    render();
+    document.querySelector("table").scrollIntoView({ behavior:"smooth", block:"start" });
+  }
+  if ($("p-first")) $("p-first").addEventListener("click", function () { goPage(1); });
+  if ($("prev"))    $("prev").addEventListener("click",    function () { goPage(page - 1); });
+  if ($("next"))    $("next").addEventListener("click",    function () { goPage(page + 1); });
+  if ($("p-last"))  $("p-last").addEventListener("click",  function () { goPage(pages); });
+  if ($("p-go")) {
+    $("p-go").addEventListener("change", function () { goPage(Number(this.value) || 1); });
+    $("p-go").addEventListener("keydown", function (e) {
+      if (e.key === "Enter") goPage(Number(this.value) || 1);
+    });
+  }
+
+  const waitN = all.filter(function (r) { return NEXT[r.status]; }).length;
+  $("tab-n").textContent = waitN ? "(" + waitN + ")" : "";
 
   document.querySelectorAll("tr.row").forEach(function (tr) {
     tr.addEventListener("click", function () {
@@ -869,28 +943,51 @@ async function load() {
 
 function reset() { page = 1; render(); }
 
-// 발주서 3절: 3 확인 · 4 완료는 직원이 손으로 한다. 그 단계를 여기서 넘긴다.
-const NEXT = { "접수완료":"확인", "확인":"완료" };
-// 지금 상태에서 다음 단계로 넘기는 버튼. 무엇으로 바뀌는지 화살표로 보여 준다.
-function nextBtn(r) {
-  const n = NEXT[r.status];
-  if (!n) return '<span class="dash">-</span>';
-  return '<button type="button" class="step" data-id="' + r.id +
-         '" data-to="' + n + '">&rarr; ' + n + '</button>';
+// 발주서 3절: 3 확인 · 4 완료는 직원이 손으로 한다. 그 단계를 여기에 기록한다.
+// 앞으로만 가는 게 아니라 되돌리거나 취소로도 바꿀 수 있어야 한다.
+// 처리 단계 — 우리 직원이 하는 일 (발주서 3절)
+const STATES = ["문의", "접수", "확인", "완료", "취소"];
+const NEXT = { "접수":"확인", "확인":"완료" };   // 아직 손 안 댄 것 세는 데만 씀
+
+// 결제 상태 — 두두넷에서 정해지는 값. 직원이 보고 옮겨 적는다.
+const PAYS = ["대기", "완료", "환불"];
+
+function statusPick(r) {
+  const cur = r.status || "접수";
+  return '<select class="stsel s-' + cur + '" data-id="' + r.id + '">' +
+    STATES.map(function (v) {
+      return '<option' + (v === cur ? " selected" : "") + '>' + v + '</option>';
+    }).join("") + '</select>';
 }
 
-async function stepTo(id, to, btn) {
-  btn.disabled = true; btn.textContent = "…";
-  const res = await db.from("applications").update({ status: to }).eq("id", id);
-  if (res.error) { btn.disabled = false; btn.textContent = "\u2192 " + to;
-    alert("바꾸지 못했습니다: " + res.error.message); return; }
+function chanTag(r) {
+  const v = r.channel || "-";
+  return '<span class="chan c-' + v + '">' + v + '</span>';
+}
+
+function payTag(r) {
+  const v = r.pay_status || "대기";
+  return '<span class="pay p-' + v + '">' + v + '</span>';
+}
+
+async function setStatus(id, to, sel, before) {
   const row = all.find(function (x) { return x.id === id; });
+  const who = row ? row.name : "";
+  if (!confirm(who + " 님의 상태를\n" + before + " \u2192 " + to + " 로 바꾸시겠습니까?\n\n" +
+      "상태만 바뀝니다. 두두넷 원서접수는 따로 하셔야 합니다.")) {
+    sel.value = before; return;
+  }
+  sel.disabled = true;
+  const res = await db.from("applications").update({ status: to }).eq("id", id);
+  sel.disabled = false;
+  if (res.error) { sel.value = before; alert("바꾸지 못했습니다: " + res.error.message); return; }
   if (row) row.status = to;
+  $("bulk-hint").textContent = "\u2713 " + who + " 님 " + to;
+  setTimeout(function () { $("bulk-hint").textContent = ""; }, 3000);
   render();
 }
-// 발주서 4절: 어떤 질문이 제일 많이 들어오는지
-// 질문이 쌓이면 세로로 끝없이 길어지므로 표로 묶고 10개씩만 보여 준다.
-let QALL = { miss:[], hit:[] }, qShow = { miss:10, hit:10 };
+
+
 
 async function loadQuestions() {
   try {
@@ -970,121 +1067,13 @@ const QCERTS = [
   { code:"H001", name:"요양보호사",       track:"보건", agency:"두두보건", hours:240,  fee:32000, state:"now" },
   { code:"H002", name:"위생사",           track:"보건", agency:"두두보건", hours:null, fee:30000, state:"late" }
 ];
-const QCENTERS = ["서울","부산","대구","광주","대전","수원","청주","전주","제주"];
-const QEDU = ["무학","초등학교졸업","중학교졸업","고등학교졸업","전문대졸","대학교졸","대학원졸"];
-const QDISC = ["없음","장애인","기초생활수급자","국가유공자","차상위계층"];
-const QSUBJ = {
-  "손해평가사|1차": ["상법 보험편","농어업재해보험법령"],
-  "손해평가사|2차": ["농작물재해보험 및 가축재해보험의 이론과 실무",
-                    "농작물재해보험 및 가축재해보험 손해평가의 이론과 실무"],
-  "공인중개사|1차": ["부동산학개론","민법 및 민사특별법"],
-  "공인중개사|2차": ["공인중개사법령 및 중개실무","부동산공법","부동산공시법 및 부동산세법"]
-};
-const QORGS = {
-  "요양보호사": ["서울시립요양보호사교육원","부산광역시요양보호사교육원",
-                "대한적십자사 서울지사","한국요양보호협회 교육센터","사회복지법인 위드 교육원"],
-  "위생사":     ["보건환경연구원","한국보건복지인력개발원","대학교 보건학과"]
-};
-function qDiscRate(t, track) {
-  if (t === "없음") return 0;
-  if (t === "기초생활수급자" && track === "보건") return 100;
-  return 50;
-}
-const QREGIONS = ["서울","부산","대구","인천","광주","대전","울산","세종","경기","강원",
-                  "충북","충남","전북","전남","경북","경남","제주"];
-
-(function () {
-  $("q-cert").innerHTML = QCERTS.map(function (c, i) {
-    return '<option value="' + i + '">' + c.name + '</option>';
-  }).join("");
-  qfill($("q-disc"), QDISC);
-  $("q-cert").addEventListener("change", qDrawTrack);
-  $("q-disc").addEventListener("change", qFee);
-  qDrawTrack();
-})();
 
 function qfill(sel, items) {
   sel.innerHTML = items.map(function (v) { return "<option>" + v + "</option>"; }).join("");
 }
 
-function qDrawTrack() {
-  const c = QCERTS[Number($("q-cert").value)];
-  const box = $("q-track"), ses = $("q-session");
-  box.innerHTML = "";
-
-  if (c.track === "국가기술") {
-    box.innerHTML =
-      '<div class="qf"><label for="q-round">회차</label><select id="q-round"></select></div>' +
-      '<div class="qf"><label for="q-elig">응시자격</label><select id="q-elig">' +
-      '<option>제한없음</option><option>관련학과졸업</option><option>경력</option>' +
-      '<option>기타</option></select></div>' +
-      '<div class="qf"><label for="q-edu">최종학력</label><select id="q-edu"></select></div>';
-    const r = $("q-round");
-    if (c.examType === "정기") { qfill(r, ["1회","2회","3회","4회"]); r.value = "4회"; }
-    else { qfill(r, ["해당없음 (상시)"]); r.disabled = true; }
-    qfill($("q-edu"), QEDU);
-    if (c.examType === "정기") qfill(ses, ["1교시 (09:30)","2교시 (11:00)","3교시 (13:30)",
-                                           "4교시 (15:00)","5교시 (16:30)"]);
-    else qfill(ses, ["09:00","10:30","13:00","14:30","16:00"]);
-  }
-
-  if (c.track === "전문") {
-    box.innerHTML =
-      '<div class="qf"><label for="q-stage">차수</label>' +
-      '<select id="q-stage"><option>1차</option><option>2차</option></select></div>' +
-      '<div class="qf"><label for="q-passno">1차 합격번호</label>' +
-      '<input id="q-passno" placeholder="2차만"></div>' +
-      '<div class="qf" style="grid-column:1/-1"><label>응시 과목</label>' +
-      '<p class="said2" id="q-subj"></p></div>';
-    $("q-stage").addEventListener("change", function () { qSubj(); qFee(); });
-    qSubj();
-    qfill(ses, ["1교시 (09:30)","2교시 (11:00)"]);
-  }
-
-  if (c.track === "보건") {
-    const orgs = QORGS[c.name] || [];
-    box.innerHTML =
-      '<div class="qf"><label for="q-org">교육기관</label>' +
-      '<select id="q-org"><option value="">고르기</option>' +
-      orgs.map(function (o) { return "<option>" + o + "</option>"; }).join("") + '</select></div>' +
-      '<div class="qf"><label for="q-certno">수료번호</label>' +
-      '<input id="q-certno" placeholder="TR20261080"></div>' +
-      '<div class="qf"><label for="q-cdone">수료일</label><input id="q-cdone" type="date"></div>' +
-      '<div class="qf"><label for="q-disab">편의제공</label>' +
-      '<select id="q-disab"><option>없음</option><option>지체장애</option>' +
-      '<option>시각장애</option><option>청각장애</option><option>뇌병변장애</option>' +
-      '<option>기타</option></select></div>';
-    qfill(ses, ["오전 9시","오후 2시"]);
-  }
-
-  $("q-region").innerHTML = (c.track === "보건" ? QCENTERS : QREGIONS)
-    .map(function (r) { return "<option>" + r + "</option>"; }).join("");
-  qFee();
-}
-
-function qSubj() {
-  const c = QCERTS[Number($("q-cert").value)];
-  if (!$("q-subj")) return;
-  $("q-subj").textContent = (QSUBJ[c.name + "|" + $("q-stage").value] || []).join(" · ");
-}
-
-function qBase() {
-  const c = QCERTS[Number($("q-cert").value)];
-  if (typeof c.fee === "number") return c.fee;
-  return c.fee[$("q-stage") ? $("q-stage").value : "1차"];
-}
-function qFee() {
-  const c = QCERTS[Number($("q-cert").value)];
-  const base = qBase();
-  const rate = qDiscRate($("q-disc").value, c.track);
-  const cut = Math.floor(base * rate / 100 / 10) * 10;
-  $("q-fee").innerHTML = "응시료 " + base.toLocaleString() + "원" +
-    (rate ? " · 감면 " + cut.toLocaleString() + "원" : "") +
-    " · 결제 <b>" + (base - cut).toLocaleString() + "원</b>";
-  return { base:base, cut:cut, final:base - cut };
-}
-
 function qdig(v, m) { return v.replace(/[^0-9]/g, "").slice(0, m); }
+
 $("q-phone").addEventListener("input", function () {
   const d = qdig(this.value, 11);
   this.value = d.length <= 3 ? d
@@ -1092,157 +1081,56 @@ $("q-phone").addEventListener("input", function () {
     : d.length <= 10 ? d.slice(0,3) + "-" + d.slice(3,6) + "-" + d.slice(6)
     : d.slice(0,3) + "-" + d.slice(3,7) + "-" + d.slice(7);
 });
-$("q-birth").addEventListener("input", function () {
-  const d = qdig(this.value, 8);
-  this.value = d.length <= 4 ? d
-    : d.length <= 6 ? d.slice(0,4) + "-" + d.slice(4)
-    : d.slice(0,4) + "-" + d.slice(4,6) + "-" + d.slice(6);
-});
 
 function qsay(t, k) { $("q-said").textContent = t; $("q-said").className = "said2 " + (k || ""); }
 
+(function () {
+  $("q-cert").innerHTML = QCERTS.map(function (c, i) {
+    return '<option value="' + i + '">' + c.name + '</option>';
+  }).join("");
+})();
+
+// 접수대장 7칸만 받는다. 나머지는 두두넷·두두보건에서 직원이 넣는다.
 $("q-save").addEventListener("click", async function () {
   const c = QCERTS[Number($("q-cert").value)];
   const name = $("q-name").value.trim();
-  const birth = qdig($("q-birth").value, 8);
   const phone = $("q-phone").value.trim();
 
-  if (!name) return qsay("성함을 넣어 주세요.", "bad");
-  if (birth.length !== 8) return qsay("생년월일 8자리를 넣어 주세요.", "bad");
-  if (qdig(phone, 11).length < 9) return qsay("연락처를 다시 확인해 주세요.", "bad");
-  if (!$("q-gender").value) return qsay("성별을 골라 주세요.", "bad");
+  if (!name) return qsay("이름을 넣어 주세요.", "bad");
+  if (phone && qdig(phone, 11).length < 9)
+    return qsay("연락처를 다시 확인해 주세요. 못 받으셨으면 비워 두셔도 됩니다.", "bad");
   if (!db) return qsay("데이터베이스에 연결되지 않았습니다.", "bad");
 
-  const head = c.track === "국가기술" ? "DN" : c.track === "전문" ? "DP" : "DH";
-  const rno = head + new Date().getFullYear() +
-              String(Math.floor(Math.random() * 900000) + 100000);
+  const head = c.track === "국가기술" ? "1" : c.track === "전문" ? "2" : "3";
+  const d = new Date();
+  const mmdd = String(d.getMonth()+1).padStart(2,"0") + String(d.getDate()).padStart(2,"0");
+  const rno = head + mmdd + "-" +
+    String(Math.floor(Math.random()*10000)).padStart(4,"0") + "-" +
+    String(Math.floor(Math.random()*1000)).padStart(3,"0");
 
   const btn = $("q-save");
   btn.disabled = true; btn.textContent = "넣는 중…";
 
-  const fee = qFee();
-  const extra = { entered_by:"직원", exam_category:"필기" };
-  if (c.track === "국가기술") {
-    extra.grade = "기능사"; extra.exam_type = c.examType;
-    extra.exam_round = $("q-round").value; extra.eligibility = $("q-elig").value;
-    extra.education = $("q-edu").value;
-  }
-  if (c.track === "전문") {
-    extra.exam_stage = $("q-stage").value;
-    extra.exam_year = new Date().getFullYear();
-    extra.subjects = QSUBJ[c.name + "|" + extra.exam_stage] || [];
-    if ($("q-passno").value.trim()) {
-      extra.is_first_pass_holder = true;
-      extra.first_pass_number = $("q-passno").value.trim();
-    }
-  }
-  if (c.track === "보건") {
-    extra.training_org = $("q-org").value;
-    extra.training_cert_no = $("q-certno").value.trim();
-    extra.training_done = $("q-cdone").value;
-    extra.training_hours = c.hours || null;
-  }
-
+  const fee = typeof c.fee === "number" ? c.fee : c.fee["1차"];
   const res = await db.from("applications").insert({
     track: c.track, agency: c.agency, cert_code: c.code, cert_name: c.name,
-    name: name, phone: phone, gender: $("q-gender").value,
-    birth_date: birth.slice(0,4) + "-" + birth.slice(4,6) + "-" + birth.slice(6),
-    exam_region: $("q-region").value,
-    exam_date: $("q-date").value || null,
-    exam_session: $("q-session").value,
-    fee_amount: fee.base, fee_discount_type: $("q-disc").value,
-    fee_discount_amount: fee.cut, fee_final: fee.final,
-    payment_method: $("q-pay").value,
-    status: c.state === "late" ? "문의" : "접수완료",
-    usage_context: $("q-context").value, channel: $("q-channel").value,
+    name: name, phone: phone || null,
+    fee_amount: fee, fee_discount_type: "없음", fee_discount_amount: 0, fee_final: fee,
+    status: c.state === "late" ? "문의" : "접수",
+    pay_status: "대기",
+    channel: $("q-channel").value,
+    usage_context: "본인단독",
     memo: $("q-memo").value.trim() || null,
-    disability_type: $("q-disab") ? $("q-disab").value : null,
     receipt_no: rno, agreed_privacy: true, agreed_terms: true,
-    extra: extra
+    extra: { entered_by:"직원", exam_category:"필기" }
   });
 
   btn.disabled = false; btn.textContent = "이 내용으로 접수 넣기";
   if (res.error) return qsay("저장 실패: " + res.error.message, "bad");
 
   qsay(name + " 님 접수 완료. 접수번호 " + rno, "ok");
-  ["q-name","q-birth","q-phone","q-memo"].forEach(function (id) { $(id).value = ""; });
-  $("q-gender").value = "";
+  ["q-name","q-phone","q-memo"].forEach(function (id) { $(id).value = ""; });
   load(true);
-});
-
-// 탭 전환
-document.querySelectorAll("#tabs button").forEach(function (b) {
-  b.addEventListener("click", function () {
-    document.querySelectorAll("#tabs button").forEach(function (x) {
-      x.classList.toggle("on", x === b); });
-    document.querySelectorAll(".tab").forEach(function (t) {
-      t.classList.toggle("on", t.id === "tab-" + b.dataset.t); });
-    window.scrollTo({ top:0, behavior:"smooth" });
-  });
-});
-
-// 지금 화면에 보이는 것 전부를 한 번에 확인 처리한다.
-// 따로 고를 필요 없이 위 필터가 그대로 대상이 된다.
-function drawBulk() {
-  const todo = shownList.filter(function (r) { return NEXT[r.status]; });
-  $("bulk-go").disabled = todo.length === 0;
-  $("bulk-go").textContent = todo.length
-    ? "일괄 처리 " + todo.length + "건"
-    : "일괄 처리할 것 없음";
-}
-
-$("bulk-go").addEventListener("click", async function () {
-  const todo = shownList.filter(function (r) { return NEXT[r.status]; });
-  if (!todo.length) return;
-
-  const when = $("f-when").value === "today" ? "오늘 들어온 " :
-               $("f-when").value === "week" ? "최근 7일 " : "";
-  if (!confirm("지금 목록에 보이는 " + when + todo.length + "건을\n" +
-      "한꺼번에 다음 단계로 넘깁니다.\n\n" +
-      "접수완료 → 확인 · 확인 → 완료\n" +
-      "한 건씩 하시려면 표 오른쪽 '다음 단계로' 칸을 쓰십시오.\n\n" +
-      "상태만 바뀝니다. 두두넷 원서접수는 따로 하셔야 합니다.")) return;
-
-  const btn = this, ids = todo.map(function (r) { return r.id; });
-  btn.disabled = true; btn.textContent = "처리 중…";
-  $("bulk-hint").textContent = "";
-
-  let done = 0;
-  for (let i = 0; i < ids.length; i += 200) {
-    const part = ids.slice(i, i + 200);
-    const res = await db.from("applications").update({ status:"확인" }).in("id", part);
-    if (res.error) {
-      btn.disabled = false; drawBulk();
-      $("bulk-hint").textContent = "실패: " + res.error.message; return;
-    }
-    done += part.length;
-    $("bulk-hint").textContent = done + " / " + ids.length + "건…";
-  }
-  const set = new Set(ids);
-  all.forEach(function (r) { if (set.has(r.id)) r.status = "확인"; });
-  $("bulk-hint").textContent = "\u2713 " + done + "건 처리했습니다";
-  setTimeout(function () { $("bulk-hint").textContent = ""; }, 4000);
-  render();
-});
-
-// 빠른 필터
-document.querySelectorAll("#quicks button").forEach(function (b) {
-  b.addEventListener("click", function () {
-    if (b.dataset.p !== undefined) {
-      perPage = b.dataset.p === "all" ? 1e9 : 50;
-      document.querySelectorAll("#quicks button[data-p]").forEach(function (x) {
-        x.classList.toggle("on", x === b); });
-    } else if (b.dataset.w !== undefined) {
-      $("f-when").value = b.dataset.w;
-      document.querySelectorAll("#quicks button[data-w]").forEach(function (x) {
-        x.classList.toggle("on", x === b); });
-    } else {
-      onlyStatus = b.dataset.s;
-      document.querySelectorAll("#quicks button[data-s]").forEach(function (x) {
-        x.classList.toggle("on", x === b); });
-    }
-    reset();
-  });
 });
 
 $("q").addEventListener("input", reset);

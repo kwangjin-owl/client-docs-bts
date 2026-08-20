@@ -50,6 +50,7 @@ create table applications (
   memo text,                        -- 접수대장의 비고
 
   receipt_no text unique,           -- 접수번호 (손님에게 알려 드리는 번호)
+  pay_status text default '대기',   -- 결제 상태 (두두넷에서 정해지는 값)
   fee_discount_amount int,          -- 감면 금액
   agreed_privacy boolean default false,  -- 개인정보 수집 동의
   agreed_terms boolean default false,    -- 이용약관 동의
@@ -225,3 +226,29 @@ set receipt_no =
    || '-' || lpad((id % 10000)::text, 4, '0')
    || '-' || lpad(((id / 10000) % 1000)::text, 3, '0')
 where receipt_no is null;
+
+
+-- ============================================================
+-- 결제 상태를 접수 상태와 따로 갈라 놓기
+--
+-- 세 기관 CSV 는 원래 결제상태와 접수상태가 따로 있었는데
+-- 통합할 때 하나로 합쳐서 '접수완료 다음이 결제대기' 처럼
+-- 순서가 뒤엉켜 보였습니다. 다시 갈라 놓습니다.
+--
+-- 한 번만 돌리면 되고, 두 번 돌려도 안전합니다.
+-- ============================================================
+
+alter table applications add column if not exists pay_status text default '대기';
+
+-- 옛 데이터: 접수상태에 섞여 있던 결제 정보를 옮긴다
+update applications set pay_status = '완료' where status = '접수완료';
+update applications set pay_status = '대기' where status = '결제대기';
+update applications set pay_status = '환불' where status = '취소';
+
+-- 결제 때문에 붙어 있던 상태를 처리 단계 값으로 바꾼다
+update applications set status = '접수'   where status = '접수완료';
+update applications set status = '접수'   where status = '결제대기';
+update applications set status = '취소'   where status = '취소';
+
+-- 확인용
+-- select status, pay_status, count(*) from applications group by 1,2 order by 1,2;
