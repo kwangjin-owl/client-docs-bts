@@ -291,39 +291,107 @@ async function logQ(question, answered, score, doc, route) {
   } catch (e) { console.log("질문 기록 실패:", e.message); }
 }
 
+// ---------- 말 쪼개기 ----------
+// 한국어는 조사가 붙으므로 뒤를 조금씩 잘라 낸 조각도 같이 본다.
+const JOSA = ["이","가","은","는","을","를","에","의","도","로","으로",
+              "와","과","만","부터","까지","에서","에게","한테","라도","이나","나"];
+let STOP = new Set(), SYN = {}, BAGS = [], DF = new Map(), CERTS = [];
+
+function cut(w) {
+  const out = [w];
+  for (const j of JOSA)
+    if (w.length > j.length + 1 && w.endsWith(j)) out.push(w.slice(0, -j.length));
+  return out;
+}
 function tokens(text) {
-  return (text||"").toLowerCase().replace(/[^0-9a-z가-힣\s]/g," ").split(/\s+/)
-    .filter(function(w){ return w.length>=2 && CFG.STOPWORDS.indexOf(w)<0; });
-}
-function expand(words) {
-  const out=[];
-  words.forEach(function(w){
-    out.push(w);
-    Object.keys(CFG.SYNONYMS).forEach(function(key){
-      const list=CFG.SYNONYMS[key];
-      if(key===w){ list.forEach(function(v){ out.push(v); }); return; }
-      list.forEach(function(v){ if(w.indexOf(v)>=0||v.indexOf(w)>=0) out.push(key); });
-    });
+  const raw = (text || "").toLowerCase().replace(/[^0-9a-z가-힣\s]/g, " ").split(/\s+/);
+  const out = new Set();
+  raw.forEach(function (w) {
+    if (w.length < 2) return;
+    cut(w).forEach(function (x) { if (x.length >= 2 && !STOP.has(x)) out.add(x); });
   });
-  return Array.from(new Set(out));
+  return out;
 }
-function hits(word,bag){ return bag.some(function(t){
-  return t===word||t.indexOf(word)>=0||word.indexOf(t)>=0; }); }
-function score(question,doc) {
-  const qw=tokens(question);
-  if(!qw.length) return { s:0 };
-  const bodyBag=tokens(doc.title+" "+doc.body), titleBag=tokens(doc.title);
-  let matched=0, titleHit=0;
-  qw.forEach(function(w){
-    const v=expand([w]);
-    if(v.some(function(x){ return hits(x,bodyBag); })) matched++;
-    if(v.some(function(x){ return hits(x,titleBag); })) titleHit++;
+function toStd(set) {              // 비슷한말을 대표말로 바꾼다
+  const out = new Set();
+  set.forEach(function (w) { out.add(SYN[w] || w); });
+  return out;
+}
+
+// ---------- 문서를 읽은 뒤 한 번만 준비한다 ----------
+// 매 질문마다 2,500건을 다시 쪼개면 느리다.
+function buildIndex() {
+  STOP = new Set(CFG.STOPWORDS);
+  SYN = {};
+  Object.keys(CFG.SYNONYMS).forEach(function (key) {
+    SYN[key] = key;
+    CFG.SYNONYMS[key].forEach(function (v) { SYN[v] = key; });
   });
-  return { s: Math.min(1, matched/qw.length + titleHit/qw.length*CFG.TITLE_WEIGHT) };
+
+  BAGS = DOCS.map(function (d) {
+    const all = toStd(tokens([d.cert, d.category, d.title, d.question, d.body].join(" ")));
+    const key = toStd(tokens([d.cert, d.category, d.title].join(" ")));
+    return { all: all, key: key };
+  });
+
+  DF = new Map();
+  BAGS.forEach(function (b) {
+    b.all.forEach(function (w) { DF.set(w, (DF.get(w) || 0) + 1); });
+  });
+
+  CERTS = Array.from(new Set(DOCS.map(function (d) { return d.cert; })
+                            .filter(function (c) { return c; })));
 }
+
+// 흔한 말은 값을 낮춘다. "시험"은 어느 문서에나 있어 고르는 데 도움이 안 된다.
+function idf(w) {
+  const df = DF.get(w) || 0;
+  return Math.log((DOCS.length + 1) / (df + 1)) + 1;
+}
+
+function certIn(q) {
+  const std = toStd(tokens(q));
+  for (const c of CERTS) {
+    const cw = toStd(tokens(c));
+    for (const w of cw) if (std.has(w)) return c;
+  }
+  return null;
+}
+
+function scoreAt(qs, i) {
+  const b = BAGS[i];
+  let got = 0, total = 0;
+  qs.forEach(function (w) {
+    const v = idf(w);
+    total += v;
+    if (b.all.has(w)) got += v * (b.key.has(w) ? 1.4 : 1);
+  });
+  return total ? Math.min(1, got / total) : 0;
+}
+
 function search(question) {
-  return DOCS.map(function(d){ return { doc:d, s:score(question,d).s }; })
-    .sort(function(a,b){ return b.s-a.s; }).slice(0, CFG.TOP_K);
+  const qs = toStd(tokens(question));
+  if (!qs.size) return { s: 0, doc: null, ask: null };
+
+  const want = certIn(question);
+  const ranked = [];
+  for (let i = 0; i < DOCS.length; i++) {
+    if (want && DOCS[i].cert && DOCS[i].cert !== want) continue;
+    const s = scoreAt(qs, i);
+    if (s > 0) ranked.push({ s: s, doc: DOCS[i] });
+  }
+  ranked.sort(function (a, b) { return b.s - a.s; });
+  if (!ranked.length) return { s: 0, doc: null, ask: null };
+
+  // 자격증을 안 말씀하셨는데 상위 답이 여러 자격증에 걸쳐 있으면 되묻는다.
+  // 아무거나 답하면 "직원마다 다른 금액을 말한다"는 문제가 그대로 생긴다.
+  if (!want) {
+    const top = ranked.filter(function (r) { return r.s >= ranked[0].s - 0.08; }).slice(0, 12);
+    const certs = Array.from(new Set(top.map(function (r) { return r.doc.cert; })
+                                        .filter(function (c) { return c; })));
+    if (certs.length >= 2) return { s: ranked[0].s, doc: ranked[0].doc, ask: certs };
+  }
+  return { s: ranked[0].s, doc: ranked[0].doc, ask: null };
 }
 
 function readable(t) {
@@ -357,30 +425,41 @@ async function ask(question) {
   if(busy||!question.trim()||!CFG) return;
   busy=true; $("send").disabled=true; $("q").value="";
   const box=addTurn(question);
-  const found=search(question), best=found[0];
+  const best=search(question);
 
-  if(best && best.s>=CFG.MIN_SCORE){
-    fillTurn(box, best.doc.body, "안내 문서 · " + best.doc.title);
-    console.log("[챗봇] 규칙 " + best.s.toFixed(2) + " · " + (best.doc.source||""));
+  // 자격증을 안 말씀하셨는데 답이 여럿이면 아무거나 답하지 않고 되묻는다
+  if (best.ask) {
+    fillTurn(box,
+      "어느 자격증을 말씀하시는지 알려 주시면 정확히 답해 드리겠습니다.\n\n" +
+      best.ask.join(" · ") + "\n\n예를 들어 \"" + best.ask[0] + " " + question + "\" 처럼 물어봐 주세요.",
+      "자격증마다 답이 다릅니다");
+    logQ(question, false, best.s, null, "되물음");
+    busy=false; $("send").disabled=false; $("q").focus(); return;
+  }
+
+  if(best.doc && best.s>=CFG.MIN_SCORE){
+    fillTurn(box, best.doc.body,
+      "안내 문서 · " + (best.doc.cert ? best.doc.cert + " " : "") + best.doc.title);
+    console.log("[챗봇] " + best.s.toFixed(2) + " · " + (best.doc.source||""));
     logQ(question,true,best.s,best.doc,"규칙");
     busy=false; $("send").disabled=false; $("q").focus(); return;
   }
   if(!CFG.USE_AI){
     fillTurn(box, CFG.FALLBACK, "");
-    console.log("[챗봇] 못 찾음 (최고 "+(best?best.s.toFixed(2):"0.00")+")");
-    logQ(question,false,best?best.s:0,null,"못찾음");
+    console.log("[챗봇] 못 찾음 (최고 "+best.s.toFixed(2)+")");
+    logQ(question,false,best.s,null,"못찾음");
     busy=false; $("send").disabled=false; return;
   }
   try {
     const r=await fetch("/api/chat",{ method:"POST",
       headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({ question:question, docs:DOCS,
+      body:JSON.stringify({ question:question, docs:DOCS.slice(0, 40),
         model:CFG.MODEL, fallback:CFG.FALLBACK }) });
     const data=await r.json();
     if(data.error) fillTurn(box,data.error,"AI 호출 단계",true);
     else {
       fillTurn(box, data.answer, "안내 문서를 보고 답해 드렸습니다");
-      logQ(question,true,best?best.s:0,null,"AI");
+      logQ(question,true,best.s,null,"AI");
     }
   } catch(e){ fillTurn(box,"연결 실패: "+e.message,"AI 호출 단계",true); }
   busy=false; $("send").disabled=false; $("q").focus();
@@ -393,10 +472,17 @@ async function boot() {
     const r=await fetch("/api/config"); const conf=await r.json();
     if(!conf.url||!conf.key){ console.log("환경변수 없음"); return; }
     db=supabase.createClient(conf.url,conf.key);
-    const res=await db.from("docs").select("*").order("id");
-    if(res.error){ console.log("문서 실패: "+res.error.message); return; }
-    DOCS=res.data||[];
-    console.log("문서 "+DOCS.length+"건 · 기준값 "+CFG.MIN_SCORE);
+    // Supabase 는 한 번에 1000건까지만 준다. 나눠서 다 받아 온다.
+    DOCS = [];
+    for (let from = 0; ; from += 1000) {
+      const res = await db.from("docs").select("*").order("id").range(from, from + 999);
+      if (res.error) { console.log("문서 실패: " + res.error.message); return; }
+      const part = res.data || [];
+      DOCS = DOCS.concat(part);
+      if (part.length < 1000) break;
+    }
+    buildIndex();
+    console.log("문서 " + DOCS.length + "건 · 기준값 " + CFG.MIN_SCORE);
   } catch(e){ console.log("문서 실패: "+e.message); return; }
 
   $("chips").innerHTML = SAMPLES.map(function(s){

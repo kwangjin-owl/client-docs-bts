@@ -94,7 +94,9 @@ create policy "anon delete docs" on docs for delete to anon using (true);
 
 -- 같은 제목이 두 번 들어가지 않게 막는다.
 -- 이미 있는 문서는 건드리지 않으므로, 화면에서 고치신 내용이 지워지지 않습니다.
-create unique index if not exists docs_title_key on docs (title);
+-- 상담기록은 제목이 겹치므로 (제목+본문)으로 중복을 본다
+drop index if exists docs_title_key;
+create unique index if not exists docs_key on docs (title, md5(body));
 
 insert into docs (cert, title, body, source) values
 (null, '이 서비스가 도와드리는 범위',
@@ -196,7 +198,7 @@ insert into docs (cert, title, body, source) values
 (null, '접수 화면에 시험이 안 보일 때',
 '접수 기간이 아니면 두두넷 접수 화면의 자격 선택 단계에서 "현재 접수중인 시험이 없습니다"라는 말만 나옵니다. 화면이 고장난 것이 아니라 지금이 접수 기간이 아니라는 뜻입니다. 정기 종목은 정해진 기간에만 접수할 수 있으니 다음 회차 접수 시작일을 기다리셔야 합니다. 또한 접수 폼의 둘째 단계 이후, 원서접수내역, 필기시험 면제기간 조회 등은 로그인해야 볼 수 있습니다.',
 '00_자료출처_안내.md 주의')
-on conflict (title) do nothing;
+on conflict do nothing;
 
 
 -- ------------------------------------------------------------
@@ -226,6 +228,10 @@ create policy "anon read q"   on questions for select to anon using (true);
 -- ============================================================
 -- 뒤늦게 늘린 칸 (이미 있으면 그냥 넘어갑니다)
 -- ============================================================
+
+-- 상담기록 데이터를 받기 위해 docs 에 칸을 늘린다
+alter table docs add column if not exists category text;
+alter table docs add column if not exists question text;   -- 어르신이 쓰신 말 (검색용)
 
 alter table applications add column if not exists receipt_no text;
 alter table applications add column if not exists pay_status text default '대기';

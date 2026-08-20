@@ -527,8 +527,9 @@
 
     <div class="fgrp right">
       <div class="fseg">
-        <button type="button" data-p="50" class="on">50건씩</button>
-        <button type="button" data-p="all">전부</button>
+        <button type="button" data-p="50" class="on">50줄</button>
+        <button type="button" data-p="200">200줄</button>
+        <button type="button" data-p="1000">1000줄</button>
       </div>
     </div>
   </div>
@@ -832,10 +833,12 @@ function render() {
   });
 
   shownList = list;
-  const pages = Math.max(1, Math.ceil(list.length / perPage));
+  const per = Math.max(1, perPage);
+  const pages = Math.max(1, Math.ceil(list.length / per));
   if (page > pages) page = pages;
-  const from = (page - 1) * perPage;
-  shown = list.slice(from, from + perPage);
+  if (page < 1) page = 1;
+  const from = (page - 1) * per;
+  shown = list.slice(from, from + per);
 
   const first = page === 1, last = page === pages;
   $("pager").innerHTML = pages > 1
@@ -1181,7 +1184,8 @@ document.querySelectorAll("#tabs button").forEach(function (b) {
 document.querySelectorAll("#quicks button").forEach(function (b) {
   b.addEventListener("click", function () {
     if (b.dataset.p !== undefined) {                    // 보기
-      perPage = b.dataset.p === "all" ? 1e9 : 50;
+      perPage = Number(b.dataset.p);
+      page = 1;                                         // 3쪽에서 바꾸면 빈 화면이 됐다
       document.querySelectorAll("#quicks button[data-p]").forEach(function (x) {
         x.classList.toggle("on", x === b); });
     } else if (b.dataset.c !== undefined) {             // 경로
