@@ -216,10 +216,17 @@
   html.embed .wrap { padding:12px 14px 14px; max-width:none; }
   html.embed .sheet { padding:0; margin:0; background:none; box-shadow:none; }
   html.embed .talk { border:0; border-radius:0; min-height:0; }
-  /* 겹쳐 뜬 창에서는 이름표를 줄이고 지우기 버튼만 남긴다 */
-  html.embed .talk-top { padding:8px 12px; }
+  /* 겹쳐 뜬 창에서는 이름표 띠를 얇고 밝게. 남색 띠가 둘이면 어수선하다. */
+  html.embed .talk-top { padding:6px 10px; background:var(--card);
+                         border-bottom:1px solid var(--line); }
   html.embed .talk-top .av, html.embed .talk-top .who { display:none; }
-  html.embed .talk-top .clr { margin-left:auto; }
+  html.embed .talk-top .clr { margin-left:auto; font-size:0.74em; padding:5px 11px;
+                              border-color:var(--line); color:var(--muted); }
+  html.embed .talk-top .clr:hover { background:var(--soft); color:var(--ink); }
+
+  .chips.inbox { display:flex; flex-wrap:wrap; gap:7px; justify-content:center;
+                 margin-top:14px; }
+  .chips.inbox .chip { font-size:0.86em; padding:9px 13px; }
   html.embed .pane { margin-bottom:10px; }
 
   /* 숨기기는 어떤 규칙보다 뒤에 와야 이긴다.
@@ -454,6 +461,12 @@ function saveLog() {
 function showClr() {
   const has = $("log").innerHTML.indexOf("turn") >= 0;
   $("clr").classList.toggle("hide", !has);
+  // 겹쳐 뜬 창에서는 지울 것이 없으면 띠 자체를 없앤다
+  if (EMBED) {
+    const top = document.querySelector(".talk-top");
+    if (top) top.style.display = has ? "flex" : "none";
+    fit();
+  }
 }
 
 $("clr").addEventListener("click", function () {
@@ -515,10 +528,13 @@ async function ask(question) {
     const data=await r.json();
     if(data.error) fillTurn(box,data.error,"AI 호출 단계",true);
     else {
-      fillTurn(box, data.answer, "안내 문서를 보고 답해 드렸습니다");
+      // 혹시 근거 표시가 붙어 오면 떼고 보여 드린다
+      const clean = String(data.answer || "").replace(/\s*\[근거[^\]]*\]\s*$/,"").trim();
+      fillTurn(box, clean, "안내 자료를 보고 답해 드렸습니다");
       logQ(question,true,best.s,null,"AI");
     }
   } catch(e){ fillTurn(box,"연결 실패: "+e.message,"AI 호출 단계",true); }
+  saveLog();
   busy=false; $("send").disabled=false; $("q").focus();
 }
 
@@ -556,8 +572,17 @@ async function boot() {
     console.log("문서 " + DOCS.length + "건 · 기준값 " + CFG.MIN_SCORE);
   } catch(e){ console.log("문서 실패: "+e.message); return; }
 
-  $("chips").innerHTML = SAMPLES.map(function(s){
+  const chipHTML = SAMPLES.map(function(s){
     return '<button class="chip" type="button">'+s+'</button>'; }).join("");
+  $("chips").innerHTML = chipHTML;
+
+  // 겹쳐 뜬 창에서는 대화 칸 안에 예시를 넣는다
+  if (EMBED && $("empty")) {
+    $("empty").innerHTML =
+      '<span>아래 칸에 궁금한 것을 적어 주세요.</span>' +
+      '<div class="chips inbox">' + chipHTML + '</div>';
+  }
+
   document.querySelectorAll(".chip").forEach(function(b){
     b.addEventListener("click", function(){ ask(b.textContent); }); });
 
@@ -576,8 +601,9 @@ $("q").addEventListener("keydown", function(e){ if(e.key==="Enter") ask($("q").v
 const EMBED = document.documentElement.classList.contains("embed");
 
 if (EMBED) {
-  // 겹쳐 뜬 창에서는 머리·꼬리를 숨긴다. 다만 대화 지우기는 남긴다.
-  [".top", ".foot", "h1", ".lead", ".warnbox"].forEach(function (sel) {
+  // 겹쳐 뜬 창은 좁다. 머리·꼬리와 예시 질문 상자를 숨기고
+  // 예시는 대화 칸 안에 넣어 같이 흐르게 한다.
+  [".top", ".foot", "h1", ".lead", ".warnbox", ".pane"].forEach(function (sel) {
     document.querySelectorAll(sel).forEach(function (e) { e.style.display = "none"; });
   });
 }

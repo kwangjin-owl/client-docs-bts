@@ -158,10 +158,9 @@
   .tools .btn.key::before { content:"+"; display:inline-block;
                             width:1em; margin-right:5px; text-align:center; }
   .tools .btn.key.open::before { content:"\2715"; }
-  .tools .btn.key.open { background:var(--soft); color:var(--muted);
-                         border-color:var(--line); box-shadow:none; }
-  .tools .btn.key.open:hover { background:#e6e9eb; color:var(--ink);
-                               border-color:#c2c8cd; }
+  .tools .btn.key.open { background:var(--card); color:var(--bad);
+                         border-color:var(--bad); box-shadow:none; }
+  .tools .btn.key.open:hover { background:var(--bad); color:#fff; }
   button { cursor:pointer; }
   .btn.bad { background:var(--card); color:var(--bad); border-color:var(--bad); }
   .btn.bad:hover { background:var(--bad); color:#fff; }
@@ -356,34 +355,6 @@
   .hide, .hide.hide { display:none !important; }
 
   /* ===== 받은 질문 ===== */
-.qtable thead th { font-size:0.82em; font-weight:700; color:var(--muted);
-                     text-align:left; padding:10px 14px; background:var(--soft);
-                     border-bottom:2px solid var(--line); }
-.qs { width:54px;  text-align:right; color:var(--muted); font-size:0.9em; }
-.qk { width:78px; }
-.kbadge { display:inline-block; font-size:0.78em; font-weight:700;
-            padding:4px 10px; border-radius:6px; white-space:nowrap; }
-.k-miss { background:var(--bad-bg);  color:var(--bad); }
-.k-ask  { background:var(--warn-bg); color:var(--warn); }
-.k-hit  { background:var(--ok-bg);   color:var(--ok); }
-.qh { display:flex; align-items:baseline; gap:8px; flex-wrap:wrap;
-        font-size:0.92em; font-weight:700; margin:20px 0 8px; }
-.qh.bad { color:var(--bad); }
-.qh.warn { color:var(--warn); }
-.qmix { font-size:0.85em; font-weight:400; color:#9aa4ac; }
-.qh b { font-weight:800; }
-.qh span { font-size:0.82em; font-weight:400; color:var(--muted); }
-.qtable { width:100%; border-collapse:collapse; table-layout:fixed;
-            border:2px solid var(--line); border-radius:12px; overflow:hidden; }
-.qtable td { padding:11px 14px; border-bottom:1px solid var(--line); font-size:0.86em;
-               vertical-align:middle; word-break:keep-all; overflow-wrap:anywhere; }
-.qtable tr:last-child td { border-bottom:0; }
-.qtable tr:hover td { background:var(--soft); }
-.qq { width:auto; }
-.qn { width:98px; text-align:right; font-weight:700; }
-.qn .qmix { display:block; margin-top:2px; }
-.qd { width:104px; text-align:left; color:var(--muted); font-size:0.82em; white-space:nowrap; }
-#by-question .pager { margin-top:12px; margin-bottom:22px; }
 
   /* 필터 띠 — 접수 관리 화면과 같은 모양 */
 .filters { display:flex; align-items:center; gap:10px 18px; flex-wrap:wrap;
@@ -401,6 +372,46 @@
 .fseg button.on { background:var(--key); color:#fff; font-weight:700; }
 .filters { gap:12px; }
 .fgrp.right { margin-left:0; width:100%; }
+
+  /* ===== 받은 질문 표 — 접수 목록과 같은 모양 ===== */
+  td input.pick, th input#pick-all { width:20px; height:20px; cursor:pointer;
+                                      accent-color:var(--key); }
+  table { width:100%; border-collapse:collapse; font-size:16px; table-layout:fixed; }
+  th.num, td.num { text-align:right; }
+  th, td { text-align:left; padding:12px 8px; border-bottom:1px solid var(--line);
+           vertical-align:middle; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+           font-size:0.85em; }
+  td.cert { font-weight:600; }
+  th { font-weight:700; color:var(--muted); font-size:0.8em;
+       background:var(--soft); border-bottom:2px solid var(--line); }
+  thead tr th:first-child { border-radius:8px 0 0 0; }
+  thead tr th:last-child { border-radius:0 8px 0 0; }
+  tr.row { cursor:pointer; }
+  tr.row:hover td { background:#f7f8f9; }
+  td.num { text-align:right; white-space:nowrap; }
+  .listbar { display:flex; align-items:center; gap:14px; flex-wrap:nowrap;
+             padding:12px 16px; margin:14px 0 0;
+             background:var(--soft); border:2px solid var(--line); border-bottom:0;
+             border-radius:12px 12px 0 0; }
+  .lcount { flex:1; min-width:0; font-size:0.85em; color:var(--muted);
+            white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .lcount b { color:var(--ink); font-size:1.1em; }
+  .lcount .tot { color:#9aa4ac; font-size:0.92em; }
+  table { margin-top:0 !important; border:2px solid var(--line); border-top:0;
+          border-radius:0 0 12px 12px; }
+  th.sortable { cursor:pointer; user-select:none; white-space:nowrap; }
+  th.sortable:hover { color:var(--key-d); background:#e8edf0; }
+  th.sortable.up, th.sortable.down { color:var(--key-d); background:var(--key-bg); }
+  th.sortable::after { content:"\2195"; margin-left:3px; opacity:.35; font-size:0.8em; }
+  th.sortable.up::after { content:"\2191"; opacity:1; color:var(--key); }
+  th.sortable.down::after { content:"\2193"; opacity:1; color:var(--key); }
+  .kbadge { display:inline-block; font-size:0.78em; font-weight:700;
+            padding:4px 10px; border-radius:6px; white-space:nowrap; }
+  .k-miss { background:var(--bad-bg);  color:var(--bad); }
+  .k-ask  { background:var(--warn-bg); color:var(--warn); }
+  .k-hit  { background:var(--ok-bg);   color:var(--ok); }
+  .qmix { display:block; margin-top:3px; font-size:0.82em;
+          font-weight:400; color:#9aa4ac; }
 </style>
 </head>
 <body>
@@ -497,7 +508,7 @@
   </div>
 
 <div class="tab" id="tab-ask">
-  <h2 class="sec2" style="margin-top:0">챗봇이 받은 질문</h2>
+  <h2 class="sec2" style="margin-top:0">받은 질문</h2>
   <p class="lead">손님이 무엇을 물어보셨는지 봅니다. 못 찾은 것은 옆 탭에서 넣어 주세요.</p>
 
   <div class="filters" id="qwhen">
@@ -521,11 +532,29 @@
     </div>
   </div>
   <div class="tools">
-    <span class="qsum" id="q-note">불러오는 중…</span>
     <button type="button" class="btn ghost" id="q-reload">새로고침</button>
   </div>
 
-  <div id="by-question"></div>
+  <div class="listbar">
+    <span class="lcount" id="q-note">불러오는 중…</span>
+  </div>
+
+  <table>
+    <colgroup>
+      <col style="width:64px"><col style="width:112px"><col style="width:84px">
+      <col style="width:auto"><col style="width:104px">
+    </colgroup>
+    <thead>
+      <tr>
+        <th class="num sortable" data-qk="seq">순번</th>
+        <th class="sortable" data-qk="last">마지막 질문</th>
+        <th class="sortable" data-qk="kind">구분</th>
+        <th class="sortable" data-qk="q">질문</th>
+        <th class="num sortable" data-qk="cnt">건수</th>
+      </tr>
+    </thead>
+    <tbody id="q-rows"></tbody>
+  </table>
   <div class="pager" id="q-pager"></div>
   </div>
 
@@ -1136,7 +1165,7 @@ function drawQAll() {
     const qs = QRAW.filter(function (q) { return inWhen(q.created_at, qWhen); });
     if (!qs.length) {
       $("q-note").innerHTML = "";
-      $("by-question").innerHTML =
+      $("q-rows").innerHTML =
         '<div class="empty"><b>' +
         (qWhen ? "그 기간에 들어온 질문이 없습니다" : "아직 들어온 질문이 없습니다") + '</b>' +
         '<span>챗봇에 질문이 들어오면 여기에 쌓입니다.<br>' +
@@ -1179,43 +1208,42 @@ function drawQAll() {
       else if (q.answered) okN++;
       else missN++;
     });
-    const qLb = { "": "전체", "today": "오늘", "week": "최근 7일" }[qWhen];
-    $("q-note").textContent = qLb + " " + qs.length + "건 · 답한 것 " + okN +
-      "건 · 자격증 되물은 것 " + askN + "건 · 못 찾은 것 " + missN +
-      "건 · 서로 다른 질문 " + rows.length + "가지";
+
 
     drawQ();
 }
 
-// 한 표에 다 보여 주고 맨 앞에 구분 값을 둔다. 쪽 나누기는 접수 목록과 같다.
+// 접수 목록과 같은 표. 정렬도 같은 방식으로 한다.
 const QPER = 20;
+const QKIND = {
+  miss: { lb: "못 찾음", cls: "k-miss", ord: 0 },
+  ask:  { lb: "되물음",  cls: "k-ask",  ord: 1 },
+  hit:  { lb: "답함",    cls: "k-hit",  ord: 2 }
+};
+
+let qSort = "last", qDown = true;
+
 function countKind(k) {
   const n = QROWS.filter(function (r) { return r.kind === k; }).length;
   return n ? "(" + n + ")" : "";
 }
-
-const QKIND = {
-  miss: { lb: "못 찾음", cls: "k-miss" },
-  ask:  { lb: "되물음",  cls: "k-ask"  },
-  hit:  { lb: "답함",    cls: "k-hit"  }
-};
 
 function drawQ() {
   $("qn-miss").textContent = countKind("miss");
   $("qn-ask").textContent  = countKind("ask");
   $("qn-hit").textContent  = countKind("hit");
 
-  const list = qKind
+  const list = (qKind
     ? QROWS.filter(function (r) { return r.kind === qKind; })
-    : QROWS;
-  if (!list.length) {
-    $("by-question").innerHTML =
-      '<div class="empty"><b>' +
-      (qKind ? "그 구분에 해당하는 질문이 없습니다" : "들어온 질문이 없습니다") + '</b>' +
-      '<span>챗봇에 질문이 들어오면 여기에 쌓입니다.</span></div>';
-    $("q-pager").innerHTML = "";
-    return;
-  }
+    : QROWS).slice();
+
+  list.sort(function (a, b) {
+    let r = 0;
+    if (qSort === "seq" || qSort === "cnt") r = (a[qSort] || 0) - (b[qSort] || 0);
+    else if (qSort === "kind") r = QKIND[a.kind].ord - QKIND[b.kind].ord;
+    else r = String(a[qSort] || "").localeCompare(String(b[qSort] || ""), "ko");
+    return qDown ? -r : r;
+  });
 
   const pages = Math.max(1, Math.ceil(list.length / QPER));
   if (qPage > pages) qPage = pages;
@@ -1223,41 +1251,60 @@ function drawQ() {
   const from = (qPage - 1) * QPER;
   const shown = list.slice(from, from + QPER);
 
-  $("by-question").innerHTML =
-    '<table class="qtable"><thead><tr>' +
-      '<th class="qs">순번</th><th class="qd">마지막 질문</th>' +
-      '<th class="qk">구분</th><th>질문</th><th class="qn">건수</th>' +
-    '</tr></thead><tbody>' +
-    shown.map(function (r) {
-      const k = QKIND[r.kind];
-      const mix = (r.n !== r.cnt) ? '<span class="qmix">전체 ' + r.n + '건 중</span>' : "";
-      return '<tr><td class="qs">' + r.seq + '</td>' +
-             '<td class="qd">' + fmtWhen(r.last) + '</td>' +
-             '<td class="qk"><span class="kbadge ' + k.cls + '">' + k.lb + '</span></td>' +
-             '<td class="qq">' + esc(r.q) + '</td>' +
-             '<td class="qn">' + r.cnt + '건' + mix + '</td></tr>';
-    }).join("") +
-    '</tbody></table>';
+  $("q-rows").innerHTML = shown.length
+    ? shown.map(function (r) {
+        const k = QKIND[r.kind];
+        const mix = (r.n !== r.cnt) ? '<span class="qmix">전체 ' + r.n + '건 중</span>' : "";
+        return '<tr><td class="num">' + r.seq + '</td>' +
+               '<td>' + fmtWhen(r.last) + '</td>' +
+               '<td><span class="kbadge ' + k.cls + '">' + k.lb + '</span></td>' +
+               '<td>' + esc(r.q) + '</td>' +
+               '<td class="num">' + r.cnt + '건' + mix + '</td></tr>';
+      }).join("")
+    : '<tr><td colspan="5"><div class="empty"><b>' +
+      (qKind ? "그 구분에 해당하는 질문이 없습니다" : "들어온 질문이 없습니다") +
+      '</b><span>챗봇에 질문이 들어오면 여기에 쌓입니다.</span></div></td></tr>';
+
+  $("q-note").innerHTML = QROWS.length
+    ? "서로 다른 질문 <b>" + QROWS.length + "</b>가지" +
+      (list.length !== QROWS.length ? " 중 <b>" + list.length + "</b>가지" : "") +
+      " <span class='tot'>· " + (from + 1) + "\u2013" + (from + shown.length) + "번째 보는 중</span>"
+    : "들어온 질문이 없습니다";
+
+  // 표 머리에 화살표
+  let marked = false;
+  document.querySelectorAll("th[data-qk]").forEach(function (th) {
+    th.classList.remove("up", "down");
+    if (th.dataset.qk === qSort && !marked) {
+      th.classList.add(qDown ? "down" : "up"); marked = true;
+    }
+  });
 
   const first = qPage === 1, last = qPage === pages;
   $("q-pager").innerHTML =
     '<button data-p="1"' + (first ? " disabled" : "") + '>&laquo; 처음</button>' +
     '<button data-p="' + (qPage-1) + '"' + (first ? " disabled" : "") + '>&larr; 이전</button>' +
-    '<span>' + (from + 1) + '&ndash;' + (from + shown.length) + ' / ' + list.length + '가지 · ' +
-    qPage + ' / ' + pages + '쪽</span>' +
+    '<span>' + qPage + ' / ' + pages + '쪽</span>' +
     '<button data-p="' + (qPage+1) + '"' + (last ? " disabled" : "") + '>다음 &rarr;</button>' +
     '<button data-p="' + pages + '"' + (last ? " disabled" : "") + '>끝 &raquo;</button>';
 
   document.querySelectorAll("#q-pager button").forEach(function (b) {
     if (b.disabled) return;
     b.addEventListener("click", function () {
-      qPage = Number(b.dataset.p);
-      drawQ();
-      $("by-question").scrollIntoView({ behavior:"smooth", block:"start" });
+      qPage = Number(b.dataset.p); drawQ();
+      $("q-rows").scrollIntoView({ behavior:"smooth", block:"start" });
     });
   });
 }
 
+// 표 머리를 눌러 다시 늘어놓는다
+document.querySelectorAll("th[data-qk]").forEach(function (th) {
+  th.addEventListener("click", function () {
+    if (qSort === th.dataset.qk) qDown = !qDown;
+    else { qSort = th.dataset.qk; qDown = true; }
+    qPage = 1; drawQ();
+  });
+});
 
 // ---------- 챗봇 질문 구분 ----------
 document.querySelectorAll("#qkind button").forEach(function (b) {

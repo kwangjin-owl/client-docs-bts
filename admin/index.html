@@ -241,10 +241,9 @@
   .tools .btn.key::before { content:"+"; display:inline-block;
                             width:1em; margin-right:5px; text-align:center; }
   .tools .btn.key.open::before { content:"\2715"; }
-  .tools .btn.key.open { background:var(--soft); color:var(--muted);
-                         border-color:var(--line); box-shadow:none; }
-  .tools .btn.key.open:hover { background:#e6e9eb; color:var(--ink);
-                               border-color:#c2c8cd; }
+  .tools .btn.key.open { background:var(--card); color:var(--bad);
+                         border-color:var(--bad); box-shadow:none; }
+  .tools .btn.key.open:hover { background:var(--bad); color:#fff; }
 
   button { cursor:pointer; }
   button.go { background:var(--key); color:#fff; border-color:var(--key); }
@@ -276,10 +275,14 @@
   .quick summary { padding:14px 20px; cursor:pointer; font-weight:600;
                    color:var(--key); font-size:0.95em; }
   .quick .qin { padding:0 20px 20px; }
-  .quick .qrow { display:grid; grid-template-columns:repeat(4, 1fr); gap:12px; }
-  @media (max-width:1000px) { .quick .qrow { grid-template-columns:repeat(2,1fr); } }
+  .quick .qrow { display:grid; grid-template-columns:repeat(5, 1fr); gap:10px; }
+  @media (max-width:1100px) { .quick .qrow { grid-template-columns:repeat(3,1fr); } }
   @media (max-width:640px)  { .quick .qrow { grid-template-columns:1fr; } }
-  .quick .qf { background:var(--soft); border-radius:10px; padding:12px 14px; }
+  .quick .qf { background:var(--card); border-radius:9px; padding:9px 11px; }
+  .quick .qf label { margin-bottom:4px; font-size:0.82em; }
+  .quick .qrow { gap:10px; }
+  .quick .qh2 { font-size:0.74em; margin:4px 0 0; }
+  .quick .qnote { font-size:0.76em; margin:10px 0 0; }
 
   /* 잘못 넣으신 칸을 그 자리에서 알려 준다 */
   .qf input.wrong, .qf select.wrong { border-color:var(--bad) !important;
@@ -354,14 +357,21 @@
   /* 목록 머리 — 건수와 처리 버튼을 한 줄에, 표와 붙여서 */
   /* 새로 넣는 칸 — 목록 위에서 펼쳐진다 */
   .newbox { background:var(--soft); border:2px solid var(--key);
-            border-radius:14px; padding:20px 22px; margin-top:14px; }
-  .newtitle { font-size:1.02em; font-weight:700; margin:0 0 4px; color:var(--key-d); }
-  .newlead { font-size:0.82em; color:var(--muted); margin:0 0 16px; }
-  .nacts { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-top:18px; }
+            border-radius:14px; padding:16px 18px; margin-top:12px; }
+  .newtitle { font-size:0.98em; font-weight:700; margin:0 0 2px; color:var(--key-d); }
+  .newlead { font-size:0.8em; color:var(--muted); margin:0 0 12px; }
+  .nacts { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-top:12px; }
   .nacts .btn { padding:13px 26px; font-size:0.9em; }
   .nacts .said2 { margin:0; font-size:0.88em; }
   .nacts .said2.ok { color:var(--ok); font-weight:600; }
   .nacts .said2.bad { color:var(--bad); font-weight:600; }
+
+  .dacts { display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+           margin-top:14px; padding-top:14px; border-top:1px solid var(--line); }
+  .dacts .btn { padding:9px 18px; font-size:0.84em; }
+  .btn.bad { background:var(--card); color:var(--bad); border-color:var(--bad); }
+  .btn.bad:hover { background:var(--bad); color:#fff; }
+  .dhint { font-size:0.78em; color:var(--muted); }
 
   .listbar { display:flex; align-items:center; gap:14px; flex-wrap:nowrap;
              padding:12px 16px; margin:14px 0 0;
@@ -593,21 +603,17 @@
   <p class="newlead">손님이 전화나 방문으로 신청하신 것을 직원이 대신 넣습니다.</p>
       <div class="qrow">
         <div class="qf"><label for="q-cert">신청 자격증 <span class="badge-must">필수</span></label><select id="q-cert"></select></div>
-        <div class="qf"><label for="q-name">이름 <span class="badge-must">필수</span></label><input id="q-name" placeholder="홍길동"></div>
+        <div class="qf"><label for="q-name">이름 <span class="badge-must">필수</span></label><input id="q-name" placeholder="예: 홍길동"></div>
         <div class="qf"><label for="q-phone">연락처 <span class="badge-must">필수</span></label>
-          <input id="q-phone" inputmode="tel" placeholder="010-1234-5678">
+          <input id="q-phone" inputmode="tel" placeholder="예: 010-1234-5678">
           <p class="qh2">나중에 손님께 연락드릴 때 씁니다. 못 받으셨으면 대신 받으신 분 번호라도 적어 주세요</p></div>
         <div class="qf"><label for="q-channel">접수경로 <span class="badge-must">필수</span></label>
           <select id="q-channel"><option>전화</option><option>방문</option></select></div>
+        <div class="qf"><label for="q-memo">비고 <span class="badge-opt">선택</span></label>
+          <input id="q-memo" placeholder="예: 딸이 대신 문의"></div>
       </div>
 
-      <div class="qf" style="margin-top:12px">
-        <label for="q-memo">비고 <span class="badge-opt">선택</span></label>
-        <input id="q-memo" placeholder="예: 딸이 대신 문의 · 연락처 못 받음">
-      </div>
-
-      <p class="qnote">접수번호와 접수일은 저장할 때 자동으로 붙습니다.
-        생년월일 · 시험지역 · 회차 같은 자세한 내용은 두두넷·두두보건에서 접수하실 때 넣으시면 됩니다.</p>
+      <p class="qnote">접수번호와 접수일은 저장할 때 자동으로 붙습니다.</p>
 
     <div class="nacts">
       <button type="button" class="btn key" id="q-save">이 내용으로 접수 넣기</button>
@@ -829,7 +835,11 @@ function detailRow(r) {
   add("교육이수시간", x.training_hours ? x.training_hours + "시간" : "");
   return '<tr class="detail"><td colspan="10"><dl>' +
     pairs.map(function (p) { return '<dt>' + p[0] + '</dt><dd>' + p[1] + '</dd>'; }).join("") +
-    '</dl></td></tr>';
+    '</dl>' +
+    '<div class="dacts">' +
+      '<button type="button" class="btn bad delrow" data-id="' + r.id + '">이 접수 지우기</button>' +
+      '<span class="dhint">잘못 넣으신 것만 지워 주세요. 지우면 되돌릴 수 없습니다.</span>' +
+    '</div></td></tr>';
 }
 
 let onlyStatus = "", onlyChan = "";
@@ -1017,6 +1027,13 @@ function bindTableOnce() {
       page = 1; render();
       return;
     }
+    // 지우기
+    const del = e.target.closest(".delrow");
+    if (del) {
+      e.stopPropagation();
+      delRow(Number(del.dataset.id), del);
+      return;
+    }
     if (e.target.closest(".stsel")) return;      // 상태 고르기는 줄 펼치기와 겹치지 않게
 
     const tr = e.target.closest("tr.row");
@@ -1034,6 +1051,25 @@ function bindTableOnce() {
     const row = all.find(function (r) { return String(r.id) === sel.dataset.id; });
     setStatus(Number(sel.dataset.id), sel.value, sel, row ? row.status : "");
   });
+}
+
+// 잘못 넣은 접수를 지운다. 발주서에 없지만 직원이 실수하면 고칠 길이 있어야 한다.
+async function delRow(id, btn) {
+  const row = all.find(function (r) { return r.id === id; });
+  if (!row) return;
+  if (!confirm(row.name + " 님 접수를 지우시겠습니까?\n\n" +
+               (row.receipt_no ? "접수번호 " + row.receipt_no + "\n" : "") +
+               row.cert_name + "\n\n지우면 되돌릴 수 없습니다.")) return;
+
+  btn.disabled = true; btn.textContent = "지우는 중…";
+  const res = await db.from("applications").delete().eq("id", id).select();
+  btn.disabled = false; btn.textContent = "이 접수 지우기";
+
+  if (res.error) { alert("지우지 못했습니다: " + res.error.message); return; }
+  if (!res.data || !res.data.length) {
+    alert("지우지 못했습니다. 새로고침한 뒤 다시 해보세요."); return;
+  }
+  load();
 }
 
 function goPage(n) {
