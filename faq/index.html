@@ -897,9 +897,17 @@ function bind() {
       const btn = item.querySelector(".del");
       btn.disabled = true; btn.textContent = "지우는 중…";
 
-      const res = await db.from("docs").delete().eq("id", id);
+      // 정말 지워졌는지 돌려받아서 확인한다
+      const res = await db.from("docs").delete().eq("id", id).select();
       btn.disabled = false; btn.textContent = "삭제";
-      if (res.error) { said.textContent = "삭제 실패: " + res.error.message; said.className = "said bad"; return; }
+      if (res.error) {
+        said.textContent = "지우지 못했습니다: " + res.error.message;
+        said.className = "said bad"; return;
+      }
+      if (!res.data || !res.data.length) {
+        said.textContent = "지우지 못했습니다. 새로고침한 뒤 다시 해보세요.";
+        said.className = "said bad"; return;
+      }
 
       lastDeleted = gone;
       $("undo-text").textContent = '"' + gone.title + '" 을(를) 지웠습니다. 잘못 지우셨으면 되살리세요.';

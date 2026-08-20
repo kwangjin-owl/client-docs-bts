@@ -787,7 +787,9 @@ function pick(cert, btn) {
   btn.classList.add("picked");
   picked = cert; sent = false;
   $("send").disabled = false;
-  $("send").textContent = cert.state === "late" ? "문의 남기기" : "접수 신청하기";
+  // "문의하기"는 무엇을 하는 건지 헷갈린다는 말이 나옴
+  $("send").textContent = cert.state === "late"
+    ? "접수 시작되면 연락받기" : "접수 신청하기";
   clearMsg(); clearMarks();
 
   markDone();
@@ -822,13 +824,17 @@ $("send").addEventListener("click", async function () {
   if (!db) { show("아직 데이터베이스에 연결되지 않았습니다.", "bad"); return; }
   if (sent) { show("이미 접수하셨습니다. 다시 하시려면 자격증부터 다시 골라 주세요.", "bad"); return; }
 
-  const dup = await db.from("applications").select("receipt_no, created_at")
+  // 이미 접수하셨는지 본다.
+  // 접수번호는 알려 드리지 않는다. 성함·연락처만 알면 남의 접수번호를 알 수 있게 된다.
+  // 본인이시라면 '접수 확인' 화면에서 성함·연락처로 보실 수 있다.
+  const dup = await db.from("applications").select("created_at")
     .eq("name", nm.value).eq("phone", ph.value).eq("cert_name", picked.name).limit(1);
   if (dup.data && dup.data.length) {
     const d = new Date(dup.data[0].created_at);
-    if (!confirm(nm.value + " 님은 " + picked.name + "를 이미 접수하셨습니다.\n" +
-      "접수번호 " + dup.data[0].receipt_no + " (" + (d.getMonth()+1) + "월 " + d.getDate() +
-      "일)\n\n한 번 더 접수하시겠습니까?")) return;
+    if (!confirm("같은 성함과 연락처로 " + picked.name + " 접수 기록이 있습니다.\n" +
+      (d.getMonth()+1) + "월 " + d.getDate() + "일에 접수되었습니다.\n\n" +
+      "접수하신 내용은 '접수 확인'에서 보실 수 있습니다.\n" +
+      "그래도 한 번 더 접수하시겠습니까?")) return;
   }
 
   const rno = makeReceiptNo(picked.track);
@@ -863,6 +869,8 @@ $("send").addEventListener("click", async function () {
     : nm.value + " 님, 접수되었습니다";
   $("receipt-no").textContent = rno;
   $("cover").classList.remove("hide");
+  // 완료 화면이 떴는데 못 보고 넘어가시는 일이 없게 맨 위로 올린다
+  window.scrollTo({ top: 0, behavior: "smooth" });
   $("cv-close").focus();
 });
 
