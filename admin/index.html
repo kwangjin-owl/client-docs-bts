@@ -411,29 +411,33 @@
      상태 색은 왼쪽 점으로만 남긴다. */
   .stcell { position:relative; }
   .stsel { width:100%; font:inherit; font-size:0.8em; font-weight:700;
-           padding:7px 30px 7px 24px; border-radius:8px; cursor:pointer;
-           border:2px solid var(--line); background:var(--card); color:var(--ink);
+           padding:7px 30px 7px 10px; border-radius:8px; cursor:pointer;
+           border:2px solid var(--line); border-left-width:6px;
+           border-left-color:var(--dot, var(--line));
+           background:var(--card); color:var(--ink);
            -webkit-appearance:none; -moz-appearance:none; appearance:none;
-           background-repeat:no-repeat, no-repeat, no-repeat;
-           /* 왼쪽 점 · 세로선 · 화살표 */
+           background-repeat:no-repeat, no-repeat;
+           /* 세로선 · 화살표 */
            background-image:
-             radial-gradient(circle, var(--dot) 0 4px, transparent 4px),
              linear-gradient(var(--line) 0 0),
              url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='7'%3E%3Cpath d='M1.2 1.5l4.3 4.3 4.3-4.3' fill='none' stroke='%23445' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E");
-           background-size: 9px 9px, 2px 60%, 11px 7px;
-           background-position: left 9px center, right 22px center, right 6px center;
+           background-size: 2px 58%, 11px 7px;
+           background-position: right 22px center, right 6px center;
            transition:border-color .12s, background-color .12s; }
-  .stsel:hover { border-color:var(--ink); background-color:#f2f5f7; }
+  /* 올리거나 눌러도 왼쪽 색 띠는 그대로 둔다 */
+  .stsel:hover { border-color:var(--ink); border-left-color:var(--dot, var(--line));
+                 background-color:#f2f5f7; }
   .stsel:focus { outline:3px solid var(--key-bg); outline-offset:1px;
-                 border-color:var(--key); }
+                 border-color:var(--key); border-left-color:var(--dot, var(--line)); }
   .stsel:disabled { opacity:.5; cursor:default; }
 
-  /* 상태별 점 색 */
-  .stsel.s-문의 { --dot:var(--warn); }
-  .stsel.s-접수 { --dot:var(--ok); }
-  .stsel.s-확인 { --dot:var(--key); }
-  .stsel.s-완료 { --dot:#8b96a0; }
-  .stsel.s-취소 { --dot:var(--bad); }
+  /* 상태별 색. 점만으로는 훑을 때 안 보여서 글자에도 색을 넣는다.
+     바탕은 흰색으로 두어야 고르는 칸으로 보인다. */
+  .stsel.s-문의 { --dot:var(--warn); color:var(--warn); }
+  .stsel.s-접수 { --dot:var(--ok);   color:var(--ok); }
+  .stsel.s-확인 { --dot:var(--key);  color:var(--key-d); }
+  .stsel.s-완료 { --dot:#8b96a0;     color:#5c6a75; }
+  .stsel.s-취소 { --dot:var(--bad);  color:var(--bad); }
   table { margin-top:0 !important; border:2px solid var(--line); border-top:0;
           border-radius:0 0 12px 12px; }
   @media (max-width:700px) {
@@ -678,7 +682,7 @@
       <col style="width:70px"><col style="width:108px"><col style="width:78px">
       <col style="width:134px"><col style="width:124px"><col style="width:76px">
       <col style="width:auto"><col style="width:92px"><col style="width:70px">
-      <col style="width:112px">
+      <col style="width:100px">
     </colgroup>
     <thead>
       <tr>
