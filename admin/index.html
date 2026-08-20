@@ -414,25 +414,26 @@
            background-color:var(--tint, var(--card)); color:var(--tone, var(--ink));
            -webkit-appearance:none; -moz-appearance:none; appearance:none;
            background-repeat:no-repeat, no-repeat, no-repeat;
-           /* 흰 화살표 칸 · 세로선 · 화살표 */
+           /* 먼저 적은 것이 위로 온다. 화살표 → 세로선 → 흰 칸 순서라야 안 덮인다. */
            background-image:
-             linear-gradient(var(--card) 0 0),
+             url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1.4 1.8l4.6 4.6 4.6-4.6' fill='none' stroke='%23334' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E"),
              linear-gradient(var(--tone, var(--line)) 0 0),
-             url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='7'%3E%3Cpath d='M1.2 1.5l4.3 4.3 4.3-4.3' fill='none' stroke='%23445' stroke-width='2.3' stroke-linecap='round'/%3E%3C/svg%3E");
-           background-size: 27px 100%, 2px 100%, 11px 7px;
-           background-position: right 0 center, right 27px center, right 8px center;
-           background-origin:border-box; background-clip:padding-box, padding-box, padding-box;
+             linear-gradient(var(--card) 0 0);
+           background-size: 12px 8px, 2px 100%, 28px 100%;
+           background-position: right 8px center, right 28px center, right 0 center;
+           background-origin:padding-box; background-clip:padding-box;
            transition:filter .12s; }
   .stsel:hover { filter:brightness(.95); }
   .stsel:focus { outline:3px solid var(--key-bg); outline-offset:1px; }
   .stsel:disabled { opacity:.5; cursor:default; }
 
-  /* 상태별 색 : tone 은 테두리·글자, tint 는 바탕 */
-  .stsel.s-문의 { --tone:var(--warn);  --tint:var(--warn-bg); }
-  .stsel.s-접수 { --tone:var(--ok);    --tint:var(--ok-bg); }
-  .stsel.s-확인 { --tone:var(--key-d); --tint:var(--key-bg); }
-  .stsel.s-완료 { --tone:#5c6a75;      --tint:#eef0f2; }
-  .stsel.s-취소 { --tone:var(--bad);   --tint:var(--bad-bg); }
+  /* 상태별 색 : tone 은 테두리·글자, tint 는 바탕.
+     50줄을 훑을 때 보여야 하므로 바탕을 진하게 준다. */
+  .stsel.s-문의 { --tone:#7a4e00; --tint:#fbdfa8; }
+  .stsel.s-접수 { --tone:#155c31; --tint:#b9e4c9; }
+  .stsel.s-확인 { --tone:#0f4a5c; --tint:#b6dde8; }
+  .stsel.s-완료 { --tone:#49565f; --tint:#d5dbe0; }
+  .stsel.s-취소 { --tone:#a01f1f; --tint:#f7c4c4; }
   table { margin-top:0 !important; border:2px solid var(--line); border-top:0;
           border-radius:0 0 12px 12px; }
   @media (max-width:700px) {
