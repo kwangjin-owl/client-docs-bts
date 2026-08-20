@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- 파일 버전: 2026-08-20 16:00 -->
 <html lang="ko">
 <head>
 <meta charset="utf-8">
@@ -113,7 +114,9 @@
   /* ===== 꼬리 ===== */
   .foot { background:var(--navy-d); color:#a9c3d1; margin-top:36px; }
   .foot-in { max-width:1200px; margin:0 auto; padding:20px 24px 24px;
-             display:flex; gap:32px; flex-wrap:wrap; align-items:center; }
+             display:grid; grid-template-columns:300px 1fr; gap:28px;
+             align-items:start; }
+  @media (max-width:760px) { .foot-in { grid-template-columns:1fr; gap:14px; } }
   .foot .call { display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; }
   .foot .call .lb { font-size:0.82em; }
   .foot .call b { font-size:1.35em; color:#fff; letter-spacing:.5px; }
@@ -213,10 +216,9 @@
      클래스 하나짜리끼리는 나중에 나온 것이 이겨서,
      .undo { display:flex } 같은 규칙이 .hide 를 덮어썼다. */
   .hide, .hide.hide { display:none !important; }
-  /* 오른쪽 아래 주황 버튼이 꼬리 글을 덮지 않게 자리를 비운다.
-     다섯 화면이 같은 모양이 되도록 버튼이 없는 화면에도 똑같이 준다. */
-  .foot-in { padding-right:230px; }
-  @media (max-width:820px) { .foot-in { padding-right:24px; padding-bottom:78px; } }
+  /* 오른쪽 아래 주황 버튼이 꼬리 글을 덮지 않게 아래를 비운다.
+     폭을 줄이면 글 줄바꿈이 달라져 화면마다 꼬리 높이가 달라진다. */
+  .foot-in { padding-bottom:74px; }
 </style>
 </head>
 <body>
