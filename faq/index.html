@@ -135,7 +135,7 @@
   }
 
   .links a { font-size:16px; color:var(--key); text-decoration:none; margin-left:16px; }
-  .tools { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:20px; }
+  .tools { display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin:10px 0 0; }
   input.search { flex:1; min-width:200px; }
   button { cursor:pointer; }
   button.go { background:var(--key); color:#fff; border-color:var(--key); }
@@ -293,8 +293,14 @@
 
   .synadd label em { font-style:normal; font-weight:400; color:#9aa4ac; margin-left:6px; }
 
-  /* 안내 새로 넣기 */
-  .newdoc { background:var(--soft); border-radius:14px; padding:22px 24px; margin-top:16px; }
+  /* 안내 새로 넣기 — 목록 위에서 펼쳐진다 */
+  .newdoc { background:var(--soft); border:2px solid var(--key);
+            border-radius:14px; padding:20px 22px; margin-top:14px; }
+  .newtitle { font-size:1.02em; font-weight:700; margin:0 0 4px; color:var(--key-d); }
+  .newlead { font-size:0.82em; color:var(--muted); margin:0 0 4px; }
+  .nacts { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-top:18px; }
+  .nacts .btn { padding:13px 26px; }
+  .nacts .said2 { margin:0; }
   .newdoc label { display:block; font-size:0.85em; font-weight:700;
                   color:var(--muted); margin-top:16px; }
   .newdoc label:first-child { margin-top:0; }
@@ -307,21 +313,9 @@
   .newdoc input::placeholder, .newdoc textarea::placeholder { color:#b4b9bd; }
   .newdoc .nrow { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
   .newdoc .nrow label { margin-top:16px; }
-  .newdoc .btn.big { margin-top:20px; padding:15px 32px; font-size:1em; }
+
   @media (max-width:700px) { .newdoc .nrow { grid-template-columns:1fr; } }
 
-  /* 새로 넣기 버튼 — 접수 관리 화면과 같은 모양 */
-  .tabs .add { margin-left:auto; margin-bottom:6px; align-self:center;
-               background:var(--key); color:#fff; font-weight:700;
-               border:2px solid var(--key); border-radius:9px;
-               padding:10px 20px; border-bottom:0;
-               box-shadow:0 2px 6px rgba(15,123,108,.3); }
-  .tabs .add::before { content:"+ "; }
-  .tabs .add:hover { background:var(--key-d); border-color:var(--key-d); color:#fff; }
-  .tabs button.add.on { background:var(--key-d); border-color:var(--key-d); color:#fff;
-                        box-shadow:inset 0 2px 5px rgba(0,0,0,.22); }
-  .tabs button.add.on::before { content:"\2715  "; }
-  .tabs button.add.on:hover { background:var(--key-d); color:#fff; }
 
   .said2 { margin:14px 0 0; font-size:0.92em; min-height:1.3em; }
   .said2.ok  { color:var(--ok); font-weight:600; }
@@ -357,7 +351,6 @@
   <div class="tabs" id="tabs">
     <button type="button" data-t="doc" class="on">챗봇이 답하는 내용 <span id="doc-n"></span></button>
     <button type="button" data-t="syn">어르신 말 바꾸기 <span id="syn-n"></span></button>
-    <button type="button" data-t="new" class="add">안내 새로 넣기</button>
   </div>
 
   <div class="tab on" id="tab-doc">
@@ -375,26 +368,15 @@
 
   <div class="tools">
     <input class="search" id="q" type="text" placeholder="제목이나 내용으로 찾기">
+    <button type="button" class="btn key" id="new-open">+ 새 안내 넣기</button>
     <button id="reload">새로고침</button>
   </div>
 
-  <div class="undo hide" id="undo">
-    <span id="undo-text"></span>
-    <button type="button" id="undo-btn">지운 것 되살리기</button>
-  </div>
+  <div class="newdoc hide" id="newbox">
+  <p class="newtitle">새 안내 넣기</p>
+  <p class="newlead">여기 적은 내용을 챗봇이 그대로 답합니다.</p>
 
-  <div id="list"></div>
-  <div class="pager" id="pager"></div>
 
-  <p class="note" id="status">불러오는 중…</p>
-  <p class="note tip">고친 뒤에는 챗봇을 열어 실제로 답이 바뀌었는지 확인하세요. 저장했다는 표시만 보고 넘어가면 안 됩니다.</p>
-  </div>
-
-  <div class="tab" id="tab-new">
-  <h2 class="sec2" style="margin-top:0">안내 새로 넣기</h2>
-  <p class="lead">여기 적은 내용을 챗봇이 그대로 답합니다.</p>
-
-  <div class="newdoc">
     <label>제목
       <input id="n-title" type="text" placeholder="예: 굴착기 시험장에 주차되나요" autocomplete="off">
     </label>
@@ -418,9 +400,23 @@
       <input id="n-question" type="text" placeholder="예: 주차 되나요 / 차 가져가도 되나요" autocomplete="off">
     </label>
 
-    <button type="button" class="btn key big" id="n-save">이 내용으로 넣기</button>
-    <p class="said2" id="n-said"></p>
+    <div class="nacts">
+      <button type="button" class="btn key" id="n-save">이 내용으로 넣기</button>
+      <button type="button" id="new-close">그만두기</button>
+      <span class="said2" id="n-said"></span>
+    </div>
   </div>
+
+  <div class="undo hide" id="undo">
+    <span id="undo-text"></span>
+    <button type="button" id="undo-btn">지운 것 되살리기</button>
+  </div>
+
+  <div id="list"></div>
+  <div class="pager" id="pager"></div>
+
+  <p class="note" id="status">불러오는 중…</p>
+  <p class="note tip">고친 뒤에는 챗봇을 열어 실제로 답이 바뀌었는지 확인하세요. 저장했다는 표시만 보고 넘어가면 안 됩니다.</p>
   </div>
 
   <div class="tab" id="tab-syn">
@@ -780,6 +776,20 @@ async function loadInner(keepOpen, savedId, savedMsg) {
   }
 }
 
+// 새 안내 넣는 칸 열고 닫기
+$("new-open").addEventListener("click", function () {
+  const box = $("newbox");
+  const opening = box.classList.contains("hide");
+  box.classList.toggle("hide", !opening);
+  this.textContent = opening ? "\u2715 그만두기" : "+ 새 안내 넣기";
+  if (opening) { $("n-title").focus(); box.scrollIntoView({ behavior:"smooth", block:"center" }); }
+});
+
+$("new-close").addEventListener("click", function () {
+  $("newbox").classList.add("hide");
+  $("new-open").textContent = "+ 새 안내 넣기";
+});
+
 function nSay(t, kind) {
   const e = $("n-said");
   e.textContent = t;
@@ -820,12 +830,12 @@ $("n-save").addEventListener("click", async function () {
     $(id).value = "";
   });
 
-  // 목록 탭으로 돌아가 방금 넣은 것을 보여 준다
+  // 넣는 칸을 닫고 방금 넣은 것을 목록 맨 위에 보여 준다
+  $("newbox").classList.add("hide");
+  $("new-open").textContent = "+ 새 안내 넣기";
   $("q").value = ""; $("f-cert").value = ""; $("f-cat").value = ""; $("f-src").value = "";
   page = 1;
   await load();
-  const goDoc = document.querySelector('#tabs button[data-t="doc"]');
-  if (goDoc) goDoc.click();
 });
 
 
@@ -945,11 +955,6 @@ async function delSyn(id, btn) {
 // ---------- 탭 전환 ----------
 document.querySelectorAll("#tabs button").forEach(function (b) {
   b.addEventListener("click", function () {
-    // 이미 켜져 있는 '새로 넣기'를 다시 누르면 목록으로 돌아간다
-    if (b.dataset.t === "new" && b.classList.contains("on")) {
-      const doc = document.querySelector('#tabs button[data-t="doc"]');
-      if (doc) { doc.click(); return; }
-    }
     document.querySelectorAll("#tabs button").forEach(function (x) {
       x.classList.toggle("on", x === b); });
     document.querySelectorAll(".tab").forEach(function (t) {

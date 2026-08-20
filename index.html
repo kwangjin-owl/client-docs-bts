@@ -272,18 +272,16 @@
   .card.picked .bot .w, .card.picked .bot .f { color:var(--key-d); }
   .card.picked .bot { border-top-color:rgba(15,123,108,.25); }
 
-  /* 접수 기간 아닌 것 — 작게, 흐리게 */
-  .grid.small .card { padding:12px 14px; gap:4px; background:var(--card);
-                      border-color:transparent; }
-  .grid.small .card:hover { border-color:#9aa4ac; box-shadow:0 2px 8px rgba(0,0,0,.08); }
-  .grid.small .card.picked { background:var(--warn-bg); border-color:var(--warn); box-shadow:none; }
-  .grid.small .nm { font-size:1em; color:var(--muted); }
-  .grid.small .card:hover .nm, .grid.small .card.picked .nm { color:var(--ink); }
-  .grid.small .why { display:none; }
-  .grid.small .bot { margin-top:4px; padding-top:8px; font-size:0.76em; }
-  .grid.small .bot .f { font-size:1em; font-weight:400; color:var(--muted); }
-  .grid.small .card.picked .nm, .grid.small .card.picked .bot .w,
-  .grid.small .card.picked .bot .f { color:var(--warn); }
+  /* 지금 접수 못 하는 것 — 흐리게 */
+  .card.shut { background:#fafbfb; }
+  .card.shut .nm { color:var(--muted); }
+  .card.shut .why, .card.shut .bot .w, .card.shut .bot .f { color:#9aa4ac; }
+  .card.shut:hover { border-color:var(--warn); }
+  .card.shut:hover .nm { color:var(--ink); }
+  .card.shut.picked { background:var(--warn-bg); border-color:var(--warn);
+                      box-shadow:0 0 0 4px rgba(217,102,10,.14); }
+  .card.shut.picked .nm, .card.shut.picked .why,
+  .card.shut.picked .bot .w, .card.shut.picked .bot .f { color:var(--warn); }
 
 
   /* ===== 입력 ===== */
@@ -403,12 +401,11 @@
 
 <div class="wrap">
 
-  <div class="sheet pagehead">
+  <div class="pagehead">
     <h1>접수 신청</h1>
     <p class="lead">복잡한 원서접수는 저희가 대신 해 드립니다.
-       자격증 하나를 고르고 성함과 연락처만 남겨 주세요.</p>
-    <p class="scope"><b>시험을 처음 보실 때 내는 원서</b>만 대신 넣어 드립니다.
-       필기(전문자격은 1차)까지이고, 그다음에 보시는 실기는 안내하지 않습니다.</p>
+       자격증 하나를 고르고 성함과 연락처만 남겨 주세요.
+       <b>시험을 처음 보실 때 내는 원서(필기·1차)</b>까지 도와드립니다.</p>
   </div>
 
   <!-- 1 -->
@@ -421,18 +418,10 @@
     </div>
     <div class="ibody">
 
-    <div class="bloc open">
-      <p class="group"><span class="dot"></span>지금 접수하실 수 있습니다</p>
-      <p class="group-sub">고르시면 바로 아래에서 성함과 연락처를 넣으시면 됩니다.</p>
-      <div class="grid" id="g-open"></div>
-    </div>
-
-    <div class="bloc shut">
-      <p class="group"><span class="dot"></span>지금은 접수 기간이 아닙니다</p>
-      <p class="group-sub">지금은 접수를 못 하지만, 눌러서 성함과 연락처를 남기시면
-        접수가 시작될 때 저희가 먼저 연락드립니다.</p>
-      <div class="grid small" id="g-closed"></div>
-    </div>
+    <div class="grid" id="g-open"></div>
+    <p class="group-sub">초록 표시가 지금 접수하실 수 있는 것입니다.
+      회색은 지금 접수를 못 하지만, 눌러서 성함과 연락처를 남기시면
+      접수가 시작될 때 저희가 먼저 연락드립니다.</p>
     </div>
 
   </div>
@@ -759,11 +748,16 @@ $("f-phone").addEventListener("blur", function () {
 // ---------- 카드 ----------
 // 지금 되는 것과 안 되는 것을 갈라서 보여준다.
 // 안 되는 것도 눌러서 문의를 남길 수 있다.
+// 여덟 가지를 한 곳에 그린다. 두 덩어리로 나누면 화면이 길어져
+// 어르신이 스크롤을 내려야 한다. 접수 가능한 것을 앞에 둔다.
 function drawCards() {
-  CERTS.forEach(function (c) {
+  const order = { now: 0, soon: 1, late: 2 };
+  CERTS.slice().sort(function (a, b) {
+    return (order[a.state] ?? 9) - (order[b.state] ?? 9);
+  }).forEach(function (c) {
     const open = c.state !== "late";
     const b = document.createElement("button");
-    b.type = "button"; b.className = "card";
+    b.type = "button"; b.className = "card" + (open ? "" : " shut");
     b.innerHTML =
       (open ? '<span class="tg now">' + TAG[c.state] + '</span>' :
               '<span class="tg late">문의만 가능</span>') +
@@ -772,7 +766,7 @@ function drawCards() {
       '<span class="bot"><span class="w">' + c.when + '</span>' +
       '<span class="f">' + c.fee.toLocaleString() + '원</span></span>';
     b.addEventListener("click", function () { pick(c, b); });
-    $(open ? "g-open" : "g-closed").appendChild(b);
+    $("g-open").appendChild(b);
   });
 }
 

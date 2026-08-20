@@ -175,19 +175,6 @@
   .tabs button:hover { color:var(--key-d); }
   .tabs button.on { color:var(--key-d); font-weight:700; border-bottom-color:var(--key); }
   .tabs button span { font-size:0.85em; color:var(--bad); font-weight:700; }
-  /* 넣는 화면으로 가는 버튼. 켜지면 모양이 확 달라진다. */
-  .tabs .add { margin-left:auto; margin-bottom:6px; align-self:center;
-               background:var(--key); color:#fff; font-weight:700;
-               border:2px solid var(--key); border-radius:9px;
-               padding:10px 20px; box-shadow:0 2px 6px rgba(15,123,108,.3); }
-  .tabs .add::before { content:"+ "; }
-  .tabs .add:hover { background:var(--key-d); border-color:var(--key-d); color:#fff; }
-
-  /* 켜졌을 때 = 지금 이 화면을 보고 있다. 색은 그대로 두고 진하게만 한다. */
-  .tabs button.add.on { background:var(--key-d); border-color:var(--key-d); color:#fff;
-                        box-shadow:inset 0 2px 5px rgba(0,0,0,.22); }
-  .tabs button.add.on::before { content:"\2715  "; }
-  .tabs button.add.on:hover { background:var(--key-d); color:#fff; }
   .tab { display:none; }
   .tab.on { display:block; }
 
@@ -323,6 +310,17 @@
   .pager button { padding:10px 16px; font-size:0.95em; }
   .pager button:disabled { color:#b4b9bd; border-color:var(--line); cursor:default; }
   /* 목록 머리 — 건수와 처리 버튼을 한 줄에, 표와 붙여서 */
+  /* 새로 넣는 칸 — 목록 위에서 펼쳐진다 */
+  .newbox { background:var(--soft); border:2px solid var(--key);
+            border-radius:14px; padding:20px 22px; margin-top:14px; }
+  .newtitle { font-size:1.02em; font-weight:700; margin:0 0 4px; color:var(--key-d); }
+  .newlead { font-size:0.82em; color:var(--muted); margin:0 0 16px; }
+  .nacts { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-top:18px; }
+  .nacts .btn { padding:13px 26px; font-size:0.9em; }
+  .nacts .said2 { margin:0; font-size:0.88em; }
+  .nacts .said2.ok { color:var(--ok); font-weight:600; }
+  .nacts .said2.bad { color:var(--bad); font-weight:600; }
+
   .listbar { display:flex; align-items:center; gap:14px; flex-wrap:nowrap;
              padding:12px 16px; margin:14px 0 0;
              background:var(--soft); border:2px solid var(--line); border-bottom:0;
@@ -457,37 +455,6 @@
     <button type="button" data-t="work" class="on">접수 목록 <span id="tab-n"></span></button>
     <button type="button" data-t="stat">현황 보기</button>
     <button type="button" data-t="ask">챗봇 질문</button>
-    <button type="button" data-t="new" class="add">전화·방문 접수 넣기</button>
-  </div>
-
-  <div class="tab" id="tab-new">
-  <h2 class="sec" style="margin-top:0">전화·방문 접수 넣기</h2>
-  <p class="lead">손님이 전화나 방문으로 신청하신 것을 직원이 대신 넣습니다.
-     지금 쓰시는 접수대장과 같은 칸입니다.</p>
-  <div class="quick open">
-    <div class="qin">
-      <div class="qrow">
-        <div class="qf"><label for="q-cert">신청 자격증</label><select id="q-cert"></select></div>
-        <div class="qf"><label for="q-name">이름</label><input id="q-name" placeholder="홍길동"></div>
-        <div class="qf"><label for="q-phone">연락처</label>
-          <input id="q-phone" inputmode="tel" placeholder="010-1234-5678">
-          <p class="qh2">못 받으셨으면 비워 두셔도 됩니다</p></div>
-        <div class="qf"><label for="q-channel">접수경로</label>
-          <select id="q-channel"><option>전화</option><option>방문</option></select></div>
-      </div>
-
-      <div class="qf" style="margin-top:12px">
-        <label for="q-memo">비고</label>
-        <input id="q-memo" placeholder="예: 딸이 대신 문의 · 연락처 못 받음">
-      </div>
-
-      <p class="qnote">접수번호와 접수일은 저장할 때 자동으로 붙습니다.
-        생년월일 · 시험지역 · 회차 같은 자세한 내용은 두두넷·두두보건에서 접수하실 때 넣으시면 됩니다.</p>
-
-      <button type="button" class="btn key big" id="q-save">이 내용으로 접수 넣기</button>
-      <p class="said2" id="q-said"></p>
-    </div>
-  </div>
   </div>
 
   <div class="tab" id="tab-stat">
@@ -592,7 +559,36 @@
       <option value="today">오늘</option>
       <option value="week">최근 7일</option>
     </select>
+    <button type="button" class="btn key" id="new-open">+ 전화·방문 접수 넣기</button>
     <button class="btn ghost" id="reload">새로고침</button>
+  </div>
+
+  <div class="newbox hide" id="newbox">
+  <p class="newtitle">전화·방문 접수 넣기</p>
+  <p class="newlead">손님이 전화나 방문으로 신청하신 것을 직원이 대신 넣습니다.</p>
+      <div class="qrow">
+        <div class="qf"><label for="q-cert">신청 자격증</label><select id="q-cert"></select></div>
+        <div class="qf"><label for="q-name">이름</label><input id="q-name" placeholder="홍길동"></div>
+        <div class="qf"><label for="q-phone">연락처</label>
+          <input id="q-phone" inputmode="tel" placeholder="010-1234-5678">
+          <p class="qh2">못 받으셨으면 비워 두셔도 됩니다</p></div>
+        <div class="qf"><label for="q-channel">접수경로</label>
+          <select id="q-channel"><option>전화</option><option>방문</option></select></div>
+      </div>
+
+      <div class="qf" style="margin-top:12px">
+        <label for="q-memo">비고</label>
+        <input id="q-memo" placeholder="예: 딸이 대신 문의 · 연락처 못 받음">
+      </div>
+
+      <p class="qnote">접수번호와 접수일은 저장할 때 자동으로 붙습니다.
+        생년월일 · 시험지역 · 회차 같은 자세한 내용은 두두넷·두두보건에서 접수하실 때 넣으시면 됩니다.</p>
+
+    <div class="nacts">
+      <button type="button" class="btn key" id="q-save">이 내용으로 접수 넣기</button>
+      <button type="button" class="btn ghost" id="new-close">그만두기</button>
+      <span class="said2" id="q-said"></span>
+    </div>
   </div>
 
   <div class="listbar">
@@ -1259,27 +1255,33 @@ $("q-save").addEventListener("click", async function () {
 
   qsay(name + " 님 접수 완료. 접수번호 " + rno, "ok");
   ["q-name","q-phone","q-memo"].forEach(function (id) { $(id).value = ""; });
+  $("newbox").classList.add("hide");
+  $("new-open").textContent = "+ 전화·방문 접수 넣기";
   load(true);
 });
 
 
+// ---------- 새로 넣는 칸 열고 닫기 ----------
+$("new-open").addEventListener("click", function () {
+  const box = $("newbox");
+  const opening = box.classList.contains("hide");
+  box.classList.toggle("hide", !opening);
+  this.textContent = opening ? "\u2715 그만두기" : "+ 전화·방문 접수 넣기";
+  if (opening) { $("q-name").focus(); box.scrollIntoView({ behavior:"smooth", block:"center" }); }
+});
+
+$("new-close").addEventListener("click", function () {
+  $("newbox").classList.add("hide");
+  $("new-open").textContent = "+ 전화·방문 접수 넣기";
+});
+
 // ---------- 탭 전환 ----------
 document.querySelectorAll("#tabs button").forEach(function (b) {
   b.addEventListener("click", function () {
-    // 이미 켜져 있는 접수 넣기를 다시 누르면 목록으로 돌아간다
-    if (b.dataset.t === "new" && b.classList.contains("on")) {
-      const work = document.querySelector('#tabs button[data-t="work"]');
-      if (work) { work.click(); return; }
-    }
     document.querySelectorAll("#tabs button").forEach(function (x) {
       x.classList.toggle("on", x === b); });
     document.querySelectorAll(".tab").forEach(function (t) {
       t.classList.toggle("on", t.id === "tab-" + b.dataset.t); });
-
-    // 접수 넣기 화면일 때는 버튼 글자를 '닫기'로 바꿔 지금 어디인지 알린다
-    const add = document.querySelector("#tabs .add");
-    if (add) add.textContent = (b.dataset.t === "new")
-      ? "접수 넣기 닫기" : "전화·방문 접수 넣기";
 
     window.scrollTo({ top:0, behavior:"smooth" });
   });
