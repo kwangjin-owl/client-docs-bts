@@ -158,11 +158,16 @@
 
   h2 { font-size:0.95em; font-weight:700; margin:22px 0 9px; }
 
-  .bar { display:flex; align-items:center; gap:14px; margin-bottom:7px; font-size:0.88em; }
-  .bar .nm { width:132px; flex:none; }
+  .bar { display:flex; align-items:center; gap:12px; margin-bottom:6px; font-size:0.84em; }
+  /* 자격증 이름이 길다. 한 줄에 들어가게 넉넉히 준다. */
+  .bar .nm { width:168px; flex:none; white-space:nowrap;
+             overflow:hidden; text-overflow:ellipsis; }
   .bar .track { flex:1; background:#eef0f2; border-radius:5px; height:18px; overflow:hidden; }
   .bar .fill { display:block; background:var(--key); height:18px; border-radius:5px; }
-  .bar .ct { width:104px; flex:none; text-align:right; color:var(--muted); white-space:nowrap; }
+  /* 건수와 비율을 각각 자리를 잡아 세로로 맞춘다 */
+  .bar .ct { flex:none; display:flex; gap:10px; color:var(--muted); white-space:nowrap; }
+  .bar .ct .n { width:62px; text-align:right; }
+  .bar .ct .p { width:44px; text-align:right; }
   /* 0건도 목록에 남긴다. 흐리게 하되 읽을 수는 있게. */
   .bar.zero .nm { color:#9aa4ac; }
   .bar.zero .track { background:#f2f4f5; }
@@ -439,7 +444,7 @@
   .pill.done { background:#e8eaec; color:#5c6a75; }
   @media (max-width:640px) {
     .cards { grid-template-columns:1fr; }
-    .bar .nm { width:110px; font-size:15px; }
+    .bar .nm { width:112px; font-size:14px; }
   }
 
   .gate { position:fixed; inset:0; z-index:100; background:#fff;
@@ -802,7 +807,8 @@ function drawBars(boxId, counts, always) {
     const share = total ? Math.round(e[1] / total * 100) : 0;
     return '<div class="bar' + (e[1] ? "" : " zero") + '"><span class="nm">' + esc(e[0]) + '</span>' +
            '<span class="track"><span class="fill" style="width:' + pct + '%"></span></span>' +
-           '<span class="ct">' + e[1] + '건 · ' + share + '%</span></div>';
+           '<span class="ct"><span class="n">' + e[1] + '건</span>' +
+           '<span class="p">' + share + '%</span></span></div>';
   }).join("");
 }
 

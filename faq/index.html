@@ -541,10 +541,12 @@
       </div>
     </div>
 
-    <div class="fgrp right">
-      <button type="button" class="btn ghost" id="q-reload">새로고침</button>
-    </div>
   </div>
+  <div class="tools">
+    <input id="q-find" type="text" placeholder="손님이 물어본 말로 찾기">
+    <button type="button" class="btn ghost" id="q-reload">새로고침</button>
+  </div>
+
   <div class="listbar">
     <span class="lcount" id="q-note">불러오는 중…</span>
   </div>
@@ -1084,6 +1086,7 @@ $("syn-open").addEventListener("click", function () {
 $("syn-reload").addEventListener("click", function () { loadSyn(); });
 $("s-q").addEventListener("input", drawSyn);
 $("q-reload").addEventListener("click", function () { loadQuestions(); });
+$("q-find").addEventListener("input", function () { qPage = 1; drawQ(); });
 
 $("s-add").addEventListener("click", async function () {
   const word = $("s-word").value.trim();
@@ -1245,9 +1248,12 @@ function drawQ() {
   $("qn-ask").textContent  = countKind("ask");
   $("qn-hit").textContent  = countKind("hit");
 
-  const list = (qKind
-    ? QROWS.filter(function (r) { return r.kind === qKind; })
-    : QROWS).slice();
+  const find = ($("q-find").value || "").trim();
+  const list = QROWS.filter(function (r) {
+    if (qKind && r.kind !== qKind) return false;
+    if (find && r.q.indexOf(find) < 0) return false;
+    return true;
+  });
 
   list.sort(function (a, b) {
     let r = 0;
