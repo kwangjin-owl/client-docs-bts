@@ -138,7 +138,7 @@
   .back { font-size:16px; color:var(--key); text-decoration:none; }
 
   .cards { display:grid; grid-template-columns:repeat(4, minmax(0,1fr));
-           gap:12px; margin:20px 0 10px; }
+           gap:12px; margin:16px 0 10px; }
   @media (max-width:900px) { .cards { grid-template-columns:repeat(2,1fr); } }
   @media (max-width:560px) { .cards { grid-template-columns:1fr; } }
   .stat.todo { background:var(--key-bg); }
@@ -188,7 +188,10 @@
   .tab.on { display:block; }
 
   /* 기간·상태는 '고르는 것', 보기 방식은 '켜고 끄는 것' — 모양을 다르게 */
-  .filters { display:flex; align-items:center; gap:10px 16px; flex-wrap:wrap; margin:12px 0 0; }
+  /* 세 탭이 같은 모양의 필터 띠를 쓴다 */
+  .filters { display:flex; align-items:center; gap:10px 18px; flex-wrap:wrap;
+             background:var(--soft); border-radius:12px;
+             padding:12px 16px; margin:14px 0 0; }
   .fgrp { display:flex; align-items:center; gap:7px; }
   .fgrp.right { margin-left:auto; }
   .flb { font-size:0.76em; font-weight:700; color:var(--muted); white-space:nowrap; }
@@ -449,9 +452,9 @@
   </div>
 
   <div class="tab" id="tab-new">
-  <h2 class="sec" style="margin-top:0">전화·방문으로 받은 접수 넣기</h2>
+  <h2 class="sec" style="margin-top:0">전화·방문 접수 넣기</h2>
   <p class="lead">손님이 전화나 방문으로 신청하신 것을 직원이 대신 넣습니다.
-     자격증을 고르면 그 자격증에 필요한 칸만 나옵니다.</p>
+     지금 쓰시는 접수대장과 같은 칸입니다.</p>
   <div class="quick open">
     <div class="qin">
       <div class="qrow">
@@ -479,6 +482,9 @@
   </div>
 
   <div class="tab" id="tab-stat">
+  <h2 class="sec" style="margin-top:0">현황 보기</h2>
+  <p class="lead">어느 자격증이 많은지, 누가 어떻게 접수했는지 봅니다.</p>
+
   <div class="filters" id="swhen">
     <div class="fgrp">
       <span class="flb">기간</span>
@@ -509,7 +515,9 @@
   </div>
 
   <div class="tab" id="tab-ask">
-  <h2 style="margin-top:0">챗봇이 받은 질문</h2>
+  <h2 class="sec" style="margin-top:0">챗봇이 받은 질문</h2>
+  <p class="lead">어떤 질문이 많이 들어오는지, 무엇을 못 답했는지 봅니다.</p>
+
   <div class="filters" id="qwhen">
     <div class="fgrp">
       <span class="flb">기간</span>
@@ -520,7 +528,7 @@
       </div>
     </div>
   </div>
-  <p class="note" id="q-note" style="margin-top:0">불러오는 중…</p>
+  <p class="note" id="q-note">불러오는 중…</p>
   <div id="by-question"></div>
   </div>
 
@@ -1103,7 +1111,8 @@ function drawQAll() {
     if (!qs.length) {
       $("q-note").innerHTML = "";
       $("by-question").innerHTML =
-        '<div class="empty"><b>아직 들어온 질문이 없습니다</b>' +
+        '<div class="empty"><b>' +
+        (qWhen ? "그 기간에 들어온 질문이 없습니다" : "아직 들어온 질문이 없습니다") + '</b>' +
         '<span>챗봇에 질문이 들어오면 여기에 쌓입니다.<br>' +
         '어떤 질문이 많은지, 무엇을 못 답했는지 볼 수 있습니다.</span></div>';
       return;
@@ -1125,7 +1134,8 @@ function drawQAll() {
                     .sort(function (a,b) { return b.n - a.n; });
 
     const missN = qs.filter(function (q) { return !q.answered; }).length;
-    $("q-note").textContent = "전체 " + qs.length + "건 · 답한 것 " +
+    const qLb = { "": "전체", "today": "오늘", "week": "최근 7일" }[qWhen];
+    $("q-note").textContent = qLb + " " + qs.length + "건 · 답한 것 " +
       (qs.length - missN) + "건 · 못 답한 것 " + missN + "건 · 서로 다른 질문 " + rows.length + "가지";
 
     drawQ();
@@ -1256,6 +1266,27 @@ document.querySelectorAll("#tabs button").forEach(function (b) {
       ? "접수 넣기 닫기" : "전화·방문 접수 넣기";
 
     window.scrollTo({ top:0, behavior:"smooth" });
+  });
+});
+
+// ---------- 현황 보기 기간 ----------
+document.querySelectorAll("#swhen button").forEach(function (b) {
+  b.addEventListener("click", function () {
+    statWhen = b.dataset.w;
+    document.querySelectorAll("#swhen button").forEach(function (x) {
+      x.classList.toggle("on", x === b); });
+    render();
+  });
+});
+
+// ---------- 챗봇 질문 기간 ----------
+document.querySelectorAll("#qwhen button").forEach(function (b) {
+  b.addEventListener("click", function () {
+    qWhen = b.dataset.w;
+    qShow = { miss: 10, hit: 10 };
+    document.querySelectorAll("#qwhen button").forEach(function (x) {
+      x.classList.toggle("on", x === b); });
+    drawQAll();
   });
 });
 
