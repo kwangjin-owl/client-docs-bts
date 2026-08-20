@@ -354,30 +354,32 @@
   /* 새로 넣는 칸 — 세 화면이 같은 모양 */
   .nf { margin-top:14px; }
   .nf:first-of-type { margin-top:0; }
-  .nf label { display:block; font-size:0.82em; font-weight:700;
-              color:var(--muted); margin:0 0 7px; line-height:1.5; }
+  .nf label { display:block; font-size:0.78em; font-weight:700;
+              color:var(--muted); margin:0 0 6px; line-height:1.5; }
   .nf input, .nf select, .nf textarea {
-    width:100%; margin:0; font:inherit; font-size:0.95em;
-    padding:11px 13px; border:2px solid var(--line); border-radius:10px;
+    width:100%; margin:0; font:inherit; font-size:0.85em;
+    padding:10px 12px; border:2px solid var(--line); border-radius:9px;
     background:var(--card); }
   .nf input:focus, .nf select:focus, .nf textarea:focus { outline:0; border-color:var(--key); }
   .nf textarea { line-height:1.7; resize:vertical; }
   .nf input::placeholder, .nf textarea::placeholder { color:#b4b9bd; }
   .nf input.wrong, .nf select.wrong { border-color:var(--bad) !important;
                                       background:var(--bad-bg) !important; }
-  .nh { font-size:0.74em; color:var(--muted); margin:6px 0 0; line-height:1.5; }
+  .nh { font-size:0.72em; color:var(--muted); margin:6px 0 0; line-height:1.5;
+        min-height:2.2em; }
   .nrow { display:grid; grid-template-columns:repeat(5, 1fr); gap:14px; }
-  .nrow .nf { margin-top:0; }
+  .nrow .nf { margin-top:0; display:flex; flex-direction:column; }
+  .nrow .nf .nh { margin-top:auto; padding-top:6px; }
   @media (max-width:1100px) { .nrow { grid-template-columns:repeat(3,1fr); } }
   @media (max-width:700px)  { .nrow { grid-template-columns:1fr; } }
 
   .newbox, .newdoc { background:var(--soft); border:2px solid var(--key);
                      border-radius:14px; padding:18px 20px; margin-top:12px; }
-  .newtitle { font-size:1em; font-weight:700; margin:0 0 3px; color:var(--key-d); }
-  .newlead { font-size:0.8em; color:var(--muted); margin:0 0 14px; line-height:1.5; }
+  .newtitle { font-size:0.92em; font-weight:700; margin:0 0 3px; color:var(--key-d); }
+  .newlead { font-size:0.78em; color:var(--muted); margin:0 0 14px; line-height:1.5; }
   .nacts { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-top:16px; }
-  .nacts .btn { padding:11px 24px; font-size:0.88em; }
-  .nacts .said2 { margin:0; font-size:0.86em; }
+  .nacts .btn { padding:10px 22px; font-size:0.82em; }
+  .nacts .said2 { margin:0; font-size:0.82em; }
   .nacts .said2.ok  { color:var(--ok);  font-weight:600; }
   .nacts .said2.bad { color:var(--bad); font-weight:600; }
 
@@ -617,15 +619,21 @@
   <p class="newtitle">전화·방문 접수 넣기</p>
   <p class="newlead">손님이 전화나 방문으로 신청하신 것을 직원이 대신 넣습니다.</p>
       <div class="nrow">
-        <div class="nf"><label for="q-cert">신청 자격증 <span class="badge-must">필수</span></label><select id="q-cert"></select></div>
-        <div class="nf"><label for="q-name">이름 <span class="badge-must">필수</span></label><input id="q-name" placeholder="예: 홍길동"></div>
+        <div class="nf"><label for="q-cert">신청 자격증 <span class="badge-must">필수</span></label>
+          <select id="q-cert"></select>
+          <p class="nh">손님이 신청하신 자격증</p></div>
+        <div class="nf"><label for="q-name">이름 <span class="badge-must">필수</span></label>
+          <input id="q-name" placeholder="예: 홍길동">
+          <p class="nh">시험 볼 때 쓰는 이름 그대로</p></div>
         <div class="nf"><label for="q-phone">연락처 <span class="badge-must">필수</span></label>
           <input id="q-phone" inputmode="tel" placeholder="예: 010-1234-5678">
-          <p class="nh">나중에 손님께 연락드릴 때 씁니다. 못 받으셨으면 대신 받으신 분 번호라도 적어 주세요</p></div>
+          <p class="nh">나중에 연락드릴 때 씁니다</p></div>
         <div class="nf"><label for="q-channel">접수경로 <span class="badge-must">필수</span></label>
-          <select id="q-channel"><option>전화</option><option>방문</option></select></div>
+          <select id="q-channel"><option>전화</option><option>방문</option></select>
+          <p class="nh">어떻게 신청하셨는지</p></div>
         <div class="nf"><label for="q-memo">비고 <span class="badge-opt">선택</span></label>
-          <input id="q-memo" placeholder="예: 딸이 대신 문의"></div>
+          <input id="q-memo" placeholder="예: 딸이 대신 문의">
+          <p class="nh">기억해 둘 것이 있으면</p></div>
       </div>
 
       <p class="qnote">접수번호와 접수일은 저장할 때 자동으로 붙습니다.</p>
