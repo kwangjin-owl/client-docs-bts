@@ -147,6 +147,11 @@
   .pane { background:var(--soft); border-radius:14px; padding:22px 24px 24px;
           display:flex; flex-direction:column; }
   .two .btn { margin-top:auto; }
+  /* margin-top:auto 는 카드 두 개의 버튼 아래쪽을 맞추려고 넣은 것인데,
+     내용이 짧은 쪽은 밀어낼 여백이 없어 힌트 글에 버튼이 붙어 버린다.
+     auto 는 그대로 두고 힌트에 아래 여백을 줘서 최소 간격만 확보한다.
+     다른 화면은 접수 신청 20px, 챗봇 답변 관리 16px 이다. */
+  .two .hint { margin-bottom:18px; }
   .fldrow { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
   @media (max-width:620px) { .fldrow { grid-template-columns:1fr; } }
   .items { display:grid; grid-template-columns:repeat(auto-fit,minmax(340px,1fr));

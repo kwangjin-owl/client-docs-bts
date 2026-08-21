@@ -307,6 +307,7 @@ let STOP = new Set(), SYN = {}, BAGS = [], DF = new Map(), CERTS = [];
 let TITLE_W = 0.4;   // 제목에 걸렸을 때 얹어 주는 점수 (TITLE_WEIGHT)
 let AI_DOCS = 8;     // AI 에게 함께 보낼 안내 문서 수 (TOP_K)
 let AI_MIN = 0.15;   // 이 점수보다 낮으면 AI 에게도 안 보낸다 (AI_MIN_SCORE)
+let GENERIC_W = 0.9; // 자격증을 말씀하셨을 때 공통 문서에 곱하는 값 (GENERIC_WEIGHT)
 
 function cut(w) {
   const out = [w];
@@ -335,6 +336,7 @@ function buildIndex() {
   TITLE_W = (typeof CFG.TITLE_WEIGHT === "number") ? CFG.TITLE_WEIGHT : 0.4;
   AI_DOCS = (typeof CFG.TOP_K === "number" && CFG.TOP_K > 0) ? CFG.TOP_K : 8;
   AI_MIN  = (typeof CFG.AI_MIN_SCORE === "number") ? CFG.AI_MIN_SCORE : 0.15;
+  GENERIC_W = (typeof CFG.GENERIC_WEIGHT === "number") ? CFG.GENERIC_WEIGHT : 0.9;
 
   STOP = new Set(CFG.STOPWORDS);
   SYN = {};
@@ -406,7 +408,14 @@ function search(question) {
   const ranked = [];
   for (let i = 0; i < DOCS.length; i++) {
     if (want && DOCS[i].cert && DOCS[i].cert !== want) continue;
-    const s = scoreAt(qs, i);
+    let s = scoreAt(qs, i);
+
+    // 자격증을 말씀하셨는데 자격증이 안 적힌 공통 문서라면 조금 깎는다.
+    // 안 깎으면 "굴착기 필기 준비물" 에 '실기 접수는 안내하지 않습니다' 가 나간다.
+    // 공통 문서에는 자격증 이름이 없어 그 말이 점수에서 통째로 버려지는데,
+    // 나머지 말이 다 걸리면 그대로 이겨 버리기 때문이다.
+    if (want && !DOCS[i].cert) s *= GENERIC_W;
+
     if (s > 0) ranked.push({ s: s, doc: DOCS[i] });
   }
   ranked.sort(function (a, b) { return b.s - a.s; });
