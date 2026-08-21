@@ -931,7 +931,9 @@ $("undo-btn").addEventListener("click", async function () {
   b.disabled = true; b.textContent = "되돌리는 중…";
   const res = await db.from("docs").insert({
     title: lastDeleted.title, body: lastDeleted.body,
-    cert: lastDeleted.cert, source: lastDeleted.source
+    cert: lastDeleted.cert, source: lastDeleted.source,
+    category: lastDeleted.category, question: lastDeleted.question,
+    updated_at: new Date().toISOString()
   });
   b.disabled = false; b.textContent = "되돌리기";
   if (res.error) { $("undo-text").textContent = "되돌리기 실패: " + res.error.message; return; }
@@ -1203,9 +1205,17 @@ let qKind = "";        // "" 전체 / miss / ask / hit
 
 async function loadQuestions() {
   try {
-    const res = await db.from("questions").select("*").order("created_at", { ascending:false });
-    if (res.error) { $("q-note").textContent = "질문 기록을 못 읽었습니다: " + res.error.message; return; }
-    QRAW = res.data || [];
+    // Supabase 는 한 번에 1000건까지만 준다. 나눠서 다 받아 온다.
+    // 질문은 손님이 물을 때마다 쌓이므로 언젠가 반드시 1000을 넘는다.
+    QRAW = [];
+    for (let from = 0; ; from += 1000) {
+      const res = await db.from("questions").select("*")
+                    .order("created_at", { ascending:false }).range(from, from + 999);
+      if (res.error) { $("q-note").textContent = "질문 기록을 못 읽었습니다: " + res.error.message; return; }
+      const part = res.data || [];
+      QRAW = QRAW.concat(part);
+      if (part.length < 1000) break;
+    }
     drawQAll();
   } catch (e) {
     $("q-note").textContent = "질문 기록을 못 읽었습니다: " + e.message;

@@ -274,9 +274,6 @@ if (window.self !== window.top) document.documentElement.classList.add("embed");
 const $ = function (id) { return document.getElementById(id); };
 let CFG = null, DOCS = [], busy = false, db = null;
 
-// AI 에게 함께 보낼 안내 문서 수. 질문과 가까운 것부터 고른다.
-const AI_DOCS = 8;
-
 // 실제 상담기록 4,705건에서 많이 들어온 순서로 골랐다.
 // 접수방법 11.6% · 환불 11.4% · 시험장 11.2% · 시험과목 10.8% · 응시료 10.4%
 // 자격증마다 답이 다른 것은 자격증을 붙여 두었다. 안 붙이면 챗봇이 되묻는다.
@@ -304,6 +301,11 @@ const JOSA = ["이","가","은","는","을","를","에","의","도","로","으�
               "와","과","만","부터","까지","에서","에게","한테","라도","이나","나"];
 let STOP = new Set(), SYN = {}, BAGS = [], DF = new Map(), CERTS = [];
 
+// settings.json 에서 읽는 값. buildIndex() 에서 채운다.
+// 파일에만 적혀 있고 코드가 안 읽으면 고쳐도 안 바뀌므로 반드시 여기서 읽는다.
+let TITLE_W = 0.4;   // 제목에 걸렸을 때 얹어 주는 점수 (TITLE_WEIGHT)
+let AI_DOCS = 8;     // AI 에게 함께 보낼 안내 문서 수 (TOP_K)
+
 function cut(w) {
   const out = [w];
   for (const j of JOSA)
@@ -328,6 +330,9 @@ function toStd(set) {              // 비슷한말을 대표말로 바꾼다
 // ---------- 문서를 읽은 뒤 한 번만 준비한다 ----------
 // 매 질문마다 2,500건을 다시 쪼개면 느리다.
 function buildIndex() {
+  TITLE_W = (typeof CFG.TITLE_WEIGHT === "number") ? CFG.TITLE_WEIGHT : 0.4;
+  AI_DOCS = (typeof CFG.TOP_K === "number" && CFG.TOP_K > 0) ? CFG.TOP_K : 8;
+
   STOP = new Set(CFG.STOPWORDS);
   SYN = {};
   Object.keys(CFG.SYNONYMS).forEach(function (key) {
@@ -371,7 +376,7 @@ function scoreAt(qs, i) {
   qs.forEach(function (w) {
     const v = idf(w);
     total += v;
-    if (b.all.has(w)) got += v * (b.key.has(w) ? 1.4 : 1);
+    if (b.all.has(w)) got += v * (b.key.has(w) ? 1 + TITLE_W : 1);
   });
   return total ? Math.min(1, got / total) : 0;
 }
