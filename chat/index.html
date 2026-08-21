@@ -299,7 +299,9 @@ async function logQ(question, answered, score, doc, route) {
 // 한국어는 조사가 붙으므로 뒤를 조금씩 잘라 낸 조각도 같이 본다.
 const JOSA = ["이","가","은","는","을","를","에","의","도","로","으로",
               "와","과","만","부터","까지","에서","에게","한테","라도","이나","나",
-              "랑","이랑","하고","보다","처럼","마다","조차","밖에"];
+              "랑","이랑","하고","보다","처럼","마다","조차","밖에",
+              "이라도","이란","이라는","이라고"];
+let VOCAB = new Set();   // 안내 문서에 실제로 있는 말. buildIndex() 에서 채운다.
 let STOP = new Set(), SYN = {}, BAGS = [], DF = new Map(), CERTS = [];
 
 // settings.json 에서 읽는 값. buildIndex() 에서 채운다.
@@ -309,10 +311,32 @@ let AI_DOCS = 8;     // AI 에게 함께 보낼 안내 문서 수 (TOP_K)
 let AI_MIN = 0.15;   // 이 점수보다 낮으면 AI 에게도 안 보낸다 (AI_MIN_SCORE)
 let GENERIC_W = 0.9; // 자격증을 말씀하셨을 때 공통 문서에 곱하는 값 (GENERIC_WEIGHT)
 
+// 말끝을 떼어 내고 핵심이 되는 말을 뽑는다.
+// 어르신은 "응시료요" "응시료는요" "응시료 좀요" "응시료말인데" 처럼
+// 말끝을 여러 가지로 붙여 물으신다. 조사 하나 때문에
+// "응시료" 가 든 문서 310건이 통째로 안 보이는 일이 있었다.
+//
+// 1. 존댓말 '요' 를 먼저 뗀다 ("응시료는요" 처럼 겹친 것을 풀려면 두 번 떼야 한다)
+// 2. 조사를 뗀다
+// 3. 그래도 안내 문서에 없는 낯선 말이면, 문서에 실제로 있는 말 중
+//    가장 긴 앞부분을 찾는다. 조사 목록에 없는 말끝도 이 단계에서 풀린다.
+//    조각이 늘어나면 잡음이 되므로 하나만 쓰고, 앞의 단계로 이미 풀렸으면 건너뛴다.
 function cut(w) {
   const out = [w];
-  for (const j of JOSA)
-    if (w.length > j.length + 1 && w.endsWith(j)) out.push(w.slice(0, -j.length));
+  const base = [w];
+  if (w.length > 3 && w.endsWith("요")) base.push(w.slice(0, -1));
+  for (const x of base) {
+    if (out.indexOf(x) < 0) out.push(x);
+    for (const j of JOSA)
+      if (x.length > j.length + 1 && x.endsWith(j)) {
+        const y = x.slice(0, -j.length);
+        if (out.indexOf(y) < 0) out.push(y);
+      }
+  }
+  if (VOCAB.size && !out.some(function (t) { return VOCAB.has(t); })) {
+    for (let k = w.length - 1; k > 1; k--)
+      if (VOCAB.has(w.slice(0, k))) { out.push(w.slice(0, k)); break; }
+  }
   return out;
 }
 function tokens(text) {
@@ -355,6 +379,12 @@ function buildIndex() {
   BAGS.forEach(function (b) {
     b.all.forEach(function (w) { DF.set(w, (DF.get(w) || 0) + 1); });
   });
+
+  // 안내 문서에 실제로 있는 말을 모아 둔다.
+  // 손님 질문에서 낯선 말끝을 뗄 때 이 사전을 쓴다.
+  // 문서를 읽을 때는 아직 비어 있으므로 문서 쪽은 조사 목록만으로 잘린다.
+  VOCAB = new Set();
+  BAGS.forEach(function (b) { b.all.forEach(function (w) { VOCAB.add(w); }); });
 
   CERTS = Array.from(new Set(DOCS.map(function (d) { return d.cert; })
                             .filter(function (c) { return c; })));
