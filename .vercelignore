@@ -7,14 +7,7 @@ node_modules
 
 # 발주처 원본 자료
 data
-*.docx
-*.pdf
-*.txt
-00_자료출처_안내.md
-01_사업현황_발주서.md
-02_안내규정.md
 
 # 서비스와 무관
-D23_FAQ_챗봇
-QA
+test
 *.sql

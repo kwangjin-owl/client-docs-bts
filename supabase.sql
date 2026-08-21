@@ -11,9 +11,16 @@
 --
 -- 표를 처음부터 다시 만들고 싶으실 때만 맨 아래 '싹 지우기'를 쓰세요.
 --
--- 처음 만드신 뒤 할 일
---   Table Editor > applications > Insert > Import data from CSV
---   applications_1000.csv 올리기
+-- 처음 만드실 때 순서 (CSV 를 넣은 뒤 이 파일을 한 번 더 돌려야 해요)
+--   1) 이 파일을 Run
+--   2) Table Editor > applications > Import data from CSV
+--        data/applications_1000.csv
+--   3) Table Editor > docs > Import data from CSV
+--        data/docs_relay.csv
+--   4) 이 파일을 한 번 더 Run
+--        접수번호를 붙이고, 처리와 결제를 가르고,
+--        접수경로를 미기재로 채우고, 순번을 1번부터 정리합니다.
+--      4)를 건너뛰면 접수 관리 화면의 값이 어긋납니다.
 -- ============================================================
 
 
@@ -43,7 +50,7 @@ create table if not exists applications (
   fee_discount_type text,
   fee_final int,
   payment_method text,              -- 신용카드 / 계좌이체 / 가상계좌 로 통일
-  status text default '접수완료',    -- 접수완료 / 결제대기 / 취소 / 문의
+  status text default '접수',        -- 접수 / 확인 / 완료 / 취소 / 문의
 
   usage_context text,               -- 본인단독 / 가족보조 / 복지관 / 대리접수
   channel text,                     -- 온라인 / 전화 / 방문  (접수대장의 접수경로)
@@ -103,7 +110,7 @@ create unique index if not exists docs_key on docs (title, md5(body));
 
 -- 발주 문서에서 만든 안내는 넣기 전에 지운다.
 -- 안 그러면 내용을 고쳐도 옛날 것이 그대로 남는다.
--- 직원이 화면에서 넣은 것과 상담기록은 건드리지 않는다.
+-- 직원이 화면에서 넣은 것과 상담기록(source='두두넷 상담기록')은 건드리지 않는다.
 delete from docs where source like '01\_%' or source like '02\_%';
 
 insert into docs (cert, title, body, source) values
@@ -254,6 +261,10 @@ create unique index if not exists applications_receipt_no_key
 
 -- ============================================================
 -- 값 정리 (비어 있거나 옛 표기인 것만 손봅니다)
+--
+-- CSV 원본은 status 가 '접수완료 / 결제대기 / 취소' 로만 되어 있고
+-- receipt_no, pay_status, channel 이 아예 없습니다.
+-- 그래서 CSV 를 넣은 뒤에 이 파일을 한 번 더 돌려야 값이 맞습니다.
 -- ============================================================
 
 -- 결제와 처리를 갈라 놓는다
@@ -456,7 +467,6 @@ insert into synonyms_ko (word, std) values
   ('수험료', '응시료'),
   ('응시비', '응시료'),
   ('원서', '접수'),
-  ('원서접수', '접수'),
   ('신청서', '접수'),
   ('시험표', '수험표'),
   ('응시표', '수험표'),
@@ -488,7 +498,6 @@ insert into synonyms_ko (word, std) values
   ('요리자격증', '한식조리기능사'),
   ('요리사', '한식조리기능사'),
   ('조리자격증', '한식조리기능사'),
-  ('조리기능사', '한식조리기능사'),
   ('요리', '한식조리기능사'),
   ('한식조리사', '한식조리기능사'),
   ('굴삭기자격증', '굴착기운전기능사'),
@@ -515,6 +524,7 @@ on conflict (word) do nothing;
 -- 손님께 알려 드리는 접수번호(receipt_no)는 안 건드립니다.
 --
 -- 한 번만 돌리십시오. 여러 번 돌려도 결과는 같습니다.
+-- 표가 비어 있어도 오류 없이 넘어갑니다.
 -- ============================================================
 
 -- 0) id 를 손댈 수 있게 잠깐 풀어 준다
@@ -532,11 +542,14 @@ from 새번호 where a.id = 새번호.id;
 update applications set id = -id where id < 0;
 
 -- 3) 다시 자동 번호로 만들고, 다음 접수가 이어지게 맞춘다
+--    표가 비어 있으면 max(id) 가 없으므로 1번부터 시작하게 둔다.
+--    (0 을 넣으면 시퀀스 최솟값이 1 이라 오류가 나고,
+--     Supabase SQL Editor 는 통째로 한 트랜잭션이라 전체가 롤백된다.)
 alter table applications alter column id add generated always as identity;
 select setval(
   pg_get_serial_sequence('applications', 'id'),
-  coalesce((select max(id) from applications), 0),
-  true
+  coalesce((select max(id) from applications), 1),
+  (select count(*) > 0 from applications)
 );
 
 -- 확인용
@@ -545,7 +558,7 @@ select min(id) as 첫번호, max(id) as 끝번호, count(*) as 건수 from appli
 
 -- ============================================================
 -- 싹 지우기 (표를 처음부터 다시 만들 때만)
--- 아래 세 줄 앞의 -- 를 지우고 실행하세요. 데이터가 전부 사라집니다.
+-- 아래 네 줄 앞의 -- 를 지우고 실행하세요. 데이터가 전부 사라집니다.
 -- ============================================================
 -- drop table if exists applications;
 -- drop table if exists docs;
