@@ -298,7 +298,8 @@ async function logQ(question, answered, score, doc, route) {
 // ---------- 말 쪼개기 ----------
 // 한국어는 조사가 붙으므로 뒤를 조금씩 잘라 낸 조각도 같이 본다.
 const JOSA = ["이","가","은","는","을","를","에","의","도","로","으로",
-              "와","과","만","부터","까지","에서","에게","한테","라도","이나","나"];
+              "와","과","만","부터","까지","에서","에게","한테","라도","이나","나",
+              "랑","이랑","하고","보다","처럼","마다","조차","밖에"];
 let STOP = new Set(), SYN = {}, BAGS = [], DF = new Map(), CERTS = [];
 
 // settings.json 에서 읽는 값. buildIndex() 에서 채운다.
@@ -363,13 +364,21 @@ function idf(w) {
   return Math.log((DOCS.length + 1) / (df + 1)) + 1;
 }
 
-function certIn(q) {
+// 질문에 들어 있는 자격증을 전부 찾는다.
+// 하나만 돌려주면 "손해평가사랑 공인중개사 동시에" 처럼 둘을 물으셨을 때
+// 먼저 걸린 하나로 조용히 좁혀져서, 나머지 하나는 없던 것이 된다.
+function certsIn(q) {
   const std = toStd(tokens(q));
+  const out = [];
   for (const c of CERTS) {
     const cw = toStd(tokens(c));
-    for (const w of cw) if (std.has(w)) return c;
+    for (const w of cw) if (std.has(w)) { out.push(c); break; }
   }
-  return null;
+  return out;
+}
+function certIn(q) {
+  const all = certsIn(q);
+  return all.length === 1 ? all[0] : null;
 }
 
 function scoreAt(qs, i) {
@@ -386,6 +395,12 @@ function scoreAt(qs, i) {
 function search(question) {
   const qs = toStd(tokens(question));
   if (!qs.size) return { s: 0, doc: null, ask: null, top: [] };
+
+  // 자격증을 둘 이상 말씀하시면 하나로 좁히지 않고 여쭤 본다.
+  // 자격증마다 응시료도 일정도 달라서 한쪽만 답하면 틀린 답이 된다.
+  const named = certsIn(question);
+  if (named.length >= 2)
+    return { s: 0, doc: null, ask: named, top: [] };
 
   const want = certIn(question);
   const ranked = [];
