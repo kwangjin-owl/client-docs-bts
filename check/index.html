@@ -141,10 +141,9 @@
 
   .two { display:grid; grid-template-columns:1fr 1fr; gap:16px; align-items:stretch; }
   @media (max-width:860px) { .two { grid-template-columns:1fr; } }
-  .scope { display:flex; align-items:flex-start; gap:9px; background:var(--key-bg);
+  .scope { background:var(--key-bg);
            border-radius:10px; padding:13px 17px; margin:0 0 16px;
            font-size:0.86em; color:var(--key-d); line-height:1.7; }
-  .scope::before { content:"\2139"; flex:none; font-weight:700; }
   .pane { background:var(--soft); border-radius:14px; padding:22px 24px 24px;
           display:flex; flex-direction:column; }
   .two .btn { margin-top:auto; }
@@ -246,7 +245,7 @@
         <h2 class="sec">접수번호로 찾기</h2>
         <p class="lead">가장 빠릅니다.</p>
         <label for="f-rno">접수번호 <span class="badge-must">필수</span></label>
-        <input id="f-rno" type="text" placeholder="예: 10819-2352-975" autocomplete="off">
+        <input id="f-rno" type="text" inputmode="numeric" placeholder="예: 10819-2352-975" autocomplete="off">
         <p class="hint">접수를 마치셨을 때 화면에 나온 번호입니다</p>
         <button type="button" class="btn key big" id="find-rno">이 번호로 찾기</button>
       </div>
@@ -302,10 +301,18 @@ function maskPhone(v){
   if(d.length<=10) return d.slice(0,3)+"-"+d.slice(3,6)+"-"+d.slice(6);
   return d.slice(0,3)+"-"+d.slice(3,7)+"-"+d.slice(7);
 }
+// 접수번호는 5-4-3 형태다 (종류1 + 월일4 - 네자리 - 세자리)
+function maskRno(v){
+  const d = v.replace(/[^0-9]/g,"").slice(0,12);
+  if(d.length<=5) return d;
+  if(d.length<=9) return d.slice(0,5)+"-"+d.slice(5);
+  return d.slice(0,5)+"-"+d.slice(5,9)+"-"+d.slice(9);
+}
 $("f-phone").addEventListener("input", function(){
   this.value=maskPhone(this.value); this.classList.remove("bad-field"); });
-["f-name","f-rno"].forEach(function(id){
-  $(id).addEventListener("input", function(){ this.classList.remove("bad-field"); }); });
+$("f-rno").addEventListener("input", function(){
+  this.value=maskRno(this.value); this.classList.remove("bad-field"); });
+$("f-name").addEventListener("input", function(){ this.classList.remove("bad-field"); });
 
 function show(t){ $("msg").textContent=t; $("msg").className="msg bad"; }
 function clearMsg(){ $("msg").textContent=""; $("msg").className="msg hide"; }
@@ -389,8 +396,13 @@ function byName() {
   run($("find"), function(q){ return q.eq("name",name).eq("phone",phone); });
 }
 function byRno() {
-  const no=$("f-rno").value.trim().toUpperCase();
-  if(no.replace(/\D/g,"").length < 8) return fail("접수번호를 다시 확인해 주세요.","f-rno");
+  // 접수번호는 숫자 12자리다.
+  // supabase.sql 에서 옛 자료에 붙이는 번호도, 화면에서 새로 만드는 번호도
+  // 모두 1MMDD-NNNN-NNN 이라 자릿수가 같다.
+  const no=$("f-rno").value.trim();
+  const n=no.replace(/\D/g,"").length;
+  if(n===0) return fail("접수번호를 넣어 주세요.","f-rno");
+  if(n<12) return fail("접수번호가 짧습니다. 숫자 12자리를 다 넣어 주세요.","f-rno");
   run($("find-rno"), function(q){ return q.eq("receipt_no",no); });
 }
 $("find").addEventListener("click", byName);

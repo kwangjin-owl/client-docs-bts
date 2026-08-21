@@ -49,8 +49,9 @@
                     color:var(--muted); background:var(--soft);
                     padding:5px 11px; border-radius:6px;
                     margin-right:14px; position:relative; }
-  .subtop .stitle::after { content:""; position:absolute; right:-8px; top:-6px;
-                           width:1px; height:26px; background:var(--line); }
+  .subtop .stitle::after { content:""; position:absolute; right:-8px;
+                           top:50%; transform:translateY(-50%);
+                           width:1px; height:20px; background:var(--line); }
   .subtop a { font-size:0.9em; padding:10px 14px; color:var(--muted);
               text-decoration:none; border-bottom:3px solid transparent; }
   .subtop a:hover { color:var(--key-d); }

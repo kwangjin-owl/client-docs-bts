@@ -234,10 +234,9 @@
   .pagehead .lead { font-size:0.95em; color:var(--muted); margin:0 0 12px; }
   .pagehead .scope { margin-bottom:0; }
 
-  .scope { display:flex; align-items:flex-start; gap:9px; background:var(--key-bg);
+  .scope { background:var(--key-bg);
            border-radius:10px; padding:13px 17px; margin:0 0 4px;
            font-size:0.86em; color:var(--key-d); line-height:1.7; }
-  .scope::before { content:"\2139"; flex:none; font-weight:700; }
   .scope b { font-weight:700; }
 
   .bloc { border-radius:14px; padding:14px 16px 16px; margin-top:14px; }
@@ -330,7 +329,8 @@
   .cv-rno { background:var(--ok-bg); border:2px solid var(--ok); border-radius:12px;
             padding:18px 22px; display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
   .cv-rno .lb { font-size:0.8em; color:var(--ok); font-weight:700; }
-  .cv-rno b { flex:1; font-size:1.7em; letter-spacing:2px; color:var(--ink); }
+  .cv-rno b { flex:1; min-width:0; font-size:1.6em; letter-spacing:1px;
+              color:var(--ink); white-space:nowrap; }
   .cv-rno .btn { padding:11px 18px; font-size:0.85em; white-space:nowrap; }
   .cv-hint { font-size:0.82em; color:var(--muted); margin:10px 0 0; line-height:1.7; }
   .cv-body { margin-top:22px; padding-top:20px; border-top:1px solid var(--line);
@@ -346,7 +346,7 @@
   .cv-btns .btn { flex:1; text-align:center; text-decoration:none; }
   @media (max-width:620px) {
     .cover-box { padding:24px 20px 22px; }
-    .cv-rno b { font-size:1.4em; }
+    .cv-rno b { font-size:1.3em; letter-spacing:0; }
     .cv-btns { flex-direction:column; }
   }
 
@@ -511,7 +511,8 @@
 
 <div class="foot"><div class="foot-in"><div class="call"><span class="lb">고객센터</span><b>02-000-0000</b><span class="hr">평일 09:00 ~ 18:00</span></div><div class="help">필기(1차) 접수까지만 도와드려요. 실기 접수는 안내하지 않아요.<br>화면에서 막히시면 <b>궁금한 것 물어보기</b>를 눌러 주세요. 접수하신 뒤에는 <a href="/check">접수 확인</a>에서 진행 상황을 보실 수 있어요.</div></div></div>
 
-<div class="cover hide" id="cover">
+<div class="cover hide" id="cover" role="dialog" aria-modal="true"
+     aria-labelledby="cv-name" aria-live="assertive">
   <div class="cover-box">
     <p class="cv-ok"><span>&#10003;</span><b id="cv-name"></b></p>
     <div class="cv-rno">
@@ -693,7 +694,7 @@ function markDone() {
       '<span>' + picked.when + ' · 응시료 ' + picked.fee.toLocaleString() + '원</span>';
     if (late) {
       note.textContent = picked.name + "는 지금 접수 기간이 아닙니다 (" + picked.when + "). " +
-        "아래에 성함과 연락처를 남겨 주시면 문의로 접수되고, " +
+        "아래에 성함과 연락처를 남겨 주시면 " +
         "다음 접수가 시작될 때 저희가 먼저 연락드립니다.";
     }
   }
@@ -833,15 +834,15 @@ $("send").addEventListener("click", async function () {
   if (sent) { show("이미 접수하셨습니다. 다시 하시려면 자격증부터 다시 골라 주세요.", "bad"); return; }
 
   // 이미 접수하셨는지 본다.
-  // 접수번호는 알려 드리지 않는다. 성함·연락처만 알면 남의 접수번호를 알 수 있게 된다.
-  // 본인이시라면 '접수 확인' 화면에서 성함·연락처로 보실 수 있다.
-  const dup = await db.from("applications").select("created_at")
+  // 자격증 이름도 접수 날짜도 알려 드리지 않는다.
+  // 성함·연락처는 남도 알 수 있는 것이라, 여기서 알려 드리면
+  // 그분이 무엇을 언제 접수하셨는지 남이 알게 된다.
+  // 본인이시라면 '접수 확인' 화면에서 보실 수 있다.
+  const dup = await db.from("applications").select("id")
     .eq("name", nm.value).eq("phone", ph.value).eq("cert_name", picked.name).limit(1);
   if (dup.data && dup.data.length) {
-    const d = new Date(dup.data[0].created_at);
-    if (!confirm("같은 성함과 연락처로 " + picked.name + " 접수 기록이 있습니다.\n" +
-      (d.getMonth()+1) + "월 " + d.getDate() + "일에 접수되었습니다.\n\n" +
-      "접수하신 내용은 '접수 확인'에서 보실 수 있습니다.\n" +
+    if (!confirm("같은 성함과 연락처로 접수하신 기록이 있습니다.\n\n" +
+      "접수하신 내용은 '접수 확인' 화면에서 보실 수 있습니다.\n" +
       "그래도 한 번 더 접수하시겠습니까?")) return;
   }
 
@@ -867,13 +868,13 @@ $("send").addEventListener("click", async function () {
 
   if (res.error) {
     btn.disabled = false;
-    btn.textContent = picked.state === "late" ? "문의 남기기" : "접수 신청하기";
+    btn.textContent = picked.state === "late" ? "접수 시작되면 연락받기" : "접수 신청하기";
     show("저장 실패: " + res.error.message, "bad"); return;
   }
 
   sent = true; btn.textContent = "접수 완료";
   $("cv-name").textContent = picked.state === "late"
-    ? nm.value + " 님, 문의로 접수되었습니다"
+    ? nm.value + " 님, 연락처를 받았습니다"
     : nm.value + " 님, 접수되었습니다";
   $("receipt-no").textContent = rno;
   $("cover").classList.remove("hide");
@@ -898,9 +899,11 @@ $("copy-rno").addEventListener("click", function () {
   }
 });
 
+// 닫으면 처음 화면으로 돌아간다.
+// 닫았는데 다 채워진 화면이 그대로 남아 있으면
+// 접수가 끝난 것인지 아닌지 헷갈리신다.
 $("cv-close").addEventListener("click", function () {
-  $("cover").classList.add("hide");
-  show("접수가 끝났습니다. 다시 접수하시려면 자격증부터 다시 골라 주세요.", "ok");
+  location.href = "/";
 });
 document.addEventListener("keydown", function (e) {
   if (e.key === "Escape" && !$("cover").classList.contains("hide")) $("cv-close").click();
